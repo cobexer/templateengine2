@@ -740,13 +740,19 @@ class TemplateEngine {
 
 	private static function TE_SKALAR(array $ctx, array $match) {
 		$val = null;
-		//TODO: add support for formatters/escapers
+		$found = false;
 		if (isset( $ctx[$match[1]])) {
-			//TODO: convert result to string _first_
-			return "" . $ctx[$match[1]];
+			$val = $ctx[$match[1]];
+			$found = true;
 		}
 		elseif(self :: lookupVar($match[1], $val)) {
-			return "" . $val;
+			$found = true;
+		}
+		if($found && isset($match['escaper']) && '' != $match['escaper']) {
+			return self :: escape($match['escaper'], $val);
+		}
+		elseif($found) {
+			return (string)$val;
 		}
 		return false;
 	}
@@ -956,15 +962,7 @@ if(isset($_GET['force_debug'])) {
 if(isset($_GET['show_timing'])) {
 	TemplateEngine :: enableTiming();
 }
-
-//FIXME: this is done for compatibility...
-
-function captureTime($ms) {
-	return TemplateEngine :: captureTime($ms);
-}
-
-//FIXME: until TemplateEngine & templates are finished again ;)
-TemplateEngine :: forceMode(TEMode :: debug);
-if(!class_exists('AJAX', false)) {
-	TemplateEngine :: enableTiming();
+//don't gzip if impossible ;)
+if (!function_exists('gzencode')) {
+	TemplateEngine :: noGzip();
 }
