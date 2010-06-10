@@ -962,15 +962,7 @@ if(isset($_GET['force_debug'])) {
 if(isset($_GET['show_timing'])) {
 	TemplateEngine :: enableTiming();
 }
-
-//FIXME: this is done for compatibility...
-
-function captureTime($ms) {
-	return TemplateEngine :: captureTime($ms);
-}
-
-//FIXME: until TemplateEngine & templates are finished again ;)
-TemplateEngine :: forceMode(TEMode :: debug);
-if(!class_exists('AJAX', false)) {
-	TemplateEngine :: enableTiming();
+//don't gzip if impossible ;)
+if (!function_exists('gzencode')) {
+	TemplateEngine :: noGzip();
 }
