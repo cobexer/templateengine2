@@ -1,0 +1,325 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{listings}
+\lstloadlanguages{PHP,HTML}
+\usepackage{a4wide}
+\usepackage{url}
+\usepackage[utf8x]{inputenc}
+\usepackage{times}
+\usepackage[german]{babel}
+
+\title{TemplateEngine2}
+\author{Obexer Christoph}
+\date{18.05.2010}
+
+\pdfinfo{
+  /Title    (TemplateEngine2)
+  /Author   (Obexer Christoph)
+  /Creator  (Obexer Christoph)
+  /Producer (Obexer Christoph)
+  /Subject  (TemplateEngine2)
+  /Keywords (Template Engine)
+}
+
+\begin{document}
+\maketitle
+\pagebreak
+
+\tableofcontents
+\pagebreak
+
+\section{TemplateEngine2 Allgemein}
+
+\subsection{TemplateEngine Version 1 Kompatibilit\"at}
+Die syntax der TemplateEngine v1 wird vollständig verstanden - mit einer einzigen Au\ss{}nahme:\newline
+Die \texttt{\{ELSE\}} Direktive muss nun als \texttt{\{IF:ELSE\}} geschrieben werden, Grund daf\"ur ist
+das das \texttt{\{ELSE\}} als normale Template Variable verstanden werden kann und in Zukunft nicht mehr
+eindeutig sein wird.
+
+\subsection{Features}
+\begin{itemize}
+	\item Plugin Interface - alles wird durch Plugins erledigt!
+	\item Escape Method Interface - Plugins k\"onnen auf Escape Methoden zur\"uckgreifen um die Ausgabe zu filtern,...
+	\item Ein paar Methoden um spezielle Aufgaben zu erleichtern(User Messages, addCSS, addJS, setPageTitle,...)
+	\item Debugging Funktionen um Debug-Informationen in den Browser zu bekommen.
+	\item Da alles als Plugin realisiert ist kann auch alles deaktiviert werden - auch die Skalar Ersetzung :)
+\end{itemize}
+
+
+\section{TemplateEngine2 API}
+
+\subsection{User API}
+
+\subsubsection{Inst()}
+Die Inst Methode gibt ein Objekt der TemplateEngine zur\"uck, das kann verwendet werden um die Tipparbeit zu verringern.
+
+\subsubsection{clear()}
+Mit der {\tt clear} Methode werden alle gesetzten Variablen gel\"oscht und automatische Variablen wieder zur\"uckgesetzt.
+
+\subsubsection{setTemplatePath(\$path)}
+Setzt den Pfad in dem nach Templates gesucht werden soll. Relativ zum RootPath und zum Browser.
+Der TemplatePath steht Templates als {\tt \{TEMPLATE\_PATH\}} zur Verf\"ugung.
+
+\subsubsection{getTemplatePath()}
+Gibt den zuvor mit setTemplatePath gesetzten Teil zur\"uck, die Version 1.0 hat hier den Pfad mit dem RootPath Anteil geliefert!
+
+\subsubsection{setRootPath(\$path)}
+Setzt den Pfad der dem Browser als RootPath zur Applikation dient, diese Variable ist als {\tt \{ROOT\_PATH\}} in den Templates verf\"ugbar.
+
+\subsubsection{getRootPath()}
+Gibt den zuvor mit {\tt setRootPath} gesetzten Pfad zur\"uck.
+
+\subsubsection{output(\$basetemplate, \$havingSession)}
+Verarbeitet das Template mit dem in \$basetemplate \"ubergebenen Namen (gesucht wird es im TemplatePath) und schickt das Ergebnis zum Browser.
+Der \$havingSession Parameter gibt an ob vor der Verarbeitung nur {\tt TE\_static\_setup} oder auch {\tt TE\_setup} aufgerufen werden soll.\newline
+\$havingSession = {\tt true} -{\textgreater} {\tt TE\_setup}, {\tt TE\_static\_setup} aufrufen.\newline
+\$havingSession = {\tt false} -{\textgreater} {\tt TE\_static\_setup} aufrufen.
+
+\subsubsection{processTemplate(\$basetemplate, \$havingSession)}
+Verarbeitet das Template mit dem in \$basetemplate \"ubergebenen Namen (gesucht wird es im TemplatePath) und gibt den resultierenden Content
+als String zur\"uck. Der \$havingSession Parameter gibt an ob vor der Verarbeitung nur {\tt TE\_static\_setup} oder auch {\tt TE\_setup} aufgerufen werden soll.\newline
+\$havingSession = {\tt true} -{\textgreater} {\tt TE\_setup}, {\tt TE\_static\_setup} aufrufen.\newline
+\$havingSession = {\tt false} -{\textgreater} {\tt TE\_static\_setup} aufrufen.
+
+\subsubsection{set(\$name, \$value)}
+Setzt die Variable mit dem Namen \$name auf den Wert \$value, die Eingebauten Direktiven verstehen hier nur Skalare und einfache Arrays.
+Die Erweiterbarkeit der TemplateEngine2 macht es hier allerdings auch m\"oglich beliebige Datenstrukturen zu verwalten und zu verwenden.
+
+\subsubsection{get(\$name, \$default = null)}
+Ermittelt den Wert einer Variablen, sollte der Wert noch nicht bekannt sein wird der wert des 2. Parameters({\tt \$default}) zur\"uckgegeben.
+Diese Methode arbeitet nur auf Basis des globalen Kontext und sollte deswegen nicht in einem Template-Plugin verwendet werden, daf\"ur wurde {\tt lookupVar} implementiert.
+
+\subsubsection{Error(\$error)}
+Diese Methode f\"ugt dem standardm\"a\ss{}ig vorhandenem Array {\tt TE\_ERRORS} eine Fehlermeldung hinzu. Diese Fehlermeldungen sind dazu gedacht dem User angezeigt zu werden.
+
+\subsubsection{Warning(\$warning)}
+Diese Methode f\"ugt dem standardm\"a\ss{}ig vorhandenem Array {\tt TE\_WARNINGS} eine Warnmeldung hinzu. Diese Warnmeldungen sind dazu gedacht dem User angezeigt zu werden.
+
+\subsubsection{Info(\$info)}
+Diese Methode f\"ugt dem standardm\"a\ss{}ig vorhandenem Array {\tt TE\_INFOS} eine Infomeldung hinzu. Diese Infomeldungen sind dazu gedacht dem User angezeigt zu werden.
+
+\subsubsection{setTitle(\$title)}
+Diese Methode setzt den Titel der Seite (genauer gesagt die Variable {\tt PAGE\_TITLE}).
+
+\subsubsection{header(\$html)}
+Mit {\tt header} wird der \"ubergebene HTML-Code an den HTML-Head angeh\"angt.
+
+\subsubsection{addCSS(\$css)}
+F\"ugt dem HTML-Head ein {\tt link} Tag hinzu der als {\tt href} den \"ubergebenen String hat.
+
+\subsubsection{addJS(\$js)}
+F\"ugt dem HTML-Head ein {\tt script type='text/javascript'} Tag hinzu der als {\tt src} den \"ubergebenen String hat.
+
+\subsection{Plugin API}
+
+\subsubsection{pushContext(\$templateString, array \$context)}
+Damit wird ein neuer Context auf den Context-Stack geschoben und verarbeitet.
+{\tt \$templateString} ist der zu verarbeitende Template String, das Array {\tt \$context} anth\"alt alle im Kontext verf\"ugbaren Variablen.
+
+\subsubsection{escape(\$escaper, \$value)}
+Mit dieser Methode wird die Escape methode mit dem in {\tt \$escaper} \"ubergebenen Namen ausgef\"uhrt und das Ergebnis des escapens von {\tt \$value} zur\"uckgegeben.
+
+\subsubsection{registerPlugin(\$plugin, \$regexp, \$callback)}
+Diese Methode registriert ein Plugin f\"ur die Verwendung in Templates.
+\begin{itemize}
+  \item[\texttt{\$name}] der Name des Plugins - muss eindeutig sein, ansonsten wird das zuvor registrierte Plugin \"uberschrieben. Namen mit {\tt TE\_} am Anfang sind reserviert!
+  \item[\texttt{\$regexp}] der Regul\"are Ausdruck mit dem nach Vorkommen f\"ur dieses Plugin gesucht wird.
+  \item[\texttt{\$callback}] die Funktion die mit Treffern f\"ur das Plugin aufgerufen wird - bei jedem Aufruf wird nur ein Treffer verarbeitet.
+\end{itemize}
+
+{\bf Das Callback Interface:}\newline
+Die Callback Funktion erh\"alt zwei Parameter:
+\begin{itemize}
+  \item[{\tt \$context}] ein Array in dem alle Werte des Aktuellen Kontext entahlten sind.
+    Wird der angeforderte Wert im aktuellen Context nicht gefunden, dann kann {\tt lookupVar} verwendet werden um im Context-Stack nach Unten zu suchen.
+  \item[{\tt \$match}] der Parameter der von {\tt preg\_replace\_callback} an die Interne Callback Funktion \"ubergeben wurde,
+    sie enth\"alt alle Matches des Regul\"aren Ausdrucks - so wie er registriert wurde.
+\end{itemize}
+Der return-Wert der Funktion muss entweder ein String oder ein Boolean({\tt false}) sein. Mit {\tt false} lehnt das Plugin den Treffer ab und er wird unver\"andert belassen, ansonsten wird der Treffer mit dem zur\"uckgegebenen String ersetzt.
+
+\subsubsection{unregisterPlugin(\$plugin)}
+Hebt die Registrierung eines Plugins auf - es kann anschlie\ss{}end nicht mehr verwendet werden.
+
+\subsubsection{lookupVar(\$name, \&\$value)}
+{\tt lookupVar} findet den Wert der in {\tt \$name} \"ubergebenen Variable und gibt {\tt true} zur\"uck wenn der Wert
+auch gefunden wurde, ansonsten wird {\tt false} zur\"uchgegeben und der Wert von {\tt \$value} bleibt unver\"andert.
+Diese Methode sollte nur dann aufgerufen werden wenn die Variable im Kontext der dem Plugin Callback \"ubergeben wurde nicht enthalten ist.
+
+\subsection{Escape Method API}
+
+\subsubsection{registerEscapeMethod(\$method, \$callback)}
+Mit dieser Methode wird die Escape Methode mit dem Namen {\tt \$method} f\"ur die Verwendung registriert.\newline
+\newline
+{\bf Das Callback Interface:}\newline
+Die Callback Funktion erh\"alt 2 Parameter:
+\begin{itemize}
+  \item[{\tt \$value}] der Rohwert der f\"ur die zu escapende Variable gesetzt wurde - was das ist h\"angt au\ss{}schlie\ss{}lich davon ab was f\"ur die Variable gesetzt wurde - beispielsweise ein String, ein Boolean, ein Objekt oder ein Array,...
+  \item[{\tt \$config}] wurde f\"ur die Escape Methode eine Konfiguration(beispielsweise eine Zeitzohne, oder Sprache,...) mit {\tt setEscapeMethodConfig} hinterlegt wird diese hier \"ubergeben, andernfalls ist dieser Parameter {\tt null}.
+\end{itemize}
+Der return Wert der Funktion sollte ein String sein. Der Wert wird dann zum ausl\"oser der Escape methode gegeben.
+
+\subsubsection{unregisterEscapeMethod(\$method)}
+L\"oscht eine registrierte Escape Methode wieder.
+
+\subsubsection{setEscapeMethodConfig(\$method, \$config)}
+Kann beliebige Daten als Konfiguration f\"ur eine Escape Methode speichern.
+
+\subsubsection{getEscapeMethodConfig(\$method}
+Liefert die aktuell gespeicherte Konfiguration f\"ur die Escape Methode.
+
+\subsection{Misc API}
+
+\subsubsection{LogMsg(\$msg, \$success = true, \$mode = TEMode :: debug, \$finished= true)}
+Mit der LogMsg Methode kann Debug Information aufgezeichnet werden, die Informationen werden nur aufgezeichnet, wenn
+der \"ubergebene {\tt \$mode} gr\"o\ss{}er oder gleich dem Eingestellten ist. Mit {\tt \$finished = false} wird die Nachricht
+erst mit dem n\"achsten Aufruf({\tt \$finished = true}) an den Puffer angeh\"angt, dieser kann auch ein neues Log-Level f\"ur
+die gesamte Nachricht angeben. {\tt \$success} gibt an ob der Vorgang erfolgreich war.
+
+\subsubsection{captureTime(\$milestone)}
+{\tt captureTime} kann dazu verwendet werden Timing-Probleme beim Aufbau einer Seite auf die Schliche zu kommen.
+Der {\tt \$milestone} Parameter ist einfach ein Name f\"ur die Position im Ablauf des Seitenaufbaus,
+beispielsweise {\tt startTE} f\"ur den Start der Template Verarbeitung oder {\tt stopTE} f\"ur das Ende der
+Template Verarbeitung. {\tt printTimingStatistics} wird automatisch bei scriptbeendung aufgerufen und gibt die aufgezeicheten
+Milestones aus und markiert damit das Ende der Skriptausf\"uhrung (da {\tt TEincluded} den Anfang markiert kann aus
+dem Time Offset von {\tt printTimingStatistics} die Skriptlaufzeit abgelesen werden).
+
+\section{TemplateEngine Plugins}
+
+\subsection{Skalar Ersetzung}
+Die Skalar Ersetzung ersetzt alle Vorkommen von {\tt \{VAR\}} mit dem Wert der der TemplateEngine f\"ur {\tt VAR} bekannt
+gemacht wurde(siehe {\tt set}). Die Skalar Ersetzung verwendet auch Escape Methoden, so kann beispielsweise die Anzahl
+der Elemente eines Arrays names {\tt ARMIES} mit {\tt \{ARMIES|LEN\}} Ausgegeben werden. Vorraussetzung f\"ur die
+Verwendung von Escape Methoden ist das diese Registriert sind - gilt auch f\"ur {\tt LEN}.
+
+\subsection{LOAD}
+Mit der {\tt LOAD} Direktive wird an der Stelle des Vorkommens ein anderes Template geladen.
+Verwendung: {\tt \{LOAD=path/to/file.tpl\}} der Pfad ist relativ zum {\bf TemplatePath}.
+
+\subsection{LOAD\_WITHID}
+Mit der {\tt LOAD\_WITHID} Direktive wird an der Stelle des Vorkommens ein anderes Template geladen.
+zus\"atzlich zur normalen {\tt LOAD} wird innerhalb der geladenen Datei {\tt \{LOAD:ID\}} durch den angegebenen Wert ersetzt.
+Verwendung: {\tt \{LOAD\_WITHID=path/to/file.tpl;the-new-id\}} der Pfad ist relativ zum {\bf TemplatePath}.
+
+\subsection{LOGLEVEL}
+Setzt das Log-Level der TemplateEngine2 dynamisch auf den gegebenen Wert. Verwendung: {\tt \{LOGLEVEL=ERROR\}}.
+Es sind folgende Werte erlaubt:
+\begin{itemize}
+ \item DEBUG
+ \item WARNING
+ \item ERROR
+ \item NONE
+\end{itemize}
+
+\subsection{FOREACH}
+{\tt FOREACH} wird dazu verwendet Arrays mit einfachem Aufbau darzustellen,
+gegeben sei ein Array mit dem Namen {\tt USERS} mit folgendem Aufbau:\newline
+[[NAME=Mea, LEVEL=admin], [NAME=Schalk, LEVEL=admin], [NAME=cobexer, LEVEL=admin]]\newline
+bei der Ausf\"uhrung wird f\"ur jedes Element im Array ein eingener Context erzeugt, das hat einerseits
+einen gewissen Geschwindigkeitsvorteil andererseits aber auch den Vorteil, da\ss{} alle Plugins in diesem
+Kontext ganz normal arbeiten k\"onnen, weitere {\tt FOREACH} oder {\tt IF} oder jedes andere Plugin.\newline
+Verwendung:
+\lstset{language=HTML}
+\begin{lstlisting}
+<ul>
+{FOREACH[USERS]=userlist.tpl}
+</ul>
+\end{lstlisting}
+Inhalt von \texttt{userlist.tpl}:
+\begin{lstlisting}
+<li>{NAME} ({LEVEL})</li>
+\end{lstlisting}
+Ergebnis:
+\begin{lstlisting}
+<ul>
+<li>Mea (admin)</li>
+<li>Schalk (admin)</li>
+<li>cobexer (admin)</li>
+</ul>
+\end{lstlisting}
+
+
+\subsection{SELECT}
+Die {\tt SELECT} Direktive dient dazu HTML-Select Elemente zu generieren. Verwendung:\newline
+\begin{lstlisting}
+<select name="myselect">
+{SELECT=MYOPTIONS}
+</select>
+\end{lstlisting}
+Wobei {\tt MYOPTIONS} ein Array mit {\tt NAME} / {\tt VALUE} Paaren ist:\newline
+[[NAME=Mea, VALUE=1], [NAME=Schalk, VALUE=2]]\newline
+Ergebnis:
+\begin{lstlisting}
+<select name="myselect">
+<option value="1">Mea</option>
+<option value="2">Schalk</option>
+</select>
+\end{lstlisting}
+
+\subsection{IF}
+Die{\tt IF} Direktive wird dazu verwendet eine Bedingung auszuwerten.
+Aufbau der {\tt IF} Direktive:\newline
+{\tt
+\{IF(VAR\_NAME[|ESCAPE\_METHOD] operator wert)\}}\newline
+ ist die Bedingung wahr bleibt dieser Teil erhalten\newline
+ {\tt \{IF:ELSE\}}\newline
+ ansonsten dieser\newline
+{\tt \{/IF\}}\newline
+f\"ur den Operator kan einer der Folgenden verwendet werden:
+\begin{itemize}
+  \item gt (\textgreater)
+  \item lt (\textless)
+  \item eq (==)
+  \item gte (\textgreater=)
+  \item lte (\textless=)
+  \item ne (!=)
+\end{itemize}
+Der Wert {\tt 'null'} hat die besondere Bedeutung von {\tt null} in PHP,
+er kann mit {\tt ne} dazu verwendet werden zu pr\"ufen ob eine Variable gesetzt ist.
+
+\section{TemplateEngine Escape Methods}
+Escape Methoden werde dazu verwendet Template Variablen zu ver\"andern, beispielsweise
+um zu verhindern das User HTML- oder Template-Code einschleusen k\"onnen.
+
+\subsection{LEN}
+Die Escape Methode {\tt LEN} kann nur auf Strings und Arrays angewendet werden, das 
+Ergebnis der Escape Operation ist entweder die Stringl\"ange oder die Anzahl der
+Elemente im Array.\newline
+Anwendungsbeispiel:\newline
+{\tt Anzahl der Spieler: \{USER\_ARRAY|LEN\}}
+
+% GomBG specific extensions:
+
+\section{GomBG spezifische Features}
+F\"ur GomBG sind einige extra Plugins vorhanden:
+
+\subsection{TemplateEngine Plugins}
+
+\subsubsection{LINKTO}
+Mit {\tt LINKTO} werden HTML-Links zu verschiedenen 'Objekten' in GomBG erstellt.\newline
+{\tt \{LINKTO=WHAT;TYPE=TP;TEXT=TX;TITLE=TI\}}\newline
+Wobei man {\tt WHAT, TP, TX} und {\tt TI} entsprechend ersetzen muss.
+\begin{itemize}
+	\item[LINKTO=] der einzusetzende Wert ist beispielsweise der Nick, Allianzname, Uid, Pos,\dots
+	\item[TYPE=] Der {\tt TYPE} ist zur Zeit einer der folgenden 7 Werte:
+	\begin{itemize}
+		\item[PLAYER] (Nick) Link zum Profil.
+		\item[SENDMSG] (Nick) Link zum Nachrichtenmodul mit dem Nick als Empf\"anger. 
+		\item[ALLI] (Allianzname) Link zur Allianzseite.
+		\item[MAP] (Pos) Link zum Feld auf der Map ([\textbackslash d\{5\}] im {\tt TEXT} wird durch [ XX / YY / Z ] ersetzt).
+		\item[ARMY] (Army ID) Link zum bearbeiten einer Armee.
+		\item[BUILDING] (Building ID) Link zur Beschreibungsseite eines Geb\"audes mit allen Stufen, Abh\"angigkeiten und so(gibt es noch nicht).
+		\item[FAV] (Nick) Link zum NAchrichtenmodul um einen User als Buddy zu speichern.
+	\end{itemize}
+	\item[TEXT=] Dieser Text wird dem User angezeigt({\textless}a \dots{\textgreater}TEXT{\textless}/a{\textgreater})
+	\item[TITLE=] Das ist der Titel der in einem Tool-Tip angezeigt wird wenn man mit dem Cursor auf einen Link zeigt.
+\end{itemize}
+
+\subsection{TemplateEngine Escape Methods}
+
+\subsubsection{TIMESTAMP}
+Die {\tt TIMESTAMP} escape Methode formatiert einen als Integer gesetzten Datumswert in dem default Format f\"ur User.
+Beispiel:\newline
+{\tt \{FINISHED\_AT|TIMESTAMP\}}
+
+
+\end{document}
