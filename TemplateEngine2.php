@@ -966,3 +966,5 @@ if(isset($_GET['show_timing'])) {
 if (!function_exists('gzencode')) {
 	TemplateEngine :: noGzip();
 }
+
+//EOF
