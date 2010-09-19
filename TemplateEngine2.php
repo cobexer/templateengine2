@@ -136,6 +136,10 @@ class TemplateEngine {
 	 */
 	private static $templatePath = '';
 	/**
+	 * @static array cache for files accessed during template processing
+	 */
+	private static $templateCache = array();
+	/**
 	 * __construct
 	 * initializes a new object of the TemplateEngine
 	 * @access public
@@ -300,7 +304,7 @@ class TemplateEngine {
 	 * @return string the path of the template files
 	 */
 	public static function getTemplatePath() {
-		return self :: $rootPath . self :: $templatePath;
+		return self :: $templatePath;
 	}
 	/**
 	 * setRootPath
@@ -340,7 +344,6 @@ class TemplateEngine {
 	private static function processCurrentContext() {
 		//TODO: push context recursion
 		$recursion_limit = 32;
-		$matches_found = 0;
 		$ctx = &self :: $contexts[count(self :: $contexts) - 1];
 		if(strlen($ctx['tpl']) > 0) {
 			do {
@@ -348,7 +351,7 @@ class TemplateEngine {
 				$ctx['miss'] = 0;
 				foreach (self :: $pluginRegistration as $plugin => $pdata) {
 					self :: $activePlugin = $plugin;
-					$ctx['tpl'] = preg_replace_callback($pdata['regex'], array('TemplateEngine', 'replace_callback'), $ctx['tpl'], -1, $matches_found);
+					$ctx['tpl'] = preg_replace_callback($pdata['regex'], array('TemplateEngine', 'replace_callback'), $ctx['tpl']);
 				}
 			}
 			while(($ctx['hit'] > 0) && $recursion_limit--);
@@ -365,7 +368,6 @@ class TemplateEngine {
 		//TODO: allow other content-types (application/json, application/javascript, text/css,...)
 		header("Content-Type: text/html; charset=utf-8");
 		$result = self ::processTemplate($basetemplate, $havingSession);
-		$result = str_replace('</body>', (self :: formatLogMessages() . '</body>'), $result);
 		//compress using gzip if the browser supports it
 		if (self :: $allow_gzip && strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			//well if YOU used print/echo before the complete content will be garbage it's YOUR fault!
@@ -385,14 +387,13 @@ class TemplateEngine {
 	 * @return string the processed template string
 	 */
 	public static function processTemplate($basetemplate, $havingSession = true) {
+		self :: $havingSession = $havingSession;
 		self :: captureTime('startTE'); //< init time measurement
 		self :: $running = true; //< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly -> print it!
-		//< now everything gets sent - before that nothing should be sent -> header should work here
-		if($havingSession) {
+		TE_static_setup(); //< common static (session independent) data will be set here
+		if(self :: $havingSession) {
 			TE_setup(); //< do TE initialisation (common data will be set there)
 		}
-		TE_static_setup(); //< common static (session independent) data will be set here
-		self :: $havingSession = $havingSession;
 		$tpl = '';
 		if (!self :: getFile($basetemplate, $tpl)) {
 			die('TemplateEngine Error: basetemplate not found - or not readable! ' . $basetemplate);
@@ -403,6 +404,7 @@ class TemplateEngine {
 			$basetemplate = str_replace(realpath(self :: $rootPath) . '/', '', realpath(self :: $rootPath . self :: $templatePath . $basetemplate));
 			$result = "<!-- basetemplate: $basetemplate -->\n" . $result;
 		}
+		$result = str_replace('</body>', (self :: formatLogMessages() . '</body>'), $result);
 		return $result;
 	}
 	/**
@@ -431,6 +433,15 @@ class TemplateEngine {
 	 */
 	public static function set($name, $value) {
 		self :: $variables[$name] = $value;
+	}
+	/**
+	 * delete
+	 * delete the variable with the given name
+	 * @param string $name name of the variable
+	 * @return void
+	 */
+	public static function delete($name) {
+		unset(self :: $variables[$name]);
 	}
 	/**
 	 * get
@@ -784,24 +795,32 @@ class TemplateEngine {
 	 */
 	public function getFile($name, &$content) {
 		$fname = realpath(self :: $rootPath . self :: $templatePath . $name);
+		$content = '';
 		self :: LogMsg('[getFile]: <em>"' . $name . '"</em> ', true, TEMode :: debug, false);
-		if (!file_exists($fname) || !is_readable($fname)) {
-			self :: LogMsg('file not found!', false, TEMode :: error, true);
-			return false;
-		}
-		if (self :: $force_tpl_extension && !preg_match('/\.tpl$/', $fname)) {
-			self :: LogMsg('invalid file', false, TEMode :: error);
-			return false;
-		}
-		if (self :: $jail_to_template_path) {
-			$tplpath = realpath(self :: $rootPath . self :: $templatePath);
-			if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
-				self :: LogMsg('access denied', false, TEMode :: error);
+		if (!isset(self :: $templateCache[$fname])) {
+			if (!file_exists($fname) || !is_readable($fname)) {
+				self :: LogMsg('file not found!', false, TEMode :: error, true);
 				return false;
 			}
+			if (self :: $force_tpl_extension && !preg_match('/\.tpl$/', $fname)) {
+				self :: LogMsg('invalid file', false, TEMode :: error);
+				return false;
+			}
+			if (self :: $jail_to_template_path) {
+				$tplpath = realpath(self :: $rootPath . self :: $templatePath);
+				if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
+					self :: LogMsg('access denied', false, TEMode :: error);
+					return false;
+				}
+			}
+			self :: LogMsg(' Cache MISS', true, TEMode :: debug, true);
+			$content = file_get_contents($fname);
+			self :: $templateCache[$fname] = $content;
 		}
-		self :: LogMsg('', true, TEMode :: debug, true);
-		$content = file_get_contents($fname);
+		else {
+			self :: LogMsg(' Cache HIT', true, TEMode :: debug, true);
+			$content = self :: $templateCache[$fname];
+		}
 		if (self :: $debug_files) {
 			$fname = str_replace(realpath(self :: $rootPath) . '/', '', $fname);
 			$content = "<!-- start $fname -->\n" . $content . "<!-- end $fname -->\n";
@@ -874,6 +893,7 @@ class TemplateEngine {
 		foreach($val as $lctx) {
 			$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
 			$res .= self :: pushContext($tpl, $lctx);
+			$iteration++;
 		}
 		return $res;
 	}
@@ -1041,8 +1061,8 @@ TemplateEngine :: registerPlugin('TE_LOGLEVEL', '/\{LOGLEVEL=(DEBUG|WARNING|ERRO
 TemplateEngine :: registerPlugin('TE_IF',
 	'/\{(IF)\((?P<variable>[A-Z0-9_]+)(?:\|(?P<escaper>[A-Z]+))?\s?(?P<operator><|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?(?:(?P<literal>[\w-]+)|\{(?P<litvar>[A-Z0-9_]+)\})\)\}(?P<block>(?:(?>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*)(\{IF:ELSE\}(?P<nblock>(?:(?>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*))?\{\/IF\}/Us',
 	array('TemplateEngine', 'TE_IF'));
-TemplateEngine :: registerPlugin('TE_LOAD', '/\{LOAD=([^\}]+)\}/', array('TemplateEngine', 'TE_LOAD'));
-TemplateEngine :: registerPlugin('TE_LOAD_WITHID', '/\{LOAD_WITHID=([^\}]+);([^\}]+)\}/', array('TemplateEngine', 'TE_LOAD_WITHID'));
+TemplateEngine :: registerPlugin('TE_LOAD', '/\{LOAD=([^\{\}]+)\}/', array('TemplateEngine', 'TE_LOAD'));
+TemplateEngine :: registerPlugin('TE_LOAD_WITHID', '/\{LOAD_WITHID=([^\{\}]+);([^\{\}]+)\}/', array('TemplateEngine', 'TE_LOAD_WITHID'));
 TemplateEngine :: registerPlugin('TE_SELECT', '/\{SELECT=([A-Z0-9_]+)\}/', array('TemplateEngine', 'TE_SELECT'));
 TemplateEngine :: registerPlugin('TE_FOREACH_FILE', '/\{FOREACH\[([A-Z0-9_]+)\]=([^\}]+)\}/Um', array('TemplateEngine', 'TE_FOREACH_FILE'));
 TemplateEngine :: registerPlugin('TE_FOREACH_INLINE', '/\{FOREACH\[(?P<variable>[A-Z0-9_]+)\]\}(?P<block>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*)(?:\{FOREACH:ELSE\}(?P<nblock>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*))?\{\/FOREACH\}/Us', array('TemplateEngine', 'TE_FOREACH_INLINE'));
@@ -1053,10 +1073,6 @@ TemplateEngine :: registerEscapeMethod('LEN', array('TemplateEngine', 'ESC_LEN')
 // force debug level if 'force_debug' is set in $_GET
 if(isset($_GET['force_debug'])) {
 	TemplateEngine :: forceMode(TEMode :: debug);
-}
-else {
-	//gombg 2.0.6 release only!
-	TemplateEngine :: forceMode(TEMode :: none);
 }
 // activate timing information if 'show_timing' is set in $_GET
 if(isset($_GET['show_timing'])) {

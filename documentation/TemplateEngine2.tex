@@ -32,9 +32,11 @@
 
 \subsection{TemplateEngine Version 1 Kompatibilit\"at}
 Die syntax der TemplateEngine v1 wird vollständig verstanden - mit einer einzigen Au\ss{}nahme:\newline
-Die \texttt{\{ELSE\}} Direktive muss nun als \texttt{\{IF:ELSE\}} geschrieben werden, Grund daf\"ur ist
-das das \texttt{\{ELSE\}} als normale Template Variable verstanden werden kann und in Zukunft nicht mehr
-eindeutig sein wird.
+Die {\tt \{ELSE\}} Direktive muss nun als {\tt \{IF:ELSE\}} geschrieben werden, Grund daf\"ur ist
+das das {\tt \{ELSE\}} als normale Template Variable verstanden werden kann und in Zukunft nicht mehr
+eindeutig sein wird(inline FOREACH).\newline
+Die methode {\tt getTemplatePath} gibt set Version 2.0 nur noch den TemplatePath Anteil zur\"uck, und nicht mehr
+RootPath / TemplatePath!
 
 \subsection{Features}
 \begin{itemize}
@@ -70,24 +72,27 @@ Setzt den Pfad der dem Browser als RootPath zur Applikation dient, diese Variabl
 Gibt den zuvor mit {\tt setRootPath} gesetzten Pfad zur\"uck.
 
 \subsubsection{output(\$basetemplate, \$havingSession)}
-Verarbeitet das Template mit dem in \$basetemplate \"ubergebenen Namen (gesucht wird es im TemplatePath) und schickt das Ergebnis zum Browser.
-Der \$havingSession Parameter gibt an ob vor der Verarbeitung nur {\tt TE\_static\_setup} oder auch {\tt TE\_setup} aufgerufen werden soll.\newline
-\$havingSession = {\tt true} -{\textgreater} {\tt TE\_setup}, {\tt TE\_static\_setup} aufrufen.\newline
-\$havingSession = {\tt false} -{\textgreater} {\tt TE\_static\_setup} aufrufen.
+Verarbeitet das Template mit dem in {\tt \$basetemplate} \"ubergebenen Namen (gesucht wird es im TemplatePath) und schickt das Ergebnis zum Browser.
+Der {\tt \$havingSession} Parameter gibt an ob vor der Verarbeitung nur {\tt TE\_static\_setup} oder auch {\tt TE\_setup} aufgerufen werden soll.\newline
+{\tt \$havingSession} = {\tt true} -{\textgreater} {\tt TE\_static\_setup}, {\tt TE\_setup} aufrufen.\newline
+{\tt \$havingSession} = {\tt false} -{\textgreater} {\tt TE\_static\_setup} aufrufen.
 
 \subsubsection{processTemplate(\$basetemplate, \$havingSession)}
-Verarbeitet das Template mit dem in \$basetemplate \"ubergebenen Namen (gesucht wird es im TemplatePath) und gibt den resultierenden Content
-als String zur\"uck. Der \$havingSession Parameter gibt an ob vor der Verarbeitung nur {\tt TE\_static\_setup} oder auch {\tt TE\_setup} aufgerufen werden soll.\newline
-\$havingSession = {\tt true} -{\textgreater} {\tt TE\_setup}, {\tt TE\_static\_setup} aufrufen.\newline
-\$havingSession = {\tt false} -{\textgreater} {\tt TE\_static\_setup} aufrufen.
+Verarbeitet das Template mit dem in {\tt \$basetemplate} \"ubergebenen Namen (gesucht wird es im TemplatePath) und gibt den resultierenden Content
+als String zur\"uck. Der {\tt \$havingSession} Parameter gibt an ob vor der Verarbeitung nur {\tt TE\_static\_setup} oder auch {\tt TE\_setup} aufgerufen werden soll.\newline
+{\tt \$havingSession} = {\tt true} -{\textgreater} {\tt TE\_static\_setup}, {\tt TE\_setup} aufrufen.\newline
+{\tt \$havingSession} = {\tt false} -{\textgreater} {\tt TE\_static\_setup} aufrufen.
 
 \subsubsection{set(\$name, \$value)}
-Setzt die Variable mit dem Namen \$name auf den Wert \$value, die Eingebauten Direktiven verstehen hier nur Skalare und einfache Arrays.
+Setzt die Variable mit dem Namen {\tt \$name} auf den Wert {\tt \$value}, die Eingebauten Direktiven verstehen hier nur Skalare und einfache Arrays.
 Die Erweiterbarkeit der TemplateEngine2 macht es hier allerdings auch m\"oglich beliebige Datenstrukturen zu verwalten und zu verwenden.
 
 \subsubsection{get(\$name, \$default = null)}
 Ermittelt den Wert einer Variablen, sollte der Wert noch nicht bekannt sein wird der wert des 2. Parameters({\tt \$default}) zur\"uckgegeben.
 Diese Methode arbeitet nur auf Basis des globalen Kontext und sollte deswegen nicht in einem Template-Plugin verwendet werden, daf\"ur wurde {\tt lookupVar} implementiert.
+
+\subsubsection{delete(\$name)}
+L\"oscht den wert der f\"ur die Variable {\tt \$name} gespeichert wurde.
 
 \subsubsection{Error(\$error)}
 Diese Methode f\"ugt dem standardm\"a\ss{}ig vorhandenem Array {\tt TE\_ERRORS} eine Fehlermeldung hinzu. Diese Fehlermeldungen sind dazu gedacht dem User angezeigt zu werden.
@@ -108,7 +113,20 @@ Mit {\tt header} wird der \"ubergebene HTML-Code an den HTML-Head angeh\"angt.
 F\"ugt dem HTML-Head ein {\tt link} Tag hinzu der als {\tt href} den \"ubergebenen String hat.
 
 \subsubsection{addJS(\$js)}
-F\"ugt dem HTML-Head ein {\tt script type='text/javascript'} Tag hinzu der als {\tt src} den \"ubergebenen String hat.
+F\"ugt dem HTML-Head ein {\tt script type='text/javascript'} Tag hinzu der als {\tt src}
+ den \"ubergebenen String hat.
+
+\subsubsection{setFileDebugMode(\$mode)}
+Setzt man {\tt \$mode} auf {\tt true} so wird jeder geladenen Datei mit HTML-Kommentaren
+der Dateiname vorne und hinten an den Inhalt angeh\"angt.
+
+\subsubsection{setForceTplExtension(\$mode)}
+Setzt man {\tt \$mode} auf {\tt true} so wird jede Datei, die nicht {\tt .tpl} als Dateityp
+ hat zur\"uckgewiesen.
+
+\subsubsection{setJailToTemplatePath(\$mode)}
+Setzt man {\tt \$mode} auf {\tt true} so wird jede Datei, die nicht im {\tt TEMPLATE\_PATH}
+ gefunden wird zur\"uckgewiesen.
 
 \subsection{Plugin API}
 
@@ -144,6 +162,10 @@ Hebt die Registrierung eines Plugins auf - es kann anschlie\ss{}end nicht mehr v
 {\tt lookupVar} findet den Wert der in {\tt \$name} \"ubergebenen Variable und gibt {\tt true} zur\"uck wenn der Wert
 auch gefunden wurde, ansonsten wird {\tt false} zur\"uchgegeben und der Wert von {\tt \$value} bleibt unver\"andert.
 Diese Methode sollte nur dann aufgerufen werden wenn die Variable im Kontext der dem Plugin Callback \"ubergeben wurde nicht enthalten ist.
+
+\subsubsection{getFile(\$name, \&\$content)}
+{\tt getFile} l\"adt eine Datei und gibt bei Erfolg (return {\tt true}) in ihrem 2. Parameter den Inhalt zur\"uck. Diese Funktion beachtet
+dabei {\tt \$force\_tpl\_extension}, {\tt \$jail\_to\_template\_path} und {\tt \$debug\_files}.
 
 \subsection{Escape Method API}
 
@@ -281,7 +303,7 @@ Escape Methoden werde dazu verwendet Template Variablen zu ver\"andern, beispiel
 um zu verhindern das User HTML- oder Template-Code einschleusen k\"onnen.
 
 \subsection{LEN}
-Die Escape Methode {\tt LEN} kann nur auf Strings und Arrays angewendet werden, das 
+Die Escape Methode {\tt LEN} kann nur auf Strings und Arrays angewendet werden, das
 Ergebnis der Escape Operation ist entweder die Stringl\"ange oder die Anzahl der
 Elemente im Array.\newline
 Anwendungsbeispiel:\newline
@@ -303,7 +325,7 @@ Wobei man {\tt WHAT, TP, TX} und {\tt TI} entsprechend ersetzen muss.
 	\item[TYPE=] Der {\tt TYPE} ist zur Zeit einer der folgenden 7 Werte:
 	\begin{itemize}
 		\item[PLAYER] (Nick) Link zum Profil.
-		\item[SENDMSG] (Nick) Link zum Nachrichtenmodul mit dem Nick als Empf\"anger. 
+		\item[SENDMSG] (Nick) Link zum Nachrichtenmodul mit dem Nick als Empf\"anger.
 		\item[ALLI] (Allianzname) Link zur Allianzseite.
 		\item[MAP] (Pos) Link zum Feld auf der Map ([\textbackslash d\{5\}] im {\tt TEXT} wird durch [ XX / YY / Z ] ersetzt).
 		\item[ARMY] (Army ID) Link zum bearbeiten einer Armee.
