@@ -165,7 +165,7 @@ class TemplateEngine {
 	}
 	/**
 	 * clear
-	 * clears all template variables
+	 * clears all template variables and messages
 	 * @return void
 	 * @access public
 	 * @static
@@ -176,6 +176,8 @@ class TemplateEngine {
 		self :: $variables['TE_WARNINGS'] = array();
 		self :: $variables['TE_INFOS'] = array();
 		self :: $variables['HEADER_TEXT'] = '';
+		self :: $messages_NotFin = array();
+		self :: $messages = array();
 		self :: $contexts = array();
 	}
 	/**
@@ -573,6 +575,7 @@ class TemplateEngine {
 	 * LogMsg
 	 * this function adds a log message to the Message Log
 	 * @param string $msg log message
+	 * @param boolean $success states if the event was a success or not
 	 * @param integer $mode type of this message ({@See TEMode}).
 	 * @param boolean $finished if this value is true the message will be enqueued into the output buffers,
 	 * otherwise it will be pushed onto a stack and popped when the next finished message gets added, this
