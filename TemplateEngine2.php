@@ -140,6 +140,10 @@ class TemplateEngine {
 	 */
 	private static $templateCache = array();
 	/**
+	 * @static this variable is used to track the name of the basetemplate
+	 */
+	private static $basetemplate = '';
+	/**
 	 * __construct
 	 * initializes a new object of the TemplateEngine
 	 * @access public
@@ -369,7 +373,7 @@ class TemplateEngine {
 	public static function output($basetemplate, $havingSession = true) {
 		//TODO: allow other content-types (application/json, application/javascript, text/css,...)
 		header("Content-Type: text/html; charset=utf-8");
-		$result = self ::processTemplate($basetemplate, $havingSession);
+		$result = self :: processTemplate($basetemplate, $havingSession);
 		//compress using gzip if the browser supports it
 		if (self :: $allow_gzip && strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			//well if YOU used print/echo before the complete content will be garbage it's YOUR fault!
@@ -390,6 +394,7 @@ class TemplateEngine {
 	 */
 	public static function processTemplate($basetemplate, $havingSession = true) {
 		self :: $havingSession = $havingSession;
+		self :: $basetemplate = $basetemplate;
 		self :: captureTime('startTE'); //< init time measurement
 		self :: $running = true; //< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly -> print it!
 		TE_static_setup(); //< common static (session independent) data will be set here
@@ -684,21 +689,6 @@ class TemplateEngine {
 		print '</table></div>';
 	}
 
-
-	/**
-	 * php_err_handler
-	 * this function is called by php if any error message is encountered
-	 * @param integer $errno error number identifiing the error
-	 * @param string $errstr describing error message
-	 * @param string $errfile filename of the file that caused the error
-	 * @param integer $errline line number where the error occured
-	 * @param array $errorcontext unused data that might be given by php
-	 * @return void
-	 */
-	public static function php_err_handler($errno, $errstr, $errfile= '', $errline= '', $errcontext= array()) {
-		self :: LogMsg('#'.$errno.': '.$errstr.' @'.$errfile.'('.$errline.')', false, TEMode :: error, true);
-	}
-
 	/**
 	 * forceMode
 	 * force the given log level, ignore Templates setting the level differently
@@ -770,7 +760,7 @@ class TemplateEngine {
 	 */
 	public static function useTEErrorHandler($use) {
 		if($use) {
-			set_error_handler(array('TemplateEngine', 'php_err_handler'));
+			set_error_handler("TE_php_err_handler");
 		}
 		else {
 			self :: noGzip();
@@ -829,6 +819,20 @@ class TemplateEngine {
 			$content = "<!-- start $fname -->\n" . $content . "<!-- end $fname -->\n";
 		}
 		return true;
+	}
+
+	public static function dumpVariablesOnExit() {
+		register_shutdown_function(array('TemplateEngine', 'dumpVariables'));
+		self :: noGzip();
+	}
+
+	public static function dumpVariables() {
+		$template = self :: $basetemplate;
+		print '<pre style="text-align:left;background-color:white;">';
+		print "Basetemplate: $template\n";
+		print "Available Template-Variables:\n";
+		print htmlentities(print_r(self :: $variables, true));
+		print "</pre>";
 	}
 // builtin template directives
 
@@ -1093,5 +1097,20 @@ if(isset($_GET['no_inline'])) {
 if (!function_exists('gzencode')) {
 	TemplateEngine :: noGzip();
 }
-
+// dump name and value of all set template variables
+if(isset($_GET['te_dump'])) {
+	TemplateEngine :: dumpVariablesOnExit();
+}
+/**
+ * TE_php_err_handler
+ * this function is called by php if any error message is encountered
+ * @param integer $errno error number identifiing the error
+ * @param string $errstr describing error message
+ * @param string $errfile filename of the file that caused the error
+ * @param integer $errline line number where the error occured
+ * @param array $errorcontext unused data that might be given by php
+ */
+function TE_php_err_handler($errno, $errstr, $errfile= '', $errline= '', $errcontext= array()) {
+	TemplateEngine :: LogMsg('#'.$errno.': '.$errstr.' @'.$errfile.'('.$errline.')', false, TEMode::error);
+}
 //EOF

@@ -1,5 +1,4 @@
 \documentclass[a4paper,10pt]{article}
-
 \usepackage{listings}
 \lstloadlanguages{PHP,HTML}
 \usepackage{a4wide}
@@ -7,6 +6,24 @@
 \usepackage[utf8x]{inputenc}
 \usepackage{times}
 \usepackage[german]{babel}
+
+\usepackage{ifpdf}
+\ifpdf
+\usepackage[pdftex,
+            pagebackref=true,
+            colorlinks=true,
+            linkcolor=blue,
+            unicode
+           ]{hyperref}
+\else
+\usepackage[ps2pdf,
+            pagebackref=true,
+            colorlinks=true,
+            linkcolor=blue,
+            unicode
+           ]{hyperref}
+\usepackage{pspicture}
+\fi
 
 \title{TemplateEngine2}
 \author{Obexer Christoph}
@@ -309,6 +326,17 @@ Elemente im Array.\newline
 Anwendungsbeispiel:\newline
 {\tt Anzahl der Spieler: \{USER\_ARRAY|LEN\}}
 
+\section{spezielle URL Parameter}
+
+\begin{itemize}
+  \item[force\_debug] setzt den TemplateEngine Mode auf Debug, es werden alle {\tt \{LOGLEVEL=\dots \}} aufrufe ignoriert.
+  \item[show\_timing] listet alle "`Milestones"' die mit {\tt captureTime} aufgezeichent wurden auf.
+  \item[debug\_files] h\"angt allen eingebundenen Dateien einen HTML-Kommentar mit dem Dateinamen vorne und hinten an.
+  \item[no\_inline] sucht nach allen inline {\tt style} attributen und entfernt sie.
+  \item[te\_dump] gibt nach dem verarbeiten der Seite alle Template-Variablen und deren Werte aus.
+\end{itemize}
+
+
 % GomBG specific extensions:
 
 \section{GomBG spezifische Features}
@@ -342,6 +370,12 @@ Wobei man {\tt WHAT, TP, TX} und {\tt TI} entsprechend ersetzen muss.
 Die {\tt TIMESTAMP} escape Methode formatiert einen als Integer gesetzten Datumswert in dem default Format f\"ur User.
 Beispiel:\newline
 {\tt \{FINISHED\_AT|TIMESTAMP\}}
+
+\subsection{spezielle URL Parameter}
+
+\begin{itemize}
+  \item[show\_queries] zeigt eine Liste mit allen Datenbak Queries, mehrfach ausgef\"uhrten Queries und der Ausf\"uhrungszeit, das Passwort ist am ende der {\tt inc/DB.php} zu finden.
+\end{itemize}
 
 
 \end{document}
