@@ -896,9 +896,10 @@ class TemplateEngine {
 		}
 		$res = '';
 		$iteration = 0;
-		foreach($val as $lctx) {
+		foreach($val as $index => $lctx) {
 			$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
-			$res .= self :: pushContext($tpl, $lctx);
+			$ctpl = str_replace('{FOREACH:INDEX}', $index, $tpl);
+			$res .= self :: pushContext($ctpl, $lctx);
 			$iteration++;
 		}
 		return $res;

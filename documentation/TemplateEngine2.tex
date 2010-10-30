@@ -217,6 +217,9 @@ gegeben sei ein Array mit dem Namen {\tt USERS} mit folgendem Aufbau:\newline
 bei der Ausf\"uhrung wird f\"ur jedes Element im Array ein eingener Context erzeugt, das hat einerseits
 einen gewissen Geschwindigkeitsvorteil andererseits aber auch den Vorteil, da\ss{} alle Plugins in diesem
 Kontext ganz normal arbeiten k\"onnen, weitere {\tt FOREACH} oder {\tt IF} oder jedes andere Plugin.\newline
+Zusa\"tzlich ist im neuen Context eine variable namens {\tt \{ODDROW\}} verf\"ugbar die entweder {\tt odd} oder leer ist
+je nachdem ob die aktuelle Zeile ungerade ist oder nicht.\newline
+Der Index der {\tt foreach} Iteration wir mit dem speziellen Token {\tt \{FOREACH:INDEX\}} bereitgestellt.\newline
 Verwendung:
 \lstset{language=HTML}
 \begin{lstlisting}
