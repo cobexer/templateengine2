@@ -3,3 +3,11 @@
 
 #root directory
 .kdev4
+
+#Latex tmp files
+/documentation/TemplateEngine2.aux
+/documentation/TemplateEngine2.log
+/documentation/TemplateEngine2.toc
+documentation/TemplateEngine2.out
+documentation/TemplateEngine2.tex.backup
+documentation/TemplateEngine2.tex~
