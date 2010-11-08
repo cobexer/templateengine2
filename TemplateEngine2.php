@@ -403,7 +403,7 @@ class TemplateEngine {
 		}
 		$tpl = '';
 		if (!self :: getFile($basetemplate, $tpl)) {
-			die('TemplateEngine Error: basetemplate not found - or not readable! ' . $basetemplate);
+			throw new Exception('TemplateEngine Error: basetemplate not found - or not readable! ' . $basetemplate);
 		}
 		$result = self :: pushContext($tpl, self :: $variables);
 		self :: captureTime('stopTE');
@@ -775,7 +775,7 @@ class TemplateEngine {
 		if (function_exists(array('TemplateEngine', $method))) {
 			return call_user_func_array(array('TemplateEngine', $method), $args);
 		}
-		die("The method 'TemplateEngine::$method' does not exist!");
+		throw new Exception("The method 'TemplateEngine::$method' does not exist!");
 	}
 
 	/**
