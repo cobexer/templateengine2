@@ -1,4 +1,4 @@
 [Project]
 Name=TemplateEngine2
 Manager=KDevGenericManager
-VersionControl=
+VersionControl=Git
