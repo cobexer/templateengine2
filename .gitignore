@@ -2,7 +2,8 @@
 .directory
 
 #root directory
-.kdev4
+/.kdev4
+/.settings
 
 #Latex tmp files
 /documentation/TemplateEngine2.aux
