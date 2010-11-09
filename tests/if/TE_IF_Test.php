@@ -12,11 +12,11 @@
  * @package TemplateEngine2
  */
 require_once('PEAR/PHPUnit/Autoload.php');
-require_once('TemplateEngine2.php');
 
 class TE_IFTest extends PHPUnit_Framework_TestCase
 {
 	protected function setUp() {
+		require_once('TemplateEngine2.php');
 		TemplateEngine::setRootPath(dirname(__FILE__));
 		TemplateEngine::setTemplatePath('.');
 	}

@@ -768,7 +768,7 @@ class TemplateEngine {
 	 * @param string $content passed by reference contains the file content on success, unmodified otherwise
 	 * @return boolean true if the file was found, readable and loaded
 	 */
-	public function getFile($name, &$content) {
+	public static function getFile($name, &$content) {
 		$fname = realpath(self :: $rootPath . self :: $templatePath . $name);
 		$content = '';
 		self :: LogMsg('[getFile]: <em>"' . $name . '"</em> ', true, TEMode :: debug, false);
