@@ -11,15 +11,21 @@
  * @version $VERSION$
  * @package TemplateEngine2
  */
-require_once(dirname(__FILE__) . '/TemplateEngineTestBase.php');
+require_once('PEAR/PHPUnit/Autoload.php');
 
-class TemplateEngineCoreTest extends TemplateEngineTestBase
+class TemplateEngineTestBase extends PHPUnit_Framework_TestCase
 {
-	public function testSetRootPath() {
+	protected function setUp() {
+		require_once('TemplateEngine2.php');
 		TemplateEngine::setRootPath(dirname(__FILE__));
-		$this->assertEquals(dirname(__FILE__) . '/', TemplateEngine::getRootPath(), 'set root path gets / added at the end');
 		TemplateEngine::setTemplatePath('templates');
-		$this->assertEquals(dirname(__FILE__) . '/', trim(TemplateEngine::processTemplate('te-core-rootpath.tpl', false)), 'root path available to templates');
+	}
+
+	protected function tearDown() {
+		TemplateEngine::clear();
+	}
+
+	public function testDisablePHPUnitWarning() {
 	}
 }
 

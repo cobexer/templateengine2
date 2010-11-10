@@ -1,0 +1,10 @@
+#
+# Configure the Eclipse project
+#
+ * import project
+ * configure the PEAR "library"
+  * open: Window › Preferences › PHP › PHP Libraries
+    › New =› Name: "PEAR" › OK
+    › Add External folder... =› "/usr/share/php5" for example(it needs to contain the PEAR installation directory)
+    › OK › OK
+ * this should be enough

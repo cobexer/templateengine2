@@ -11,10 +11,17 @@
  * @version $VERSION$
  * @package TemplateEngine2
  */
-require_once('PEAR/PHPUnit/Autoload.php');
+require_once(dirname(__FILE__) . '/TemplateEngineTestBase.php');
 
-class TemplateEngineCoreInitTest extends PHPUnit_Framework_TestCase
+class TemplateEngineCoreInitTest extends TemplateEngineTestBase
 {
+	//overwrite setUp/tearDown to avoid TemplateEngine inclusion
+	protected function setUp() {
+	}
+
+	protected function tearDown() {
+	}
+
 	public function testInitialization() {
 		$this->assertEquals(false, class_exists('TemplateEngine', false), 'TemplateEngine class not yet defined');
 		include('TemplateEngine2.php');
