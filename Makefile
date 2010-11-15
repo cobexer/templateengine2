@@ -15,26 +15,30 @@
 all: clean tests-coverage
 
 .PHONY: release
-release: replace-version
+release: build replace-version
 	#TODO: create release package here
 
 .PHONY: replace-version
-replace-version:
+replace-version: build
 	#TODO: find out current version && git revision
 
 
 .PHONY: tests
-tests:
+tests: build
 	phpunit --process-isolation --no-globals-backup tests/
 
 
 .PHONY: coverage
-coverage:
-	phpunit --process-isolation --no-globals-backup --coverage-html coverage/ tests/
+coverage: build
+	phpunit --process-isolation --no-globals-backup --coverage-html build/coverage/ \
+		--coverage-clover build/coverage-clover.xml --log-junit build/junit-test-log.xml tests/
 
 .PHONY: clean
 clean:
-	rm -rfv coverage/
+	rm -rfv build/
+
+build:
+	mkdir -pv build/
 
 # from http://www.phpunit.de/manual/current/en/installation.html
 install-phpunit:

@@ -1,0 +1,15 @@
+ * add Translation support (gettext)
+ * process own documentation with the TE?
+ * make debug modes session persistent
+ * plugin to delete _all_ inline styles
+ * plugin statistics to identify inefficient plugins
+ * sane default escape methods
+ * CSS minifier, debug mode
+ * JavaScript minifier, debug mode
+ * support JSON output
+ * new direktive: FOREACH2D
+ * Image sprite support (define sprite in XML and provide a chooser UI)
+ * Image sprite -> CSS generator schould be able to generate the ui-icon* classes like in jQuery UI
+ * Image Sprite Generator take folders with images and image sprite definition to create image sprite (build automation)
+ * Template directive for image sprite based icons like: {IMAGE[ui]=disk} -> <span class="ui-icon ui-icon-disk"></span> or in general {IMAGE[namespace]=icon-name} -> HTML (with the help of the image sprite definition)
+ * add sprite definitions for FAMFAMFAM icons, and jQuery UI (mobile?)
