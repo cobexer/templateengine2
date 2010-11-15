@@ -36,4 +36,10 @@ coverage:
 clean:
 	rm -rfv coverage/
 
+# from http://www.phpunit.de/manual/current/en/installation.html
+install-phpunit:
+	pear channel-discover pear.phpunit.de
+	pear channel-discover components.ez.no
+	pear channel-discover pear.symfony-project.com
+	pear install phpunit/PHPUnit
 
