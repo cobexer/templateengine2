@@ -28,12 +28,12 @@ tests:
 	phpunit --process-isolation --no-globals-backup tests/
 
 
-.PHONY: tests-coverage
-tests-coverage:
-	phpunit --process-isolation --no-globals-backup --coverage-html tests-coverage/ tests/
+.PHONY: coverage
+coverage:
+	phpunit --process-isolation --no-globals-backup --coverage-html coverage/ tests/
 
 .PHONY: clean
 clean:
-	rm -rfv tests-coverage/
+	rm -rfv coverage/
 
 
