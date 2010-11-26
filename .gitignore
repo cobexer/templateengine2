@@ -1,6 +1,10 @@
 #general
 .directory
 
+#temp files
+.*.swp
+*~
+
 #root directory
 /.kdev4
 /.settings
