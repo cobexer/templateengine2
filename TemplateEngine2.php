@@ -23,6 +23,12 @@ final class TEMode {
 	const none =  15;
 }
 /**
+ * class TETemplateNotFoundException thrown if a template has not been found
+ */
+final class TETemplateNotFoundException extends Exception {
+}
+
+/**
  * class TemplateEngine
  * this is the class that implements the core TemplateEngine's framework
  */
@@ -305,11 +311,8 @@ class TemplateEngine {
 	 */
 	public static function setRootPath($path) {
 		$len = strlen($path);
-		if($len && !('/' == $path[$len - 1])) {
+		if($len === 0 || !('/' == $path[$len - 1])) {
 			$path .= '/';
-		}
-		elseif (0 === $len) {
-			$path = '/';
 		}
 		self :: $rootPath = $path;
 		//set the root Path so templates can use it
@@ -349,6 +352,7 @@ class TemplateEngine {
 	/**
 	 * output
 	 * process the given basetemplate and output results to the browser
+	 * @throws TETemplateNotFoundException
 	 * @param string $basetemplate filename relative to TEMPLATE_PATH
 	 * @param boolean $havingSession indicates wheter this runs in a user context or cron context (default: true)
 	 * @return void
@@ -371,6 +375,7 @@ class TemplateEngine {
 	/**
 	 * processTemplate
 	 * process the given basetemplate and output results to the browser
+	 * @throws TETemplateNotFoundException
 	 * @param string $basetemplate filename relative to TEMPLATE_PATH
 	 * @param boolean $havingSession indicates wheter this runs in a user context or cron context (default: true)
 	 * @return string the processed template string
@@ -379,22 +384,20 @@ class TemplateEngine {
 		self :: $havingSession = $havingSession;
 		self :: $basetemplate = $basetemplate;
 		self :: captureTime('startTE'); //< init time measurement
-		self :: $running = true; //< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly -> print it!
+		self :: $running = true; //< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly -> append it to the Log (with LogMsg)
 		TE_static_setup(); //< common static (session independent) data will be set here
 		if(self :: $havingSession) {
 			TE_setup(); //< do TE initialisation (common data will be set there)
 		}
 		$tpl = '';
 		if (!self :: getFile($basetemplate, $tpl)) {
-			throw new Exception('TemplateEngine Error: basetemplate not found - or not readable! ' . $basetemplate);
+			self :: $running = false;
+			throw new TETemplateNotFoundException('TemplateEngine Error: basetemplate not found - or not readable! ' . $basetemplate);
 		}
 		$result = self :: pushContext($tpl, self :: $variables);
 		self :: captureTime('stopTE');
-		if (self :: $debug_files) {
-			$basetemplate = str_replace(realpath(self :: $rootPath) . '/', '', realpath(self :: $rootPath . self :: $templatePath . $basetemplate));
-			$result = "<!-- basetemplate: $basetemplate -->\n" . $result;
-		}
 		$result = str_replace('</body>', (self :: formatLogMessages() . '</body>'), $result);
+		self :: $running = false;
 		return $result;
 	}
 	/**
@@ -524,7 +527,7 @@ class TemplateEngine {
 	 * @param $html html to be added to the HTML head section
 	 * @return void
 	 */
-	function header($html) {
+	public static function header($html) {
 		self :: $variables['HEADER_TEXT'] .= "\t" . $html . "\n";
 	}
 	/**
@@ -545,7 +548,7 @@ class TemplateEngine {
 	 * @param string $js filename to be set as the src attribute of the script tag
 	 * @return void
 	 */
-	function addJS($js) {
+	public static function addJS($js) {
 		$t = "\t".'<script type="text/javascript" src="' . $js . '" ></script>'."\n";
 		self :: $variables['HEADER_TEXT'] .= $t;
 	}
@@ -553,8 +556,9 @@ class TemplateEngine {
 	 * setArray
 	 * compatibility function
 	 * @deprecated use set directly
+	 * @fixme done for compatibility
+	 * @codeCoverageIgnore
 	 */
-	//FIXME: done for compatibility
 	public static function setArray($name, $value) {
 		self :: LogMsg("setArray for <em>$name</em> deprecated!", false, TEMode :: warning, true);
 		return self :: set($name, $value);
@@ -602,6 +606,7 @@ class TemplateEngine {
 	 * @return string generated html
 	 */
 	private static function formatLogMessages() {
+		$html = '';
 		self :: LogMsg('<em>formatting messages...</em>', true, TEMode :: debug);
 		$succ = array(
 			true => '[ <strong class="te_msg_done">done</strong> ]',
@@ -614,19 +619,22 @@ class TemplateEngine {
 			TEMode :: none    => '<strong class="te_msg_non">[  NONE ]: </strong>'
 		);
 		if (count(self :: $messages)) {
-			$html = '<div id="te_message_log">';
+			$div = '<div id="te_message_log">';
+			$msg = '';
 			foreach(self :: $messages as $message) {
 				if ($message['mode'] >= self :: $mode) {
-					$html .= '<div>';
-					$html .= @$mode[$message['mode']];
-					$html .= '<span>' . $succ[$message['success']] . '</span>';
-					$html .= $message['msg'];
-					$html .= '</div>';
+					$msg .= '<div>';
+					$msg .= @$mode[$message['mode']];
+					$msg .= '<span>' . $succ[$message['success']] . '</span>';
+					$msg .= $message['msg'];
+					$msg .= '</div>';
 				}
 			}
-			return $html . '</div>';
+			if (strlen($msg)) {
+				$html .= $div . $msg . '</div>';
+			}
 		}
-		return '';
+		return $html;
 	}
 
 	/**
@@ -751,6 +759,7 @@ class TemplateEngine {
 
 	/**
 	 * reroute non static calls to the static functions
+	 * @throws Exception
 	 * @param string $method
 	 * @param array $args
 	 */
@@ -821,7 +830,7 @@ class TemplateEngine {
 	private static function TE_SKALAR(array $ctx, array $match) {
 		$val = null;
 		$found = false;
-		if (isset( $ctx[$match[1]])) {
+		if (isset($ctx[$match[1]])) {
 			$val = $ctx[$match[1]];
 			$found = true;
 		}
@@ -880,6 +889,10 @@ class TemplateEngine {
 		$res = '';
 		$iteration = 0;
 		foreach($val as $index => $lctx) {
+			if (!is_array($lctx)) {
+				self :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
+				return false;
+			}
 			$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
 			$ctpl = str_replace('{FOREACH:INDEX}', $index, $tpl);
 			$res .= self :: pushContext($ctpl, $lctx);
@@ -911,6 +924,10 @@ class TemplateEngine {
 		$res = '';
 		$iteration = 0;
 		foreach($val as $index => $lctx) {
+			if (!is_array($lctx)) {
+				self :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
+				return false;
+			}
 			$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
 			$ctpl = str_replace('{FOREACH:INDEX}', $index, $tpl);
 			$res .= self :: pushContext($block, $lctx);
@@ -1097,5 +1114,6 @@ if(isset($_GET['te_dump'])) {
  */
 function TE_php_err_handler($errno, $errstr, $errfile= '', $errline= '', $errcontext= array()) {
 	TemplateEngine :: LogMsg('#'.$errno.': '.$errstr.' @'.$errfile.'('.$errline.')', false, TEMode::error);
+	print '#'.$errno.': '.$errstr.' @'.$errfile.'('.$errline.")\n";
 }
 //EOF
