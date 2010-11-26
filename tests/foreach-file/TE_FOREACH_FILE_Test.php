@@ -74,7 +74,7 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 
 	public function testScopeChainLookupOrder() {
 		TemplateEngine::set('VARIABLE', 'global');
-		TemplateEngine::set('ARRAY', array(array('VARIABLE', 'scope')));
+		TemplateEngine::set('ARRAY', array(array('VARIABLE'=>'scope')));
 		$result = trim(TemplateEngine::processTemplate('foreach-file/scope-chain-lookup.tpl', false));
 		$this->assertEquals("global:scope", $result, 'scope chain lookup');
 	}
