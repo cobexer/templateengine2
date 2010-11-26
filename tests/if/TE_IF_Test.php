@@ -13,7 +13,7 @@
  */
 require_once(dirname(__FILE__) . '/../TemplateEngineTestBase.php');
 
-class TE_IFTest extends TemplateEngineTestBase
+class TE_IF_Test extends TemplateEngineTestBase
 {
 	public function testVarBoolean() {
 		TemplateEngine::set('VARBOOL', true);

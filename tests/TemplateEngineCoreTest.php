@@ -29,6 +29,53 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals(TemplateEngine::getRootPath() . TemplateEngine::getTemplatePath(), trim(TemplateEngine::processTemplate('te-core-templatepath.tpl', false)), 'template path available to templates');
 	}
 
+	public function testSetAndGet() {
+		$this->assertEquals(null, TemplateEngine::get('non-existing-template-variable'), 'default for unknown variables is null');
+		$this->assertEquals(false, TemplateEngine::get('non-existing-template-variable', false), 'passed default value is used if value is not known');
+		$this->assertEquals($this, TemplateEngine::get('non-existing-template-variable', $this), 'complex default value is supported as default for unknown template variables');
+		TemplateEngine::set('test-variable', true);
+		$this->assertEquals(true, TemplateEngine::get('test-variable'), 'set template variable can be retrieved with get');
+		TemplateEngine::delete('test-variable', true);
+		$this->assertEquals(null, TemplateEngine::get('test-variable'), 'deleted template variable returns default value');
+		TemplateEngine::set('test-variable', $this);
+		$this->assertEquals($this, TemplateEngine::get('test-variable'), 'complex datatypes supported as template value');
+	}
+
+	public function testsetTitle() {
+		$this->assertEquals(null, TemplateEngine::get('PAGE_TITLE'), 'page title is not set on initialization');
+		TemplateEngine::setTitle('Unit Tests');
+		$this->assertEquals('Unit Tests', TemplateEngine::get('PAGE_TITLE'), 'page title is set');
+		$result = trim(TemplateEngine::processTemplate('te-core-test_title.tpl', false));
+		$this->assertEquals('Unit Tests', $result, 'title available to templates as {PAGE_TITLE}');
+	}
+
+	public function testheader() {
+		$expect = '<meta name="generator" value="Unit Tests" />';
+		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
+		TemplateEngine::header($expect);
+		$this->assertEquals($expect, trim(TemplateEngine::get('HEADER_TEXT')), 'html for the HTML head is set');
+		$result = trim(TemplateEngine::processTemplate('te-core-test_header.tpl', false));
+		$this->assertEquals($expect, $result, 'HTML for the head section available to templates as {HEADER_TEXT}');
+	}
+
+	public function testaddCSS() {
+		$expect = '<link type="text/css" rel="stylesheet" href="path/to/css.css" />';
+		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
+		TemplateEngine::addCSS("path/to/css.css");
+		$this->assertEquals($expect, trim(TemplateEngine::get('HEADER_TEXT')), 'link tag is correct');
+		$result = trim(TemplateEngine::processTemplate('te-core-test_header.tpl', false));
+		$this->assertEquals($expect, $result, 'link tag for the head section available to templates as {HEADER_TEXT}');
+	}
+
+	public function testaddJS() {
+		$expect = '<script type="text/javascript" src="path/to/js.js" ></script>';
+		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
+		TemplateEngine::addJS("path/to/js.js");
+		$this->assertEquals($expect, trim(TemplateEngine::get('HEADER_TEXT')), 'link tag is correct');
+		$result = trim(TemplateEngine::processTemplate('te-core-test_header.tpl', false));
+		$this->assertEquals($expect, $result, 'link tag for the head section available to templates as {HEADER_TEXT}');
+	}
+
 	public function testTemplateEngineIsUnique() {
 		$teInst = TemplateEngine::Inst();
 		$tenew = new TemplateEngine();
@@ -66,9 +113,55 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals('some content "{TE_TEST=success}" all around', $result, 'custom template not replaced (denied match)');
 		$this->TE_TEST_PLUGIN_called = false;
 		TemplateEngine::unregisterPlugin('TE_TEST_PLUGIN');
-		$this->assertEquals(false, $this->TE_TEST_PLUGIN_called, 'plugin has been executed');
 		$result = trim(TemplateEngine::processTemplate('te-core-te_plugin_test.tpl', false));
+		$this->assertEquals(false, $this->TE_TEST_PLUGIN_called, 'plugin has not been executed');
 		$this->assertEquals('some content "{TE_TEST=success}" all around', $result, 'custom template not executed');
+	}
+
+	private $TE_TEST_ESCAPER_called = false;
+
+	public function TE_TEST_ESCAPER($value, $config) {
+		$this->TE_TEST_ESCAPER_called = true;
+		$this->assertEquals($this, $config, 'escape method configuration passed to escape method');
+		return "escaped";
+	}
+
+	public function testEscapeMethodRegistration() {
+		$this->TE_TEST_ESCAPER_called = false;
+		TemplateEngine::set('VARIABLE', 'original');
+		TemplateEngine::registerEscapeMethod('TE_TEST_ESCAPER', array($this, 'TE_TEST_ESCAPER'));
+		TemplateEngine::setEscapeMethodConfig('TE_TEST_ESCAPER', $this);
+		$this->assertEquals($this, TemplateEngine::getEscapeMethodConfig('TE_TEST_ESCAPER'), 'escape method config correctly retrieved');
+		$result = TemplateEngine::escape('TE_TEST_ESCAPER', 'original');
+		$this->assertEquals(true, $this->TE_TEST_ESCAPER_called, 'escape method has been executed');
+		$this->assertEquals('escaped', $result, 'escape method executed as expected');
+		$this->TE_TEST_ESCAPER_called = false;
+		TemplateEngine::unregisterEscapeMethod('TE_TEST_ESCAPER');
+		$result = TemplateEngine::escape('TE_TEST_ESCAPER', 'original');
+		$this->assertEquals(false, $this->TE_TEST_ESCAPER_called, 'escape method has not been executed');
+		$this->assertEquals('original', $result, 'escape method not executed');
+	}
+
+	/**
+	 * @expectedException TETemplateNotFoundException
+	 */
+	public function testMissingBasetemplateThrows() {
+		TemplateEngine::processTemplate('non-existing-template-file.tpl', false);
+	}
+
+	/**
+	 * @expectedException TETemplateNotFoundException
+	 */
+	public function testForceTPLExtensionThrows() {
+		TemplateEngine::processTemplate('te-core-te_existing-template-file.txt', false);
+	}
+
+	/**
+	 * @expectedException TETemplateNotFoundException
+	 */
+	public function testJailToTemplatePathThrows() {
+		TemplateEngine::setTemplatePath('templates/jail-test');
+		TemplateEngine::processTemplate('../te-core-te_existing-template-file-outside-template-path.tpl', false);
 	}
 }
 

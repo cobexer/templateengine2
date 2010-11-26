@@ -1,0 +1,1 @@
+{LOAD=load/template.tpl}
