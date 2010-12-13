@@ -26,7 +26,7 @@ class TE_SELECT_Test extends TemplateEngineTestBase
 		//execute the actual interesting directive
 		return trim(TemplateEngine::pushContext('{SELECT=OPTIONS}', array()));
 	}
-	
+
 	public function testSelectChainLookup() {
 		$opt = array(array('NAME'=>'ABC', 'VALUE'=>'#0001'),array('NAME'=>'DEF', 'VALUE'=>'#0002'));
 		TemplateEngine::registerPlugin('TE_SELECT_CHAIN', '/\{TE_SELECT_CHAIN!\}/', array($this, 'TE_SELECT_CHAIN'));
