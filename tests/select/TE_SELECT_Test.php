@@ -15,6 +15,11 @@ require_once(dirname(__FILE__) . '/../TemplateEngineTestBase.php');
 
 class TE_SELECT_Test extends TemplateEngineTestBase
 {
+	protected function setUp() {
+		parent::setUp();
+		require_once('plugins/TE_SELECT.php');
+	}
+
 	public function testSelect() {
 		TemplateEngine::set('OPTIONS', array(array('NAME'=>'ABC', 'VALUE'=>'#0001'),array('NAME'=>'DEF', 'VALUE'=>'#0002')));
 		$result = str_replace(array("\n", "\t"), "", trim(TemplateEngine::processTemplate('select/select.tpl', false)));
