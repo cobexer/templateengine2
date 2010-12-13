@@ -1,14 +1,14 @@
 <?php
 /**
- * TemplateEngine2 PHP Templating System $VERSION$
- * http://gruewo.dyndns.org/gitweb/?p=templateengine2.git
+ * TemplateEngine2 PHP Templating System @VERSION@
+ * @WWW@
  *
  * @copyright Copyright 2010, Obexer Christoph
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: $DATE$
+ * Date: @DATE@
  * @author Obexer Christoph
- * @version $VERSION$
+ * @version @VERSION@ (@COMMIT@)
  * @package TemplateEngine2
  */
 require_once(dirname(__FILE__) . '/../TemplateEngineTestBase.php');
@@ -66,9 +66,10 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 					)
 				)
 			)));
+		TemplateEngine::set('COMPLEX_SCOPELOOKUP', array(array('VALUE'=>'success')));
 		$result = str_replace("\n", "", trim(TemplateEngine::processTemplate('foreach-file/complex-elements.tpl', false)));
-		$expected = '<ul><li class="odd">Phone:<br/><dl><dt>Manufacturer</dt><dd>ABC</dd><dt>Price</dt><dd>999</dd></dl></li>';
-		$expected .= '<li class="">Netbook:<br/><dl><dt>Manufacturer</dt><dd>DEF</dd><dt>Price</dt><dd>666</dd></dl></li></ul>';
+		$expected = '<ul><li class="odd">Phone:<br/><dl><dt>Manufacturer</dt><dd>ABC</dd><dt>Price</dt><dd>999</dd></dl><br/>success</li>';
+		$expected .= '<li class="">Netbook:<br/><dl><dt>Manufacturer</dt><dd>DEF</dd><dt>Price</dt><dd>666</dd></dl><br/>success</li></ul>';
 		$this->assertEquals($expected, $result, 'complex array correctly processed');
 	}
 

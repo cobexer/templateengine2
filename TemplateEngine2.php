@@ -1,14 +1,14 @@
 <?php
 /**
- * TemplateEngine2 PHP Templating System $VERSION$
- * http://gruewo.dyndns.org/gitweb/?p=templateengine2.git
+ * TemplateEngine2 PHP Templating System @VERSION@
+ * @WWW@
  *
  * @copyright Copyright 2010, Obexer Christoph
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: $DATE$
+ * Date: @DATE@
  * @author Obexer Christoph
- * @version $VERSION$
+ * @version @VERSION@ (@COMMIT@)
  * @package TemplateEngine2
  */
 require_once(dirname(realpath(__FILE__)).'/TE_setup2.php');
@@ -936,28 +936,6 @@ class TemplateEngine {
 		return $res;
 	}
 
-	private static function TE_SELECT(array $ctx, array $match) {
-		$html = '';
-		$val = null;
-		if(isset($ctx[$match[1]])) {
-			$val = $ctx[$match[1]];
-		}
-		else {
-			self :: lookupVar($match[1], $val);
-		}
-		if(!is_array($val)) {
-			self :: LogMsg('[SELECT]: Array <em>"'.$match[1].'"</em> not set or invalid', false, TEMode :: error);
-		}
-		else {
-			self :: LogMsg('[SELECT]: rendering Array <em>"'.$match[1].'"</em>', true, TEMode :: debug);
-			foreach($val as $values) {
-				$html .= '	<option name="'.$values['NAME'].'" value="'.$values['VALUE'].'">'.$values['NAME'].'</option>';
-			}
-		}
-		return $html;
-	}
-
-
 	private static function TE_LOGLEVEL(array $ctx, array $match) {
 		if (self :: $mode_forced) {
 			return '';
@@ -1072,7 +1050,6 @@ TemplateEngine :: registerPlugin('TE_IF',
 	array('TemplateEngine', 'TE_IF'));
 TemplateEngine :: registerPlugin('TE_LOAD', '/\{LOAD=([^\{\}]+)\}/', array('TemplateEngine', 'TE_LOAD'));
 TemplateEngine :: registerPlugin('TE_LOAD_WITHID', '/\{LOAD_WITHID=([^\{\}]+);([^\{\}]+)\}/', array('TemplateEngine', 'TE_LOAD_WITHID'));
-TemplateEngine :: registerPlugin('TE_SELECT', '/\{SELECT=([A-Z0-9_]+)\}/', array('TemplateEngine', 'TE_SELECT'));
 TemplateEngine :: registerPlugin('TE_FOREACH_FILE', '/\{FOREACH\[([A-Z0-9_]+)\]=([^\}]+)\}/Um', array('TemplateEngine', 'TE_FOREACH_FILE'));
 TemplateEngine :: registerPlugin('TE_FOREACH_INLINE', '/\{FOREACH\[(?P<variable>[A-Z0-9_]+)\]\}(?P<block>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*)(?:\{FOREACH:ELSE\}(?P<nblock>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*))?\{\/FOREACH\}/Us', array('TemplateEngine', 'TE_FOREACH_INLINE'));
 TemplateEngine :: registerPlugin('TE_SKALAR', '/\{([A-Z0-9_]*)(?:\|(?P<escaper>[A-Z0-9_]+))?\}/', array('TemplateEngine', 'TE_SKALAR'));

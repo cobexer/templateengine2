@@ -1,14 +1,14 @@
 <?php
 /**
- * TemplateEngine2 PHP Templating System $VERSION$
- * http://gruewo.dyndns.org/gitweb/?p=templateengine2.git
+ * TemplateEngine2 PHP Templating System @VERSION@
+ * @WWW@
  *
  * @copyright Copyright 2010, Obexer Christoph
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: $DATE$
+ * Date: @DATE@
  * @author Obexer Christoph
- * @version $VERSION$
+ * @version @VERSION@ (@COMMIT@)
  * @package TemplateEngine2
  */
 require_once('PEAR/PHPUnit/Autoload.php');
