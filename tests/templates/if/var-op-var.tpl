@@ -1,0 +1,12 @@
+{IF(VAR1 lt {VAR2})}lt{IF:ELSE}gte{/IF}:
+{IF(VAR1 < {VAR2})}<{IF:ELSE}>={/IF}:
+{IF(VAR1 lte {VAR2})}lte{IF:ELSE}gt{/IF}:
+{IF(VAR1 <= {VAR2})}<={IF:ELSE}>{/IF}:
+{IF(VAR1 eq {VAR2})}eq{IF:ELSE}ne{/IF}:
+{IF(VAR1 == {VAR2})}=={IF:ELSE}!={/IF}:
+{IF(VAR1 ne {VAR2})}ne{IF:ELSE}eq{/IF}:
+{IF(VAR1 != {VAR2})}!={IF:ELSE}=={/IF}:
+{IF(VAR1 gte {VAR2})}gte{IF:ELSE}lt{/IF}:
+{IF(VAR1 >= {VAR2})}>={IF:ELSE}<{/IF}:
+{IF(VAR1 gt {VAR2})}gt{IF:ELSE}lte{/IF}:
+{IF(VAR1 > {VAR2})}>{IF:ELSE}<={/IF}

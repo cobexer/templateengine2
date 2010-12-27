@@ -21,6 +21,8 @@ P: * allow plugins to declare them self as cachable (eg LOAD) -> fewer disk acce
 #
 # TODOs
 #
+ * define public regex pattern that matches on escape methods, validate registrations and allow plugins to use that public variable
+ * add setOption && getOption function to control all available options through those 2 functions(store all options in an associative array)
  * TODO: sort & group ideas by topic and type
  * add Translation support (gettext)
  * process own documentation with the TE?

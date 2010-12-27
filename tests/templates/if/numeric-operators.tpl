@@ -1,0 +1,12 @@
+{IF(VAR lt 42)}lt{IF:ELSE}gte{/IF}:
+{IF(VAR < 42)}<{IF:ELSE}>={/IF}:
+{IF(VAR lte 42)}lte{IF:ELSE}gt{/IF}:
+{IF(VAR <= 42)}<={IF:ELSE}>{/IF}:
+{IF(VAR eq 42)}eq{IF:ELSE}ne{/IF}:
+{IF(VAR == 42)}=={IF:ELSE}!={/IF}:
+{IF(VAR ne 42)}ne{IF:ELSE}eq{/IF}:
+{IF(VAR != 42)}!={IF:ELSE}=={/IF}:
+{IF(VAR gte 42)}gte{IF:ELSE}lt{/IF}:
+{IF(VAR >= 42)}>={IF:ELSE}<{/IF}:
+{IF(VAR gt 42)}gt{IF:ELSE}lte{/IF}:
+{IF(VAR > 42)}>{IF:ELSE}<={/IF}

@@ -682,11 +682,24 @@ class TemplateEngine {
 	/**
 	 * forceMode
 	 * force the given log level, ignore Templates setting the level differently
+	 * @param $mode @see TEMode
 	 * @return void
 	 */
 	public static function forceMode($mode) {
 		self :: $mode = $mode;
 		self :: $mode_forced = true;
+	}
+
+	/**
+	 * setMode
+	 * set the log level to the given mode, only if the mode haas not been forced otherwise
+	 * @param $mode @see TEMode
+	 * @return void
+	 */
+	public static function setMode($mode) {
+		if (!self :: $mode_forced) {
+			self :: $mode = $mode;
+		}
 	}
 
 	/**
@@ -825,215 +838,6 @@ class TemplateEngine {
 		print htmlentities(print_r(self :: $variables, true));
 		print "</pre>";
 	}
-// builtin template directives
-
-	private static function TE_SKALAR(array $ctx, array $match) {
-		$val = null;
-		$found = false;
-		if (isset($ctx[$match[1]])) {
-			$val = $ctx[$match[1]];
-			$found = true;
-		}
-		elseif(self :: lookupVar($match[1], $val)) {
-			$found = true;
-		}
-		if($found && isset($match['escaper']) && '' != $match['escaper']) {
-			return self :: escape($match['escaper'], $val);
-		}
-		elseif($found) {
-			return (string)$val;
-		}
-		return false;
-	}
-
-	private static function TE_LOAD(array $ctx, array $match) {
-		$content = '';
-		self :: LogMsg('[LOAD]', true, TEMode :: debug, false);
-		$succ = self :: getFile($match[1], $content);
-		return $succ ? $content : false;
-	}
-
-	private static function TE_LOAD_WITHID(array $ctx, array $match) {
-		$content = '';
-		self :: LogMsg('[LOAD_WITHID]', true, TEMode :: debug, false);
-		$succ = self :: getFile($match[1], $content);
-		return $succ ? str_replace("{LOAD:ID}", $match[2], $content) : false;
-	}
-
-	private static function TE_FOREACH_FILE(array $ctx, array $match) {
-		$val = null;
-		$found = false;
-		if (isset($ctx[$match[1]])) {
-			$val = $ctx[$match[1]];
-			$found = true;
-		}
-		elseif (self :: lookupVar($match[1], $val)) {
-		    $found = true;
-		}
-
-		if(!$found || !is_array($val)) {
-			self :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> not set or invalid', false, TEMode::error);
-			return false;
-		}
-		$fname = $match[2];
-		if(empty($val)) {
-			$fname = str_replace('.tpl', '-empty.tpl', $fname);
-			$val[] = array(); //append empty element to make the rest work
-		}
-		$tpl = '';
-		self :: LogMsg('[FOREACH_FILE]', true, TEMode :: debug, false);
-		$succ = self :: getFile($fname, $tpl);
-		if (!$succ) {
-			return false;
-		}
-		$res = '';
-		$iteration = 0;
-		foreach($val as $index => $lctx) {
-			if (!is_array($lctx)) {
-				self :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
-				return false;
-			}
-			$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
-			$ctpl = str_replace('{FOREACH:INDEX}', $index, $tpl);
-			$res .= self :: pushContext($ctpl, $lctx);
-			$iteration++;
-		}
-		return $res;
-	}
-
-	private static function TE_FOREACH_INLINE(array $ctx, array $match) {
-		$val = null;
-		$found = false;
-		if (isset($ctx[$match['variable']])) {
-			$val = $ctx[$match['variable']];
-			$found = true;
-		}
-		elseif (self :: lookupVar($match['variable'], $val)) {
-			$found = true;
-		}
-
-		if(!$found || !is_array($val)) {
-			self :: LogMsg('[FOREACH_INLINE]: Variable <em>'.$match['variable'].'</em> not set or invalid', false, TEMode::error);
-			return false;
-		}
-		$block = $match['block'];
-		if(empty($val)) {
-			$block = $match['nblock'];
-			$val[] = array();
-		}
-		$res = '';
-		$iteration = 0;
-		foreach($val as $index => $lctx) {
-			if (!is_array($lctx)) {
-				self :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
-				return false;
-			}
-			$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
-			$ctpl = str_replace('{FOREACH:INDEX}', $index, $tpl);
-			$res .= self :: pushContext($block, $lctx);
-			$iteration++;
-		}
-		return $res;
-	}
-
-	private static function TE_LOGLEVEL(array $ctx, array $match) {
-		if (self :: $mode_forced) {
-			return '';
-		}
-		switch($match[1]) {
-			case 'DEBUG':  self :: $mode = TEMode :: debug;  return '';
-			case 'WARNING':self :: $mode = TEMode :: warning;return '';
-			case 'ERROR':  self :: $mode = TEMode :: error;  return '';
-			case 'NONE':   self :: $mode = TEMode :: none;   return '';
-			default: return false;
-		}
-	}
-
-	private static function TE_IF(array $ctx, array $match) {
-		if(count($match) < 9) {
-			self :: LogMsg('[IF]: Directive malformed: <em>'.$match[0].'</em>', false, TEMode::error);
-			return false;
-		}
-		$key = $match['variable'];
-		$escaper = $match['escaper'];
-		$op = $match['operator'];
-		$literal = null;
-		if(isset($match['literal']) && '' !== $match['literal']) {
-			$literal = $match['literal'];
-		}
-		elseif(!self :: lookupVar($match['litvar'], $literal)) {
-			self :: LogMsg('[IF]: Value <em>'.$match['litvar'].'</em> not set, but used by IF', false, TEMode::error);
-			return false;
-		}
-		$block = $match['block'];
-		$nblock = isset($match['nblock']) ? $match['nblock'] : '';
-		$val = isset($ctx[$key]) ? $ctx[$key] : null;
-		if(null == $val && 'null' != $literal && !self :: lookupVar($key, $val)) {
-			self :: LogMsg('[IF]: Value <em>'.$key.'</em> not set, but used by IF', false, TEMode::error);
-			return false;
-		}
-		$result= false;
-		//< maybe not best style but easy and works =)
-		if('null' == $literal) {
-			$literal = null;
-		}
-		self :: LogMsg('[IF]: Condition: <em>'.$key.('' !== $escaper ? '|'.$escaper : '').' '.$op.' '.($literal === null ? 'null' : $literal).'</em> ', true, TEMode::debug, false);
-		if ('' !== $escaper) {
-			$val = self :: escape($escaper, $val);
-		}
-		switch($op) {
-			case '<' :
-			case 'lt' :
-				$result = $val < $literal;
-				break;
-			case '>' :
-			case 'gt' :
-				$result = $val > $literal;
-				break;
-			case '==' :
-			case 'eq' :
-				$result = $val == $literal;
-				break;
-			case '!=' :
-			case 'ne' :
-				$result = $val != $literal;
-				break;
-			case '<=' :
-			case 'lte' :
-				$result = $val <= $literal;
-				break;
-			case '>=' :
-			case 'gte' :
-				$result = $val >= $literal;
-				break;
-			default :
-				self :: LogMsg('[IF]: Operator not known: <em>'.$op.'</em>('.$match[0].')', false, TEMode::error);
-				return false;
-		}
-		if($result === true) {
-			self :: LogMsg('... matched!', true, TEMode::debug);
-			$result = $block;
-		}
-		else {
-			self :: LogMsg('... not matched!', true, TEMode::debug);
-			$result = $nblock;
-		}
-		return $result;
-	}
-
-	private static function TE_STRIP_INLINESTYLE(array $context, array $match) {
-		return '';
-	}
-
-	private static function ESC_LEN($value, $config) {
-		if(is_array($value)) {
-			return count($value);
-		}
-		if(is_string($value)) {
-			return strlen($value);
-		}
-		return 0; //everything else is unknown atm
-	}
 };
 
 // #######################################################################################
@@ -1043,18 +847,6 @@ class TemplateEngine {
 new TemplateEngine(); //required! as the first instance clears and initializes the TE
 TemplateEngine :: captureTime('TEincluded'); //< page start init
 TemplateEngine :: useTEErrorHandler(!isset($_GET['force_def_err_handler']));
-// register built in plugins
-TemplateEngine :: registerPlugin('TE_LOGLEVEL', '/\{LOGLEVEL=(DEBUG|WARNING|ERROR|NONE)\}/', array('TemplateEngine', 'TE_LOGLEVEL'));
-TemplateEngine :: registerPlugin('TE_IF',
-	'/\{(IF)\((?P<variable>[A-Z0-9_]+)(?:\|(?P<escaper>[A-Z]+))?\s?(?P<operator><|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?(?:(?P<literal>[\w-]+)|\{(?P<litvar>[A-Z0-9_]+)\})\)\}(?P<block>(?:(?>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*)(\{IF:ELSE\}(?P<nblock>(?:(?>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*))?\{\/IF\}/Us',
-	array('TemplateEngine', 'TE_IF'));
-TemplateEngine :: registerPlugin('TE_LOAD', '/\{LOAD=([^\{\}]+)\}/', array('TemplateEngine', 'TE_LOAD'));
-TemplateEngine :: registerPlugin('TE_LOAD_WITHID', '/\{LOAD_WITHID=([^\{\}]+);([^\{\}]+)\}/', array('TemplateEngine', 'TE_LOAD_WITHID'));
-TemplateEngine :: registerPlugin('TE_FOREACH_FILE', '/\{FOREACH\[([A-Z0-9_]+)\]=([^\}]+)\}/Um', array('TemplateEngine', 'TE_FOREACH_FILE'));
-TemplateEngine :: registerPlugin('TE_FOREACH_INLINE', '/\{FOREACH\[(?P<variable>[A-Z0-9_]+)\]\}(?P<block>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*)(?:\{FOREACH:ELSE\}(?P<nblock>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*))?\{\/FOREACH\}/Us', array('TemplateEngine', 'TE_FOREACH_INLINE'));
-TemplateEngine :: registerPlugin('TE_SKALAR', '/\{([A-Z0-9_]*)(?:\|(?P<escaper>[A-Z0-9_]+))?\}/', array('TemplateEngine', 'TE_SKALAR'));
-
-TemplateEngine :: registerEscapeMethod('LEN', array('TemplateEngine', 'ESC_LEN'));
 
 // force debug level if 'force_debug' is set in $_GET
 if(isset($_GET['force_debug'])) {
@@ -1067,10 +859,6 @@ if(isset($_GET['show_timing'])) {
 // activate file debugging if 'debug_files' is set in $_GET
 if(isset($_GET['debug_files'])) {
 	TemplateEngine :: setFileDebugMode(true);
-}
-// strip all inline styles if 'no_inline' is set in $_GET
-if(isset($_GET['no_inline'])) {
-	TemplateEngine :: registerPlugin('TE_STRIP_INLINESTYLE', '/(style="(?:[^"]*)")/', array('TemplateEngine', 'TE_STRIP_INLINESTYLE'));
 }
 //don't gzip if impossible ;)
 if (!function_exists('gzencode')) {

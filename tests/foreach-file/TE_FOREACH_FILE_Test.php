@@ -15,6 +15,14 @@ require_once(dirname(__FILE__) . '/../TemplateEngineTestBase.php');
 
 class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 {
+	protected function setUp() {
+		parent::setUp();
+		require_once('plugins/TE_FOREACH_FILE.php');
+		require_once('plugins/TE_SCALAR.php');
+	}
+
+
+
 	public function testNonArrayForeach() {
 		TemplateEngine::set('VARIABLE', false);
 		$result = trim(TemplateEngine::processTemplate('foreach-file/non-array.tpl', false));

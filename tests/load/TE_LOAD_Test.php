@@ -15,6 +15,11 @@ require_once(dirname(__FILE__) . '/../TemplateEngineTestBase.php');
 
 class TE_LOAD_Test extends TemplateEngineTestBase
 {
+	protected function setUp() {
+		parent::setUp();
+		require_once('plugins/TE_LOAD.php');
+	}
+
 	public function testLoadFile() {
 		$result = trim(TemplateEngine::processTemplate('load/load-template.tpl', false));
 		$this->assertEquals('succeeded', $result, 'template loaded');

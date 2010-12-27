@@ -39,4 +39,12 @@ class TE_SELECT_Test extends TemplateEngineTestBase
 		$expected = '<option value="#0001">ABC</option><option value="#0002">DEF</option>';
 		$this->assertEquals($expected, $result, 'option tags rendered as expected');
 	}
+
+
+	public function testSelectRejectsNonArrayVariables() {
+		TemplateEngine::set('OPTIONS', 'INVALID');
+		$result = str_replace(array("\n", "\t"), "", trim(TemplateEngine::processTemplate('select/select.tpl', false)));
+		$expected = '{SELECT=OPTIONS}';
+		$this->assertEquals($expected, $result, 'select rejects non array variables');
+	}
 }

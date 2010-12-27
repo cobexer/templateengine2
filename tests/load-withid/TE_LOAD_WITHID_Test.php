@@ -15,6 +15,11 @@ require_once(dirname(__FILE__) . '/../TemplateEngineTestBase.php');
 
 class TE_LOAD_WITHID_Test extends TemplateEngineTestBase
 {
+	protected function setUp() {
+		parent::setUp();
+		require_once('plugins/TE_LOAD_WITHID.php');
+	}
+
 	public function testLoadFile() {
 		$result = trim(TemplateEngine::processTemplate('load-withid/load-template.tpl', false));
 		$this->assertEquals('succeeded (test-id)', $result, 'template loaded');

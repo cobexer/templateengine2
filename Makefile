@@ -56,4 +56,4 @@ install-phpunit:
 	pear channel-discover pear.symfony-project.com
 	pear install phpunit/PHPUnit
 
-.PHONY: release tests coverage clean
+.PHONY: release tests coverage clean build

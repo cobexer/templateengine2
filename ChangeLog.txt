@@ -1,0 +1,13 @@
+#
+# ChangeLog
+#
+
+ * v2.0.1
+  * Makefile to automate release building, testing,...
+  * moved all plugins to separate files -> compiled together using a config file
+  * new plugin registration used to specify advanced plugin properties
+   * dependencies between plugins and plugin -> escape methods for checking if the resulting configuration is valid
+   * weight for controlling when the plugin will run
+   * registration interface that allows for future additions
+  * PHPUnit test Suite that tests all features of the TemplateEngine +
+    coverage reports

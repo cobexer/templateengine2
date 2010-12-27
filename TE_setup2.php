@@ -26,3 +26,5 @@ function TE_setup() {
  */
 function TE_static_setup() {
 }
+
+//EOF

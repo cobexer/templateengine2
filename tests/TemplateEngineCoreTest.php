@@ -15,6 +15,11 @@ require_once(dirname(__FILE__) . '/TemplateEngineTestBase.php');
 
 class TemplateEngineCoreTest extends TemplateEngineTestBase
 {
+	protected function setUp() {
+		parent::setUp();
+		require_once('plugins/TE_SCALAR.php');
+	}
+
 	public function testSetRootPath() {
 		TemplateEngine::setRootPath(dirname(__FILE__));
 		$this->assertEquals(dirname(__FILE__) . '/', TemplateEngine::getRootPath(), 'set root path gets / added at the end');
