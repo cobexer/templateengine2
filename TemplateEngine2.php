@@ -151,9 +151,6 @@ class TemplateEngine {
 	 * @static
 	 */
 	public static function Inst() {
-		if(self :: $instance === null) {
-			self :: $instance = new self();
-		}
 		return self :: $instance;
 	}
 	/**

@@ -26,6 +26,7 @@ class TemplateEngineCoreInitTest extends TemplateEngineTestBase
 		$this->assertEquals(false, class_exists('TemplateEngine', false), 'TemplateEngine class not yet defined');
 		include('TemplateEngine2.php');
 		$this->assertEquals(true, class_exists('TemplateEngine', false), 'TemplateEngine class defined');
+		$this->assertNotEquals(null, TemplateEngine::Inst(), 'TemplateEngine::Inst() does not return null');
 		$this->assertEquals(true, is_array(TemplateEngine::get('TE_ERRORS', null)), 'TE_ERRORS is set and an array');
 		$this->assertEquals(0, count(TemplateEngine::get('TE_ERRORS', null)), 'TE_ERRORS is of length 0');
 		$this->assertEquals(true, is_array(TemplateEngine::get('TE_WARNINGS', null)), 'TE_WARNINGS is set and an array');
