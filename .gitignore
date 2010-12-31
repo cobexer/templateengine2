@@ -9,6 +9,7 @@
 /.kdev4
 /.settings
 /build/
+/release-plugins.txt
 
 #Latex tmp files
 /documentation/TemplateEngine2.aux

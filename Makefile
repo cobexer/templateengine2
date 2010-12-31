@@ -18,19 +18,33 @@ COMMIT = sed "s/@COMMIT@/${TE_COMMIT}/"
 TE_WWW = "http://gruewo.dyndns.org/gitweb/?p=templateengine2.git"
 WWW = sed "s|@WWW@|${TE_WWW}|"
 
+TE_RELEASE_NAME = ${BUILD_DIR}/TemplateEngine2.php
 
 PLUGINS = $(shell find ${PLUGINS_DIR} -name "*.php" -exec sh -c "echo {} | sed s@${PLUGINS_DIR}@${BUILD_DIR}/${PLUGINS_DIR}@" \;)
 
-all: clean tests release
+release: build ${PLUGINS} release-plugins.txt
+	@cat TemplateEngine2.php | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > ${TE_RELEASE_NAME}
+	$(MAKE) -s te2-append-plugins
+	@sed -i "s@//EOF@@" ${TE_RELEASE_NAME}
+	@echo "//EOF" >> ${TE_RELEASE_NAME}
+	@cat -s ${TE_RELEASE_NAME} > ${TE_RELEASE_NAME}.tmp
+	@mv ${TE_RELEASE_NAME}.tmp ${TE_RELEASE_NAME}
+	@echo "built release version: TemplateEngine2 ${TE_VER} of ${TE_DATE} (${TE_COMMIT})"
+
+release-plugins.txt:
+	@cp -v release-plugins.txt.in release-plugins.txt
 
 ${BUILD_DIR}/${PLUGINS_DIR}/%.php: ${PLUGINS_DIR}/%.php
 	@echo "patching $< to $@"
 	@cat $< | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > $@
 
+TE_RELEASE_PLUGINS = $(shell cat release-plugins.txt 2>/dev/null)
+te2-append-plugins: ${TE_RELEASE_PLUGINS}
 
-release: build ${PLUGINS}
-	@cat TemplateEngine2.php | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > ${BUILD_DIR}/TemplateEngine2.php
-	@echo "built release version: TemplateEngine2 ${TE_VER} of ${TE_DATE} (${TE_COMMIT})"
+${TE_RELEASE_PLUGINS}:
+	@echo "appending ${BUILD_DIR}/${PLUGINS_DIR}/$@.php to ${TE_RELEASE_NAME}..."
+	@tail -n +14 ${BUILD_DIR}/${PLUGINS_DIR}/$@.php >> ${TE_RELEASE_NAME}
+
 
 tests:
 	phpunit --process-isolation --no-globals-backup ${TESTS_DIR}/
@@ -44,6 +58,9 @@ coverage: build
 clean:
 	@rm -rfv ${BUILD_DIR}
 
+dist-clean: clean
+	@rm -rfv release-plugins.txt
+
 
 build:
 	@mkdir -pv ${BUILD_DIR}/${PLUGINS_DIR}/
@@ -56,4 +73,4 @@ install-phpunit:
 	pear channel-discover pear.symfony-project.com
 	pear install phpunit/PHPUnit
 
-.PHONY: release tests coverage clean build
+.PHONY: release tests coverage clean build dist-clean

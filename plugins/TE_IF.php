@@ -71,7 +71,7 @@ function TE_PLUGIN_TE_IF(array $ctx, array $match) {
 }
 
 TemplateEngine :: registerPlugin('TE_IF',
-	'/\{(IF)\((?P<variable>[A-Z0-9_]+)(?:\|(?P<escaper>[A-Z_]+))?\s?(?P<operator><|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?(?:(?P<literal>[\w-]+)|\{(?P<litvar>[A-Z0-9_]+)\})\)\}(?P<block>(?:(?>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z_]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*)(\{IF:ELSE\}(?P<nblock>(?:(?>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z_]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*))?\{\/IF\}/Us',
+	'/\{(IF)\((?P<variable>[A-Z0-9_]+)(?:\|(?P<escaper>[A-Z_]+))?\s?(?P<operator><|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?(?:(?P<literal>[\w-]+)|\{(?P<litvar>[A-Z0-9_]+)\})\)\}(?P<block>(?:(?'.'>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z_]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*)(\{IF:ELSE\}(?P<nblock>(?:(?'.'>[^{]*?)|(?:\{)(?!(IF\(([A-Z0-9_]+)(?:\|([A-Z_]+))?\s?(<|>|==|!=|<=|>=|lt|gt|eq|ne|lte|gte){1}\s?([\w-]+)\)\}))|(?R))*))?\{\/IF\}/Us',
 	'TE_PLUGIN_TE_IF');
 
 //EOF
