@@ -876,6 +876,5 @@ if(isset($_GET['te_dump'])) {
  */
 function TE_php_err_handler($errno, $errstr, $errfile= '', $errline= '', $errcontext= array()) {
 	TemplateEngine :: LogMsg('#'.$errno.': '.$errstr.' @'.$errfile.'('.$errline.')', false, TEMode::error);
-	print '#'.$errno.': '.$errstr.' @'.$errfile.'('.$errline.")\n";
 }
 //EOF
