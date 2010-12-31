@@ -343,13 +343,15 @@ Anwendungsbeispiel:\newline
 
 \section{spezielle URL Parameter}
 
-\begin{itemize}
-  \item[force\_debug] setzt den TemplateEngine Mode auf Debug, es werden alle {\tt \{LOGLEVEL=\dots \}} aufrufe ignoriert.
+\begin{description}
+  \item[force\_debug] setzt den TemplateEngine Mode auf Debug, es werden alle {\tt \{LOGLEVEL=\dots \}} und {\tt setMode} aufrufe ignoriert.
   \item[show\_timing] listet alle "`Milestones"' die mit {\tt captureTime} aufgezeichent wurden auf.
   \item[debug\_files] h\"angt allen eingebundenen Dateien einen HTML-Kommentar mit dem Dateinamen vorne und hinten an.
   \item[no\_inline] sucht nach allen inline {\tt style} attributen und entfernt sie.
   \item[te\_dump] gibt nach dem verarbeiten der Seite alle Template-Variablen und deren Werte aus.
-\end{itemize}
+  \item[force\_def\_err\_handler] FIXME
+  \item[force\_def\_exception\_handler] FIXME
+\end{description}
 
 
 % GomBG specific extensions:
