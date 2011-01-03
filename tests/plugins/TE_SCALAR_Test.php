@@ -22,33 +22,33 @@ class TE_SCALAR_Test extends TemplateEngineTestBase
 
 	public function testVarBoolean() {
 		TemplateEngine::set('VARIABLE', true);
-		$this->assertEquals("1", trim(TemplateEngine::processTemplate('scalar/scalar.tpl', false)), 'boolean converted to string results in a number');
+		$this->assertEquals("1", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar.tpl', false)), 'boolean converted to string results in a number');
 	}
 
 	public function testVarNumber() {
 		TemplateEngine::set('VARIABLE', 1337);
-		$this->assertEquals("1337", trim(TemplateEngine::processTemplate('scalar/scalar.tpl', false)), 'number used as is');
+		$this->assertEquals("1337", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar.tpl', false)), 'number used as is');
 	}
 
 	public function testVarText() {
 		TemplateEngine::set('VARIABLE', "Text as is.");
-		$this->assertEquals("Text as is.", trim(TemplateEngine::processTemplate('scalar/scalar.tpl', false)), 'string used as is');
+		$this->assertEquals("Text as is.", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar.tpl', false)), 'string used as is');
 	}
 
 	public function testVarHTML() {
 		TemplateEngine::set('VARIABLE', "<strong>HTML</strong> as is.");
-		$this->assertEquals("<strong>HTML</strong> as is.", trim(TemplateEngine::processTemplate('scalar/scalar.tpl', false)), 'HTML used as is');
+		$this->assertEquals("<strong>HTML</strong> as is.", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar.tpl', false)), 'HTML used as is');
 	}
 
 	public function testVarTemplateCode() {
 		TemplateEngine::set('VARIABLE', "Template code: {ROOT_PATH}{UNDEFINED_VAR}");
-		$this->assertEquals("Template code: " . TemplateEngine::getRootPath() . "{UNDEFINED_VAR}", trim(TemplateEngine::processTemplate('scalar/scalar.tpl', false)), 'Template code used and executed as expected');
+		$this->assertEquals("Template code: " . TemplateEngine::getRootPath() . "{UNDEFINED_VAR}", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar.tpl', false)), 'Template code used and executed as expected');
 	}
 
 	public function testEscaperSupport() {
 		TemplateEngine::registerEscapeMethod('TE_TEST_SCALAR_ESCAPER_SUPPORT', array($this, 'TE_TEST_SCALAR_ESCAPER_SUPPORT'));
 		TemplateEngine::set('VARIABLE', 'original');
-		$result = trim(TemplateEngine::processTemplate('scalar/escaper.tpl', false));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/escaper.tpl', false));
 		$this->assertEquals(true, $this->TE_TEST_SCALAR_ESCAPER_SUPPORT_executed, 'TE_SCALAR supports escape methods');
 		$this->assertEquals('escaped', $result, 'TE_SCALAR supports escape methods');
 	}
@@ -69,10 +69,10 @@ class TE_SCALAR_Test extends TemplateEngineTestBase
 		return $content;
 	}
 
-	public function testSkalarSupportsLookupSkopeChain() {
+	public function testSkalarSupportsLookupScopeChain() {
 		TemplateEngine::registerPlugin('TE_TEST_SCALAR_LOOKUP_SCOPE_CHAIN_SUPPORTED', '/\{TE_TEST_SCALAR_LOOKUP_SCOPE_CHAIN_SUPPORTED=([^\{\}]+)\}/', array($this, 'TE_TEST_SCALAR_LOOKUP_SCOPE_CHAIN_SUPPORTED'));
 		TemplateEngine::set('VARIABLE', 'success');
-		$result = trim(TemplateEngine::processTemplate('scalar/lookupScopeChain.tpl', false));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/lookupScopeChain.tpl', false));
 		$this->assertEquals(true, $this->TE_TEST_SCALAR_LOOKUP_SCOPE_CHAIN_SUPPORTED_executed, 'TE_SCALAR supports scope chain lookups');
 		$this->assertEquals('success', $result, 'TE_SCALAR supports scope chain lookups');
 	}

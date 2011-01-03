@@ -13,27 +13,27 @@
  */
 require_once(dirname(__FILE__) . '/../TemplateEngineTestBase.php');
 
-class TE_LOAD_WITHID_Test extends TemplateEngineTestBase
+class TE_LOAD_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_LOAD_WITHID.php');
+		require_once('plugins/TE_LOAD.php');
 	}
 
 	public function testLoadFile() {
-		$result = trim(TemplateEngine::processTemplate('load-withid/load-template.tpl', false));
-		$this->assertEquals('succeeded (test-id)', $result, 'template loaded');
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_LOAD/load-template.tpl', false));
+		$this->assertEquals('succeeded', $result, 'template loaded');
 	}
 
 	public function testLoadHonoursForcedTplExtension() {
-		TemplateEngine::setTemplatePath('templates/load-withid/');
+		TemplateEngine::setTemplatePath('templates/plugins/TE_LOAD/');
 		$result = trim(TemplateEngine::processTemplate('template-extension.tpl', false));
-		$this->assertEquals('{LOAD_WITHID=template-extension.css;test-id}', $result, 'load failed -> original template code stays');
+		$this->assertEquals('{LOAD=template-extension.css}', $result, 'load failed -> original template code stays');
 	}
 
 	public function testLoadHonoursJailToTemplatePath() {
-		TemplateEngine::setTemplatePath('templates/load-withid/');
+		TemplateEngine::setTemplatePath('templates/plugins/TE_LOAD/');
 		$result = trim(TemplateEngine::processTemplate('template-jail.tpl', false));
-		$this->assertEquals('{LOAD_WITHID=../te-core-te_existing-template-file-outside-template-path.tpl;test-id}', $result, 'load failed -> original template code stays');
+		$this->assertEquals('{LOAD=../te-core-te_existing-template-file-outside-template-path.tpl}', $result, 'load failed -> original template code stays');
 	}
 }

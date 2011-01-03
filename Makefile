@@ -23,6 +23,7 @@ TE_RELEASE_NAME = ${BUILD_DIR}/TemplateEngine2.php
 PLUGINS = $(shell find ${PLUGINS_DIR} -name "*.php" -exec sh -c "echo {} | sed s@${PLUGINS_DIR}@${BUILD_DIR}/${PLUGINS_DIR}@" \;)
 
 release: build ${PLUGINS} release-plugins.txt
+	@test -e TemplateEngine2.php  || (echo "ERROR: TemplateEngine2.php missing!" && exit 1)
 	@cat TemplateEngine2.php | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > ${TE_RELEASE_NAME}
 	$(MAKE) -s te2-append-plugins
 	@sed -i "s@//EOF@@" ${TE_RELEASE_NAME}
@@ -36,15 +37,23 @@ release-plugins.txt:
 
 ${BUILD_DIR}/${PLUGINS_DIR}/%.php: ${PLUGINS_DIR}/%.php
 	@echo "patching $< to $@"
+	@test -e $<  || (echo "ERROR: $< missing!" && exit 1)
 	@cat $< | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > $@
 
 TE_RELEASE_PLUGINS = $(shell cat release-plugins.txt 2>/dev/null)
-te2-append-plugins: ${TE_RELEASE_PLUGINS}
+te2-append-plugins: plugins-tests-dirs ${TE_RELEASE_PLUGINS}
+
+plugins-tests-dirs:
+	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/plugins/
+	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/templates/
 
 ${TE_RELEASE_PLUGINS}:
 	@echo "appending ${BUILD_DIR}/${PLUGINS_DIR}/$@.php to ${TE_RELEASE_NAME}..."
 	@tail -n +14 ${BUILD_DIR}/${PLUGINS_DIR}/$@.php >> ${TE_RELEASE_NAME}
-
+	@echo "copying tests for $@..."
+	@test -e ${TESTS_DIR}/plugins/$@_Test.php || (echo "ERROR: ${TESTS_DIR}/plugins/$@_Test.php missing!" && exit 1)
+	@cat ${TESTS_DIR}/plugins/$@_Test.php | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > ${BUILD_DIR}/${TESTS_DIR}/plugins/$@_Test.php
+	@cp -rfv ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
 
 tests:
 	phpunit --process-isolation --no-globals-backup ${TESTS_DIR}/

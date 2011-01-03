@@ -25,30 +25,30 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 
 	public function testNonArrayForeach() {
 		TemplateEngine::set('VARIABLE', false);
-		$result = trim(TemplateEngine::processTemplate('foreach-file/non-array.tpl', false));
-		$this->assertEquals('{FOREACH[VARIABLE]=foreach-file/dummy.tpl}', $result, 'foreach does not process non arrays');
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/non-array.tpl', false));
+		$this->assertEquals('{FOREACH[VARIABLE]=plugins/TE_FOREACH_FILE/dummy.tpl}', $result, 'foreach does not process non arrays');
 	}
 
 	public function testEmptyArray() {
 		TemplateEngine::set('ELEMENT', array());
-		$result = trim(TemplateEngine::processTemplate('foreach-file/simple-elements.tpl', false));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/simple-elements.tpl', false));
 		$this->assertEquals('No elements available!', $result, 'foreach loads /file/-emplty.tpl if array is empty');
-		$result = trim(TemplateEngine::processTemplate('foreach-file/simple-elements.tpl', false));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/simple-elements.tpl', false));
 		$this->assertEquals('No elements available!', $result, 'foreach loads /file/-emplty.tpl if array is empty(and did not modify the context)');
 		TemplateEngine::set('VARIABLE', array());
-		$result = trim(TemplateEngine::processTemplate('foreach-file/empty-file-missing.tpl', false));
-		$this->assertEquals('{FOREACH[VARIABLE]=foreach-file/dummy.tpl}', $result, 'foreach does not process empty arrays if -empty.tpl is missing');
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/empty-file-missing.tpl', false));
+		$this->assertEquals('{FOREACH[VARIABLE]=plugins/TE_FOREACH_FILE/dummy.tpl}', $result, 'foreach does not process empty arrays if -empty.tpl is missing');
 	}
 
 	public function testRejectsNonArrayElements() {
 		TemplateEngine::set('ELEMENT', array(array(), 'invalid', array()));
-		$result = trim(TemplateEngine::processTemplate('foreach-file/simple-elements.tpl', false));
-		$this->assertEquals('{FOREACH[ELEMENT]=foreach-file/simple-element.tpl}', $result, 'foreach file rejects arrays with non array elements');
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/simple-elements.tpl', false));
+		$this->assertEquals('{FOREACH[ELEMENT]=plugins/TE_FOREACH_FILE/simple-element.tpl}', $result, 'foreach file rejects arrays with non array elements');
 	}
 
 	public function testSimpleArray() {
 		TemplateEngine::set('ELEMENT', array(array('NAME'=>'Phone', 'AMOUNT'=>5), array('NAME'=>'Netbook', 'AMOUNT'=>2)));
-		$result = trim(TemplateEngine::processTemplate('foreach-file/simple-elements.tpl', false));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/simple-elements.tpl', false));
 		$this->assertEquals("0: Phone #5 (odd)\n1: Netbook #2 ()", $result, 'simple array correctly processed');
 	}
 
@@ -75,7 +75,7 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 				)
 			)));
 		TemplateEngine::set('COMPLEX_SCOPELOOKUP', array(array('VALUE'=>'success')));
-		$result = str_replace("\n", "", trim(TemplateEngine::processTemplate('foreach-file/complex-elements.tpl', false)));
+		$result = str_replace("\n", "", trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/complex-elements.tpl', false)));
 		$expected = '<ul><li class="odd">Phone:<br/><dl><dt>Manufacturer</dt><dd>ABC</dd><dt>Price</dt><dd>999</dd></dl><br/>success</li>';
 		$expected .= '<li class="">Netbook:<br/><dl><dt>Manufacturer</dt><dd>DEF</dd><dt>Price</dt><dd>666</dd></dl><br/>success</li></ul>';
 		$this->assertEquals($expected, $result, 'complex array correctly processed');
@@ -84,14 +84,14 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 	public function testScopeChainLookupOrder() {
 		TemplateEngine::set('VARIABLE', 'global');
 		TemplateEngine::set('ARRAY', array(array('VARIABLE'=>'scope')));
-		$result = trim(TemplateEngine::processTemplate('foreach-file/scope-chain-lookup.tpl', false));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/scope-chain-lookup.tpl', false));
 		$this->assertEquals("global:scope", $result, 'scope chain lookup');
 	}
 
 	public function testScopeChainLookup() {
 		TemplateEngine::set('VARIABLE', 'global');
 		TemplateEngine::set('ARRAY', array(array()));
-		$result = trim(TemplateEngine::processTemplate('foreach-file/scope-chain-lookup.tpl', false));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/scope-chain-lookup.tpl', false));
 		$this->assertEquals("global:global", $result, 'scope chain lookup');
 	}
 }
