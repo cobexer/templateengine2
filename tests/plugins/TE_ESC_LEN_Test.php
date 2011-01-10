@@ -17,7 +17,7 @@ class TE_ESC_LEN_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_ESC_LEN.php');
+		/* RM */require_once('plugins/TE_ESC_LEN.php');/* /RM */
 	}
 	//FIXME: add tests here
 }

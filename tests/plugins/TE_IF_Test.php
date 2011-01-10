@@ -17,7 +17,8 @@ class TE_IF_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_IF.php');
+		/* RM */require_once('plugins/TE_IF.php');/* /RM */
+		/* RM */require_once('plugins/TE_SCALAR.php');/* /RM */
 	}
 
 	public function testVarBoolean() {
@@ -103,11 +104,11 @@ class TE_IF_Test extends TemplateEngineTestBase
 		$this->assertEquals($expected, $result, '(none set) if the variable is not set, the if is rejected');
 		TemplateEngine::set('VAR1', '42');
 		$result = trim(TemplateEngine::processTemplate('plugins/TE_IF/varvarundefined.tpl', false));
-		$this->assertEquals($expected, $result, '(VAR1 not set) if the variable is not set, the if is rejected');
+		$this->assertEquals($expected, $result, '(VAR2 not set) if the variable is not set, the if is rejected');
 		TemplateEngine::delete('VAR1');
 		TemplateEngine::set('VAR2', '42');
 		$result = trim(TemplateEngine::processTemplate('plugins/TE_IF/varvarundefined.tpl', false));
-		$this->assertEquals($expected, $result, '(VAR2 not set) if the variable is not set, the if is rejected');
+		$this->assertEquals(str_replace('{VAR2}', 42, $expected), $result, '(VAR1 not set) if the variable is not set, the if is rejected');
 	}
 
 	private $TE_IF_ESC_called = false;

@@ -17,28 +17,50 @@ TE_COMMIT = $(shell git log -1 --pretty=format:%H)
 COMMIT = sed "s/@COMMIT@/${TE_COMMIT}/"
 TE_WWW = "http://gruewo.dyndns.org/gitweb/?p=templateengine2.git"
 WWW = sed "s|@WWW@|${TE_WWW}|"
+TE_PREP_RELEASE = sed "s@/\* RM \*/.*/\* /RM \*/@@g"
+
 
 TE_RELEASE_NAME = ${BUILD_DIR}/TemplateEngine2.php
 
-PLUGINS = $(shell find ${PLUGINS_DIR} -name "*.php" -exec sh -c "echo {} | sed s@${PLUGINS_DIR}@${BUILD_DIR}/${PLUGINS_DIR}@" \;)
+PLUGINS = $(addprefix ${BUILD_DIR}/,$(wildcard ${PLUGINS_DIR}/*.php))
 
-release: build ${PLUGINS} release-plugins.txt
-	@test -e TemplateEngine2.php  || (echo "ERROR: TemplateEngine2.php missing!" && exit 1)
-	@cat TemplateEngine2.php | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > ${TE_RELEASE_NAME}
+process_content = $(shell cat $(1) | $(VER) | $(DATE) | $(COMMIT) | $(WWW) | $(TE_PREP_RELEASE) > $(2))
+
+process = $(if $(shell test -e $(1) && echo "1"),$(call process_content,$(1),$(2)),$(error ERROR: $(1) missing!))
+
+release: build ${PLUGINS} release-plugins.txt export-base-tests
+	$(call process,TemplateEngine2.php,${TE_RELEASE_NAME})
+	$(call process,TE_setup2.php,${BUILD_DIR}/TE_setup2.php)
+	$(call process,Makefile,${BUILD_DIR}/Makefile)
 	$(MAKE) -s te2-append-plugins
 	@sed -i "s@//EOF@@" ${TE_RELEASE_NAME}
 	@echo "//EOF" >> ${TE_RELEASE_NAME}
 	@cat -s ${TE_RELEASE_NAME} > ${TE_RELEASE_NAME}.tmp
 	@mv ${TE_RELEASE_NAME}.tmp ${TE_RELEASE_NAME}
+	@echo "building release tests..."
+	$(Q)$(MAKE) -C ${BUILD_DIR}/ tests
 	@echo "built release version: TemplateEngine2 ${TE_VER} of ${TE_DATE} (${TE_COMMIT})"
+
+BASE_TESTS := $(addprefix ${BUILD_DIR}/,$(wildcard ${TESTS_DIR}/*.php))
+
+${BASE_TESTS}:
+	$(call process,$(subst ${BUILD_DIR}/,,$@),$@)
+
+test-export-dir:
+	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/templates/
+
+export-base-tests: test-export-dir ${BASE_TESTS}
+	@cp -rv ${TESTS_DIR}/templates/*.tpl ${BUILD_DIR}/${TESTS_DIR}/templates/
+
+#$(foreach tst,$(wildcard ${TESTS_DIR}/*.php),$(call process,$(tst),${BUILD_DIR}/$(tst)))
+
 
 release-plugins.txt:
 	@cp -v release-plugins.txt.in release-plugins.txt
 
 ${BUILD_DIR}/${PLUGINS_DIR}/%.php: ${PLUGINS_DIR}/%.php
 	@echo "patching $< to $@"
-	@test -e $<  || (echo "ERROR: $< missing!" && exit 1)
-	@cat $< | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > $@
+	$(call process,$<,$@)
 
 TE_RELEASE_PLUGINS = $(shell cat release-plugins.txt 2>/dev/null)
 te2-append-plugins: plugins-tests-dirs ${TE_RELEASE_PLUGINS}
@@ -51,8 +73,7 @@ ${TE_RELEASE_PLUGINS}:
 	@echo "appending ${BUILD_DIR}/${PLUGINS_DIR}/$@.php to ${TE_RELEASE_NAME}..."
 	@tail -n +14 ${BUILD_DIR}/${PLUGINS_DIR}/$@.php >> ${TE_RELEASE_NAME}
 	@echo "copying tests for $@..."
-	@test -e ${TESTS_DIR}/plugins/$@_Test.php || (echo "ERROR: ${TESTS_DIR}/plugins/$@_Test.php missing!" && exit 1)
-	@cat ${TESTS_DIR}/plugins/$@_Test.php | $(VER) | $(DATE) | $(COMMIT) | $(WWW) > ${BUILD_DIR}/${TESTS_DIR}/plugins/$@_Test.php
+	$(call process,${TESTS_DIR}/plugins/$@_Test.php,${BUILD_DIR}/${TESTS_DIR}/plugins/$@_Test.php)
 	@cp -rfv ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
 
 tests:

@@ -17,7 +17,7 @@ class TE_LOAD_WITHID_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_LOAD_WITHID.php');
+		/* RM */require_once('plugins/TE_LOAD_WITHID.php');/* /RM */
 	}
 
 	public function testLoadFile() {

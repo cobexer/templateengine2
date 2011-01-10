@@ -17,7 +17,7 @@ class TE_SELECT_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_SELECT.php');
+		/* RM */require_once('plugins/TE_SELECT.php');/* /RM */
 	}
 
 	public function testSelect() {

@@ -17,7 +17,7 @@ class TE_SCALAR_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_SCALAR.php');
+		/* RM */require_once('plugins/TE_SCALAR.php');/* /RM */
 	}
 
 	public function testVarBoolean() {

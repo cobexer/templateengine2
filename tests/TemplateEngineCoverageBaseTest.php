@@ -19,7 +19,7 @@ class TemplateEngineCoverageBaseTest extends TemplateEngineTestBase
 		parent::setUp();
 		$plugins = glob('plugins/*.php');
 		foreach($plugins as $plugin) {
-			require_once($plugin);
+			/* RM */require_once($plugin);/* /RM */
 		}
 	}
 }

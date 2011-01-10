@@ -17,7 +17,7 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_LOGLEVEL.php');
+		/* RM */require_once('plugins/TE_LOGLEVEL.php');/* /RM */
 	}
 	//FIXME: add tests here
 }

@@ -17,8 +17,8 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 {
 	protected function setUp() {
 		parent::setUp();
-		require_once('plugins/TE_FOREACH_FILE.php');
-		require_once('plugins/TE_SCALAR.php');
+		/* RM */require_once('plugins/TE_FOREACH_FILE.php');/* /RM */
+		/* RM */require_once('plugins/TE_SCALAR.php');/* /RM */
 	}
 
 
@@ -32,9 +32,9 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 	public function testEmptyArray() {
 		TemplateEngine::set('ELEMENT', array());
 		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/simple-elements.tpl', false));
-		$this->assertEquals('No elements available!', $result, 'foreach loads /file/-emplty.tpl if array is empty');
+		$this->assertEquals('No elements available!', $result, 'foreach loads /file/-empty.tpl if array is empty');
 		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/simple-elements.tpl', false));
-		$this->assertEquals('No elements available!', $result, 'foreach loads /file/-emplty.tpl if array is empty(and did not modify the context)');
+		$this->assertEquals('No elements available!', $result, 'foreach loads /file/-empty.tpl if array is empty(and did not modify the context)');
 		TemplateEngine::set('VARIABLE', array());
 		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/empty-file-missing.tpl', false));
 		$this->assertEquals('{FOREACH[VARIABLE]=plugins/TE_FOREACH_FILE/dummy.tpl}', $result, 'foreach does not process empty arrays if -empty.tpl is missing');
