@@ -884,7 +884,6 @@ function TE_php_err_handler($errno, $errstr, $errfile= '', $errline= '', $errcon
  * @param object $exception the exception object
  */
 function TE_php_exception_handler($exception) {
-	TemplateEngine::captureTime("TE_php_exception_handler");
 	print "Unhandled Exception: " . $exception->getMessage() . "\n";
 }
 

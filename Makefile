@@ -32,13 +32,13 @@ release: build ${PLUGINS} release-plugins.txt export-base-tests
 	$(call process,TemplateEngine2.php,${TE_RELEASE_NAME})
 	$(call process,TE_setup2.php,${BUILD_DIR}/TE_setup2.php)
 	$(call process,Makefile,${BUILD_DIR}/Makefile)
-	$(MAKE) -s te2-append-plugins
+	@cp -fv ${TE_RELEASE_NAME} $(subst .php,.debug.php,${TE_RELEASE_NAME})
+	$(Q)$(MAKE) te2-append-plugins
 	@sed -i "s@//EOF@@" ${TE_RELEASE_NAME}
 	@echo "//EOF" >> ${TE_RELEASE_NAME}
 	@cat -s ${TE_RELEASE_NAME} > ${TE_RELEASE_NAME}.tmp
 	@mv ${TE_RELEASE_NAME}.tmp ${TE_RELEASE_NAME}
-	@echo "building release tests..."
-	$(Q)$(MAKE) -C ${BUILD_DIR}/ tests
+	$(Q)$(MAKE) -C ${BUILD_DIR}/ coverage
 	@echo "built release version: TemplateEngine2 ${TE_VER} of ${TE_DATE} (${TE_COMMIT})"
 
 BASE_TESTS := $(addprefix ${BUILD_DIR}/,$(wildcard ${TESTS_DIR}/*.php))
