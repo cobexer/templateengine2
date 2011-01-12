@@ -1,4 +1,4 @@
-Copyright (c) 2010 Obexer Christoph, http://gruewo.dyndns.org/gitweb/?p=templateengine2.git
+Copyright (c) 2011 Obexer Christoph, @WWW@
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

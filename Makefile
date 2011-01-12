@@ -32,6 +32,8 @@ release: build ${PLUGINS} release-plugins.txt export-base-tests
 	$(call process,TemplateEngine2.php,${TE_RELEASE_NAME})
 	$(call process,TE_setup2.php,${BUILD_DIR}/TE_setup2.php)
 	$(call process,Makefile,${BUILD_DIR}/Makefile)
+	$(call process,MIT-LICENSE.txt,${BUILD_DIR}/MIT-LICENSE.txt)
+	$(call process,GPL-LICENSE.txt,${BUILD_DIR}/GPL-LICENSE.txt)
 	@cp -fv ${TE_RELEASE_NAME} $(subst .php,.debug.php,${TE_RELEASE_NAME})
 	$(Q)$(MAKE) te2-append-plugins
 	@sed -i "s@//EOF@@" ${TE_RELEASE_NAME}
