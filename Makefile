@@ -43,6 +43,13 @@ release: build ${PLUGINS} release-plugins.txt export-base-tests
 	$(Q)$(MAKE) -C ${BUILD_DIR}/ coverage
 	@echo "built release version: TemplateEngine2 ${TE_VER} of ${TE_DATE} (${TE_COMMIT})"
 
+doc:
+	@mkdir -p ${BUILD_DIR}/documentation/
+	@pdflatex -output-directory ${BUILD_DIR}/documentation/ -interaction=nonstopmode documentation/TemplateEngine2.tex
+	@pdflatex -output-directory ${BUILD_DIR}/documentation/ -interaction=nonstopmode documentation/TemplateEngine2.tex
+	@cp ${BUILD_DIR}/documentation/TemplateEngine2.pdf ${BUILD_DIR}/
+	@rm -rf ${BUILD_DIR}/documentation/
+
 BASE_TESTS := $(addprefix ${BUILD_DIR}/,$(wildcard ${TESTS_DIR}/*.php))
 
 ${BASE_TESTS}:
