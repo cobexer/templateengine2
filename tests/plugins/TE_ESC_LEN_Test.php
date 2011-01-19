@@ -19,5 +19,20 @@ class TE_ESC_LEN_Test extends TemplateEngineTestBase
 		parent::setUp();
 		/* RM */require_once('plugins/TE_ESC_LEN.php');/* /RM */
 	}
-	//FIXME: add tests here
+
+	public function testString() {
+		$this->assertEquals(0, TemplateEngine::escape('LEN', ""), "LEN escape method returns 0 for empty string");
+		$this->assertEquals(5, TemplateEngine::escape('LEN', "World"), "LEN escape method returns 5 for 'World'");
+	}
+
+	public function testArray() {
+		$this->assertEquals(0, TemplateEngine::escape('LEN', array()), "LEN escape method returns 0 for empty array");
+		$this->assertEquals(3, TemplateEngine::escape('LEN', array('a', 'b', 'c')), "LEN escape method returns 3 for array {a, b, c}");
+	}
+
+	public function testInvalid() {
+		$this->assertEquals(0, TemplateEngine::escape('LEN', null), "LEN escape method returns 0 for null");
+		$this->assertEquals(0, TemplateEngine::escape('LEN', $this), "LEN escape method returns 0 for $this");
+		$this->assertEquals(0, TemplateEngine::escape('LEN', 1337), "LEN escape method returns 0 for 1337");
+	}
 }

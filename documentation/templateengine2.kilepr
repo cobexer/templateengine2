@@ -3,7 +3,7 @@ def_graphic_ext=png
 img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
-kileversion=2.0.85
+kileversion=2.0.86
 lastDocument=TemplateEngine2.tex
 masterDocument=
 name=TemplateEngine2
@@ -26,10 +26,10 @@ ReadWrite=true
 
 [item:TemplateEngine2.tex]
 archive=true
-column=122
+column=13
 encoding=UTF-8
 highlight=LaTeX
-line=346
+line=0
 mode=LaTeX
 open=true
 order=0
@@ -45,5 +45,5 @@ open=false
 order=-1
 
 [view-settings,view=0,item:TemplateEngine2.tex]
-CursorColumn=122
-CursorLine=346
+CursorColumn=13
+CursorLine=0

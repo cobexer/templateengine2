@@ -46,7 +46,7 @@ P: * allow plugins to declare them self as cachable (eg LOAD) -> fewer disk acce
  * allow templates to be somewhere else (decouple template path from the root path - what to do with images and such??)
  * output with ob_start ob_gz_handler instead of manual gzencode
  * remove file dependency to TE_setup.php - allow those functions to be registered like plugins
- * move TE_error_handler back into the TemplateEngine class - didn't work last time for some reason
+ * move TE_error_handler back into the TemplateEngine class - didn't work last time for some reason(damn firelogger)
  * add a directory where cached outputs could be stored, so that the template engine could cache CSS minifications and gzipped contents for example
  * plugin interface to store cached files(eg database backend)
  * template support for escape methods: store into specially structured file in template folder? "TE_ESCAPE_METHODS.tpl" ?

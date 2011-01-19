@@ -28,7 +28,7 @@ process_content = $(shell cat $(1) | $(VER) | $(DATE) | $(COMMIT) | $(WWW) | $(T
 
 process = $(if $(shell test -e $(1) && echo "1"),$(call process_content,$(1),$(2)),$(error ERROR: $(1) missing!))
 
-release: build ${PLUGINS} release-plugins.txt export-base-tests
+release: clean build ${PLUGINS} release-plugins.txt export-base-tests
 	$(call process,TemplateEngine2.php,${TE_RELEASE_NAME})
 	$(call process,TE_setup2.php,${BUILD_DIR}/TE_setup2.php)
 	$(call process,Makefile,${BUILD_DIR}/Makefile)
