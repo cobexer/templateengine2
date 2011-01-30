@@ -29,7 +29,7 @@ function TE_PLUGIN_TE_FOREACH_INLINE(array $ctx, array $match) {
 	}
 	$block = $match['block'];
 	if(empty($val)) {
-		$block = $match['nblock'];
+		$block = isset($match['nblock']) ? $match['nblock'] : '';
 		$val[] = array();
 	}
 	$res = '';

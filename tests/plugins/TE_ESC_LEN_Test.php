@@ -32,7 +32,7 @@ class TE_ESC_LEN_Test extends TemplateEngineTestBase
 
 	public function testInvalid() {
 		$this->assertEquals(0, TemplateEngine::escape('LEN', null), "LEN escape method returns 0 for null");
-		$this->assertEquals(0, TemplateEngine::escape('LEN', $this), "LEN escape method returns 0 for $this");
+		$this->assertEquals(0, TemplateEngine::escape('LEN', $this), "LEN escape method returns 0 for \$this");
 		$this->assertEquals(0, TemplateEngine::escape('LEN', 1337), "LEN escape method returns 0 for 1337");
 	}
 }
