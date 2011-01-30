@@ -46,8 +46,7 @@ function TE_PLUGIN_TE_FOREACH_FILE(array $ctx, array $match) {
 			return false;
 		}
 		$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
-		$ctpl = str_replace('{FOREACH:INDEX}', $index, $tpl);
-		$res .= TemplateEngine :: pushContext($ctpl, $lctx);
+		$res .= str_replace('{FOREACH:INDEX}', $index, TemplateEngine :: pushContext($tpl, $lctx));
 		$iteration++;
 	}
 	return $res;

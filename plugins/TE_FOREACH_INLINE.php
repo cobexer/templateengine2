@@ -36,17 +36,16 @@ function TE_PLUGIN_TE_FOREACH_INLINE(array $ctx, array $match) {
 	$iteration = 0;
 	foreach($val as $index => $lctx) {
 		if (!is_array($lctx)) {
-			TemplateEngine :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
+			TemplateEngine :: LogMsg('[FOREACH_INLINE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
 			return false;
 		}
 		$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
-		$ctpl = str_replace('{FOREACH:INDEX}', $index, $tpl);
-		$res .= TemplateEngine :: pushContext($block, $lctx);
+		$res .= str_replace('{FOREACH:INDEX}', $index, TemplateEngine :: pushContext($block, $lctx));
 		$iteration++;
 	}
 	return $res;
 }
 
-TemplateEngine :: registerPlugin('TE_FOREACH_INLINE', '/\{FOREACH\[(?P<variable>[A-Z0-9_]+)\]\}(?P<block>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*)(?:\{FOREACH:ELSE\}(?P<nblock>(?:(?>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*))?\{\/FOREACH\}/Us', 'TE_PLUGIN_TE_FOREACH_INLINE');
+TemplateEngine :: registerPlugin('TE_FOREACH_INLINE', '/\{FOREACH\[(?P<variable>[A-Z0-9_]+)\]\}(?P<block>(?:(?'.'>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*)(?:\{FOREACH:ELSE\}(?P<nblock>(?:(?'.'>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*))?\{\/FOREACH\}/Us', 'TE_PLUGIN_TE_FOREACH_INLINE');
 
 //EOF
