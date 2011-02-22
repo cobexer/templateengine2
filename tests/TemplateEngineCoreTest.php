@@ -76,9 +76,9 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$expect = '<script type="text/javascript" src="path/to/js.js" ></script>';
 		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
 		TemplateEngine::addJS("path/to/js.js");
-		$this->assertEquals($expect, trim(TemplateEngine::get('HEADER_TEXT')), 'link tag is correct');
+		$this->assertEquals($expect, trim(TemplateEngine::get('HEADER_TEXT')), 'script tag is correct');
 		$result = trim(TemplateEngine::processTemplate('te-core-test_header.tpl', false));
-		$this->assertEquals($expect, $result, 'link tag for the head section available to templates as {HEADER_TEXT}');
+		$this->assertEquals($expect, $result, 'script tag for the head section available to templates as {HEADER_TEXT}');
 	}
 
 	public function testTemplateEngineIsUnique() {
@@ -97,7 +97,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->TE_TEST_PLUGIN_called = true;
 		$this->assertEquals('{TE_TEST=success}', $match[0], 'matched directive looks as expected');
 		$this->assertEquals('success', $match[1], 'match contains the expcted elements');
-		$this->assertEquals(true, is_array($context), 'the contextt passed to the plugin is an array');
+		$this->assertEquals(true, is_array($context), 'the context passed to the plugin is an array');
 		$this->assertGreaterThan(0, count($context), 'the context contains variables');
 		if ($this->TE_TEST_PLUGIN_DENY) {
 			return false;
