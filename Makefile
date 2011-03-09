@@ -64,7 +64,7 @@ export-base-tests: test-export-dir ${BASE_TESTS}
 #$(foreach tst,$(wildcard ${TESTS_DIR}/*.php),$(call process,$(tst),${BUILD_DIR}/$(tst)))
 
 
-release-plugins.txt:
+release-plugins.txt: release-plugins.txt.in
 	@cp -v release-plugins.txt.in release-plugins.txt
 
 ${BUILD_DIR}/${PLUGINS_DIR}/%.php: ${PLUGINS_DIR}/%.php
