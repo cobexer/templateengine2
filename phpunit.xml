@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false" backupStaticAttributes="false" processIsolation="true" verbose="false">
+	<testsuites>
+		<testsuite name="TemplateEngine2">
+			<directory>./tests</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist addUncoveredFilesFromWhitelist="true">
+			<!-- /* RM */ --><directory suffix=".php">plugins</directory><!-- /* /RM */ -->
+			<file>TemplateEngine2.php</file>
+			<file>TE_setup2.php</file>
+		</whitelist>
+		<blacklist>
+			<directory suffix=".php">tests</directory>
+		</blacklist>
+	</filter>
+</phpunit>
+

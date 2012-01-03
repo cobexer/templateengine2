@@ -28,7 +28,5 @@ class TemplateEngineTestBase extends PHPUnit_Framework_TestCase
 	public function testDisablePHPUnitWarning() {
 	}
 }
-// exclude tests from the coverage
-PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist(realpath(dirname(__FILE__) . '/../tests'), '.php');
 
 //EOF

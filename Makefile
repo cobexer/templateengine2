@@ -34,6 +34,7 @@ release: clean build ${PLUGINS} release-plugins.txt export-base-tests
 	$(call process,Makefile,${BUILD_DIR}/Makefile)
 	$(call process,MIT-LICENSE.txt,${BUILD_DIR}/MIT-LICENSE.txt)
 	$(call process,GPL-LICENSE.txt,${BUILD_DIR}/GPL-LICENSE.txt)
+	$(call process,phpunit.xml,${BUILD_DIR}/phpunit.xml)
 	@cp -fv ${TE_RELEASE_NAME} $(subst .php,.debug.php,${TE_RELEASE_NAME})
 	$(Q)$(MAKE) te2-append-plugins
 	@sed -i "s@//EOF@@" ${TE_RELEASE_NAME}
@@ -86,13 +87,11 @@ ${TE_RELEASE_PLUGINS}:
 	@cp -rfv ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
 
 tests:
-	phpunit --process-isolation --no-globals-backup ${TESTS_DIR}/
+	@phpunit -c phpunit.xml --tap
 
 
 coverage: build
-	@phpunit --process-isolation --no-globals-backup --coverage-html ${BUILD_DIR}/coverage/ \
-		--coverage-clover ${BUILD_DIR}/coverage-clover.xml --log-junit ${BUILD_DIR}/junit-test-log.xml ${TESTS_DIR}/
-
+	@phpunit -c phpunit.xml --tap --coverage-html ${BUILD_DIR}/coverage/
 
 clean:
 	@rm -rfv ${BUILD_DIR}
