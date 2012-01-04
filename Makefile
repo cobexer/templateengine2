@@ -15,7 +15,7 @@ TE_DATE = $(shell git log -1 --pretty=format:%ad)
 DATE = sed "s/@DATE@/${TE_DATE}/"
 TE_COMMIT = $(shell git log -1 --pretty=format:%H)
 COMMIT = sed "s/@COMMIT@/${TE_COMMIT}/"
-TE_WWW = "http://gruewo.dyndns.org/gitweb/?p=templateengine2.git"
+TE_WWW = "https://github.com/cobexer/templateengine2"
 WWW = sed "s|@WWW@|${TE_WWW}|"
 TE_PREP_RELEASE = sed "s@/\* RM \*/.*/\* /RM \*/@@g"
 
