@@ -3,23 +3,17 @@
 #
 
 #
-# In Progress
-#
-# currently: define a new plugin registration interface
-#
-P: * support for mime typed plugins: let plugins specify for what kind of mime types they want to be executed:
-    * text/* for all text types, text/css for all css files, application/json for json outputs(specify as regex for easy handling)
-    * there can then be good support for other content types
-    * a CSS minifier would then only receive text/css contents and could process @imports and such
-P: * support weights for plugin registrations so plugins can be executed before plugins registered before them
-P: * one shot plugins: allow a plugin to specify that it want's to only run once (start or end) -> LOGLEVEL eg
-P: * support notation of dependencies between plugins, and escape methods
-P: * allow plugins to declare them self as cachable (eg LOAD) -> fewer disk accesses and faster processing
-    * don't run cachable plugins on cached resources?
-
-#
 # TODOs
 #
+ * support for mime typed plugins: let plugins specify for what kind of mime types they want to be executed:
+  * text/* for all text types, text/css for all css files, application/json for json outputs(specify as regex for easy handling)
+  * there can then be good support for other content types
+  * a CSS minifier would then only receive text/css contents and could process @imports and such
+ * support weights for plugin registrations so plugins can be executed before plugins registered before them
+ * one shot plugins: allow a plugin to specify that it want's to only run once (start or end) -> LOGLEVEL eg
+ * support notation of dependencies between plugins, and escape methods
+ * allow plugins to declare them self as cachable (eg LOAD) -> fewer disk accesses and faster processing
+  * don't run cachable plugins on cached resources?
  * the singleton behavior must DIE!
   * -> so that an escape method can execute another template engine instance to do BBCode processing, or inline css, or javascript, or whatever
  * define public regex pattern that matches on escape methods, validate registrations and allow plugins to use that public variable
@@ -61,12 +55,7 @@ P: * allow plugins to declare them self as cachable (eg LOAD) -> fewer disk acce
 #
  * coverage does not count magic __call coverage
  * coverage generation throws notices because of the usage of date without setting a timezone
- * @codeCoverageIgnore is ignored (the other variants too)
  * } after a return statement is considered as dead code
  * how to test functions registered with register_shutdown_function?
  * how to test output buffering? ob_start,...
  * PHPUnit adds its version to the coverage report, could add link too
-
-# PHPUnit error
-# test that was not expected to throw an exception threw
-PHP Catchable fatal error:  Argument 2 passed to PHPUnit_Framework_TestResult::addError() must be an instance of Exception, instance of __PHP_Incomplete_Class given, called in /usr/share/php5/PEAR/PHPUnit/Util/PHP.php on line 235 and defined in /usr/share/php5/PEAR/PHPUnit/Framework/TestResult.php on line 237
