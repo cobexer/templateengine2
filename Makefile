@@ -1,6 +1,6 @@
 #
 # TemplateEngine2 PHP Templating System
-# @copyright Copyright 2011, Obexer Christoph
+# @copyright Copyright 2011-2013, Obexer Christoph
 # Dual licensed under the MIT or GPL Version 2 licenses.
 # @author Obexer Christoph
 #
@@ -9,20 +9,20 @@ BUILD_DIR = build
 TESTS_DIR = tests
 PLUGINS_DIR = plugins
 
-TE_VER = $(shell cat version.txt)
-VER = sed "s/@VERSION@/${TE_VER}/"
-TE_DATE = $(shell git log -1 --pretty=format:%ad)
-DATE = sed "s/@DATE@/${TE_DATE}/"
-TE_COMMIT = $(shell git log -1 --pretty=format:%H)
-COMMIT = sed "s/@COMMIT@/${TE_COMMIT}/"
-TE_WWW = "https://github.com/cobexer/templateengine2"
-WWW = sed "s|@WWW@|${TE_WWW}|"
-TE_PREP_RELEASE = sed "s@/\* RM \*/.*/\* /RM \*/@@g"
+TE_VER := $(shell cat version.txt)
+VER := sed "s/@VERSION@/${TE_VER}/"
+TE_DATE := $(shell git log -1 --pretty=format:%ad)
+DATE := sed "s/@DATE@/${TE_DATE}/"
+TE_COMMIT := $(shell git log -1 --pretty=format:%H)
+COMMIT := sed "s/@COMMIT@/${TE_COMMIT}/"
+TE_WWW := "https://github.com/cobexer/templateengine2"
+WWW := sed "s|@WWW@|${TE_WWW}|"
+TE_PREP_RELEASE := sed "s@/\* RM \*/.*/\* /RM \*/@@g"
 
 
-TE_RELEASE_NAME = ${BUILD_DIR}/TemplateEngine2.php
+TE_RELEASE_NAME := ${BUILD_DIR}/TemplateEngine2.php
 
-PLUGINS = $(addprefix ${BUILD_DIR}/,$(wildcard ${PLUGINS_DIR}/*.php))
+PLUGINS := $(addprefix ${BUILD_DIR}/,$(wildcard ${PLUGINS_DIR}/*.php))
 
 process_content = $(shell cat $(1) | $(VER) | $(DATE) | $(COMMIT) | $(WWW) | $(TE_PREP_RELEASE) > $(2))
 
@@ -72,19 +72,21 @@ ${BUILD_DIR}/${PLUGINS_DIR}/%.php: ${PLUGINS_DIR}/%.php
 	@echo "patching $< to $@"
 	$(call process,$<,$@)
 
-TE_RELEASE_PLUGINS = $(shell cat release-plugins.txt 2>/dev/null)
+TE_RELEASE_PLUGINS := $(shell cat release-plugins.txt 2>/dev/null)
 te2-append-plugins: plugins-tests-dirs ${TE_RELEASE_PLUGINS}
 
 plugins-tests-dirs:
 	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/plugins/
-	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/templates/
+	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
 
 ${TE_RELEASE_PLUGINS}:
 	@echo "appending ${BUILD_DIR}/${PLUGINS_DIR}/$@.php to ${TE_RELEASE_NAME}..."
 	@tail -n +14 ${BUILD_DIR}/${PLUGINS_DIR}/$@.php >> ${TE_RELEASE_NAME}
 	@echo "copying tests for $@..."
 	$(call process,${TESTS_DIR}/plugins/$@_Test.php,${BUILD_DIR}/${TESTS_DIR}/plugins/$@_Test.php)
-	@cp -rfv ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
+	@if [ -d ${TESTS_DIR}/templates/plugins/$@ ]; then \
+		cp -rfv ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/; \
+	fi
 
 tests:
 	@phpunit -c phpunit.xml --tap
@@ -109,6 +111,7 @@ install-phpunit:
 	pear channel-discover pear.phpunit.de
 	pear channel-discover components.ez.no
 	pear channel-discover pear.symfony-project.com
+	pear channel-discover pear.symfony.com
 	pear install phpunit/PHPUnit
 
 .PHONY: release tests coverage clean build dist-clean
