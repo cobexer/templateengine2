@@ -3,7 +3,7 @@
  * TemplateEngine2 PHP Templating System @VERSION@
  * @WWW@
  *
- * @copyright Copyright 2010-2012, Obexer Christoph
+ * @copyright Copyright 2010-2013, Obexer Christoph
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
  * Date: @DATE@
