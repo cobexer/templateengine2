@@ -28,7 +28,8 @@ process_content = $(shell cat $(1) | $(VER) | $(DATE) | $(COMMIT) | $(WWW) | $(T
 
 process = $(if $(shell test -e $(1) && echo "1"),$(call process_content,$(1),$(2)),$(error ERROR: $(1) missing!))
 
-release: clean build ${PLUGINS} release-plugins.txt export-base-tests
+release: clean build-plugins-dir ${PLUGINS} release-plugins.txt export-base-tests
+	echo "${TE_VER}" > ${BUILD_DIR}/version.txt
 	$(call process,TemplateEngine2.php,${TE_RELEASE_NAME})
 	$(call process,TE_setup2.php,${BUILD_DIR}/TE_setup2.php)
 	$(call process,Makefile,${BUILD_DIR}/Makefile)
@@ -57,16 +58,23 @@ ${BASE_TESTS}:
 	$(call process,$(subst ${BUILD_DIR}/,,$@),$@)
 
 test-export-dir:
-	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/templates/
+	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/templates/
+	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/templates/base-template/
+	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/templates/jail-test/
+
 
 export-base-tests: test-export-dir ${BASE_TESTS}
-	@cp -rv ${TESTS_DIR}/templates/*.tpl ${BUILD_DIR}/${TESTS_DIR}/templates/
+	@cp -r ${TESTS_DIR}/templates/*.tpl ${BUILD_DIR}/${TESTS_DIR}/templates/
+	@cp -r ${TESTS_DIR}/templates/base-template/*.tpl ${BUILD_DIR}/${TESTS_DIR}/templates/base-template/
 
 #$(foreach tst,$(wildcard ${TESTS_DIR}/*.php),$(call process,$(tst),${BUILD_DIR}/$(tst)))
 
 
 release-plugins.txt: release-plugins.txt.in
-	@cp -v release-plugins.txt.in release-plugins.txt
+	@cp release-plugins.txt.in release-plugins.txt
+
+build-plugins-dir:
+	@mkdir -p ${BUILD_DIR}/plugins/
 
 ${BUILD_DIR}/${PLUGINS_DIR}/%.php: ${PLUGINS_DIR}/%.php
 	@echo "patching $< to $@"
@@ -76,34 +84,30 @@ TE_RELEASE_PLUGINS := $(shell cat release-plugins.txt 2>/dev/null)
 te2-append-plugins: plugins-tests-dirs ${TE_RELEASE_PLUGINS}
 
 plugins-tests-dirs:
-	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/plugins/
-	@mkdir -pv ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
+	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/plugins/
+	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
 
 ${TE_RELEASE_PLUGINS}:
-	@echo "appending ${BUILD_DIR}/${PLUGINS_DIR}/$@.php to ${TE_RELEASE_NAME}..."
+	@echo "processing plugin $@..."
 	@tail -n +14 ${BUILD_DIR}/${PLUGINS_DIR}/$@.php >> ${TE_RELEASE_NAME}
-	@echo "copying tests for $@..."
 	$(call process,${TESTS_DIR}/plugins/$@_Test.php,${BUILD_DIR}/${TESTS_DIR}/plugins/$@_Test.php)
 	@if [ -d ${TESTS_DIR}/templates/plugins/$@ ]; then \
-		cp -rfv ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/; \
+		cp -rf ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/; \
 	fi
 
 tests:
 	@phpunit -c phpunit.xml --tap
 
 
-coverage: build
+coverage:
+	@mkdir -p ${BUILD_DIR}/coverage/
 	@phpunit -c phpunit.xml --tap --coverage-html ${BUILD_DIR}/coverage/
 
 clean:
-	@rm -rfv ${BUILD_DIR}
+	rm -rf ${BUILD_DIR}
 
 dist-clean: clean
 	@rm -rfv release-plugins.txt
-
-
-build:
-	@mkdir -pv ${BUILD_DIR}/${PLUGINS_DIR}/
 
 
 # from http://www.phpunit.de/manual/current/en/installation.html

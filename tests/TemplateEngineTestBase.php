@@ -17,7 +17,7 @@ class TemplateEngineTestBase extends PHPUnit_Framework_TestCase
 {
 	protected function setUp() {
 		require_once('TemplateEngine2.php');
-		TemplateEngine::setRootPath(dirname(__FILE__));
+		TemplateEngine::setRootPath('tests');
 		TemplateEngine::setTemplatePath('templates');
 	}
 

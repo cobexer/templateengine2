@@ -58,4 +58,3 @@
  * } after a return statement is considered as dead code
  * how to test functions registered with register_shutdown_function?
  * how to test output buffering? ob_start,...
- * PHPUnit adds its version to the coverage report, could add link too

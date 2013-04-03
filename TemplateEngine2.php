@@ -95,6 +95,10 @@ class TemplateEngine {
 	 */
 	private static $contexts = array();
 	/**
+	 * @static integer index of the currently active context
+	 */
+	private static $currentContext = -1;
+	/**
 	 * @static array containing all set template variables
 	 */
 	private static $variables = array();
@@ -125,13 +129,17 @@ class TemplateEngine {
 	 */
 	private static $templatePath = '';
 	/**
+	 * @static string the path to the base template, relative to the root
+	 */
+	private static $baseTemplatePath = false;
+	/**
 	 * @static array cache for files accessed during template processing
 	 */
 	private static $templateCache = array();
 	/**
-	 * @static this variable is used to track the name of the basetemplate
+	 * @static this variable is used to track the name of the template
 	 */
-	private static $basetemplate = '';
+	private static $template = '';
 	/**
 	 * __construct
 	 * initializes a new object of the TemplateEngine
@@ -169,6 +177,7 @@ class TemplateEngine {
 		self :: $messages_NotFin = array();
 		self :: $messages = array();
 		self :: $contexts = array();
+		self :: $currentContext = -1;
 	}
 	/**
 	 * pushConetxt
@@ -177,14 +186,19 @@ class TemplateEngine {
 	 * @param $context array the context to work on
 	 * @return void
 	 */
-	public static function pushContext($templateString, array $context) {
-		array_push(self :: $contexts, array(
+	public static function pushContext($templateString, array $context, $templatePath = null) {
+		if (null === $templatePath) {
+			$templatePath = (self :: $currentContext >= 0) ? self :: $contexts[self :: $currentContext]['templatePath'] : self :: $templatePath;
+		}
+		self :: $contexts[] = array(
 			'tpl' => $templateString,
 			'ctx' => $context,
+			'templatePath' => $templatePath,
 			'hit' => 0,
 			'miss' => 0,
 			'prevContextActivePlugin' => self :: $activePlugin
-		));
+		);
+		self :: $currentContext += 1;
 		self :: processCurrentContext();
 		return self :: endContext();
 	}
@@ -194,6 +208,7 @@ class TemplateEngine {
 	 */
 	public static function endContext() {
 		$ctx = array_pop(self :: $contexts);
+		self :: $currentContext -= 1;
 		self :: $activePlugin = $ctx['prevContextActivePlugin'];
 		return $ctx['tpl'];
 	}
@@ -259,7 +274,7 @@ class TemplateEngine {
 	 * @todo document callback interface
 	 */
 	public static function registerPlugin($plugin, $regexp, $callback) {
-		self ::$pluginRegistration[$plugin] = array(
+		self :: $pluginRegistration[$plugin] = array(
 			'regex' => $regexp,
 			'cb' => $callback
 		);
@@ -271,8 +286,28 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function unregisterPlugin($plugin) {
-		unset(self ::$pluginRegistration[$plugin]);
+		unset(self :: $pluginRegistration[$plugin]);
 	}
+
+	/**
+	 * setBaseTemplatePath
+	 * sets the path tho a base template, in case the current template requests a
+	 * file that does not exist in the current template, but does exist in the base
+	 * template the TE uses the template from the base template and acts as if the
+	 * template file was included in the current template.
+	 * <strong>Note: {TEMPLATE_PATH} will point to the current template, not the base
+	 * template, thus references to CSS/... will FAIL when requested from the browser</strong>
+	 * @param $path string path of the base template files
+	 * @return void
+	 */
+	public static function setBaseTemplatePath($path) {
+		$len = strlen($path);
+		if($len && !('/' == $path[$len - 1])) {
+			$path .= '/';
+		}
+		self :: $baseTemplatePath = $path;
+	}
+
 	/**
 	 * setTemplatePath
 	 * tell the TemplateEngine where to search for the template files
@@ -300,7 +335,7 @@ class TemplateEngine {
 	}
 	/**
 	 * setRootPath
-	 * sets the root path of the gombg directory seen from the browser!
+	 * sets the root path of the application directory seen from the browser!
 	 * the root path is available to the templates as {ROOT_PATH}
 	 * <strong>Note: this path will always end with a /</strong>
 	 * @param $path string the root path of the application as seen by the browser
@@ -333,7 +368,7 @@ class TemplateEngine {
 	private static function processCurrentContext() {
 		//TODO: push context recursion
 		$recursion_limit = 32;
-		$ctx = &self :: $contexts[count(self :: $contexts) - 1];
+		$ctx = &self :: $contexts[self :: $currentContext];
 		if(strlen($ctx['tpl']) > 0) {
 			do {
 				$ctx['hit'] = 0;
@@ -348,16 +383,16 @@ class TemplateEngine {
 	}
 	/**
 	 * output
-	 * process the given basetemplate and output results to the browser
+	 * process the given template and output results to the browser
 	 * @throws TETemplateNotFoundException
-	 * @param string $basetemplate filename relative to TEMPLATE_PATH
+	 * @param string $template filename relative to TEMPLATE_PATH
 	 * @param boolean $havingSession indicates wheter this runs in a user context or cron context (default: true)
 	 * @return void
 	 */
-	public static function output($basetemplate, $havingSession = true) {
+	public static function output($template, $havingSession = true) {
 		//TODO: allow other content-types (application/json, application/javascript, text/css,...)
 		header("Content-Type: text/html; charset=utf-8");
-		$result = self :: processTemplate($basetemplate, $havingSession);
+		$result = self :: processTemplate($template, $havingSession);
 		//compress using gzip if the browser supports it
 		if (self :: $allow_gzip && strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			//well if YOU used print/echo before the complete content will be garbage it's YOUR fault!
@@ -371,15 +406,15 @@ class TemplateEngine {
 	}
 	/**
 	 * processTemplate
-	 * process the given basetemplate and output results to the browser
+	 * process the given template and output results to the browser
 	 * @throws TETemplateNotFoundException
-	 * @param string $basetemplate filename relative to TEMPLATE_PATH
+	 * @param string $template filename relative to TEMPLATE_PATH
 	 * @param boolean $havingSession indicates wheter this runs in a user context or cron context (default: true)
 	 * @return string the processed template string
 	 */
-	public static function processTemplate($basetemplate, $havingSession = true) {
+	public static function processTemplate($template, $havingSession = true) {
 		self :: $havingSession = $havingSession;
-		self :: $basetemplate = $basetemplate;
+		self :: $template = $template;
 		self :: captureTime('startTE'); //< init time measurement
 		self :: $running = true; //< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly -> append it to the Log (with LogMsg)
 		TE_static_setup(); //< common static (session independent) data will be set here
@@ -387,9 +422,9 @@ class TemplateEngine {
 			TE_setup(); //< do TE initialisation (common data will be set there)
 		}
 		$tpl = '';
-		if (!self :: getFile($basetemplate, $tpl)) {
+		if (!self :: getFile($template, $tpl)) {
 			self :: $running = false;
-			throw new TETemplateNotFoundException('TemplateEngine Error: basetemplate not found - or not readable! ' . $basetemplate);
+			throw new TETemplateNotFoundException('TemplateEngine Error: template not found - or not readable! ' . $template);
 		}
 		$result = self :: pushContext($tpl, self :: $variables);
 		self :: captureTime('stopTE');
@@ -405,9 +440,13 @@ class TemplateEngine {
 	 */
 	public static function replace_callback(array $match) {
 		$callback = self :: $pluginRegistration[self :: $activePlugin]['cb'];
-		$ctx = &self :: $contexts[count(self :: $contexts) - 1];
+		$ctx = &self :: $contexts[self :: $currentContext];
 		$res = call_user_func_array($callback, array($ctx['ctx'], $match));
 		if (false !== $res) {
+			if (isset($ctx['override'])) {
+				$res = self :: pushContext($res, $ctx['override']['ctx'], $ctx['override']['templatePath']);
+				unset($ctx['override']);
+			}
 			++$ctx['hit'];
 			return $res;
 		}
@@ -456,18 +495,16 @@ class TemplateEngine {
 	 */
 	public static function lookupVar($name, &$value) {
 		self :: LogMsg('Lookup: <em>' . $name . '</em>', true, TEMode :: debug, false);
-		$found = false;
-		$idx = count(self :: $contexts);
-		do {
-			--$idx;
-			if(isset(self :: $contexts[$idx]['ctx'][$name])) {
-				$value = self :: $contexts[$idx]['ctx'][$name];
-				$found = true;
+		for ($idx = self :: $currentContext; $idx >= 0; --$idx) {
+			$ctx = self :: $contexts[$idx]['ctx'];
+			if(isset($ctx[$name])) {
+				self :: LogMsg('', true, TEMode :: debug);
+				$value = $ctx[$name];
+				return true;
 			}
 		}
-		while(!$found && $idx > 0);
-		self :: LogMsg($found ? '':' failed', $found, TEMode :: debug);
-		return $found;
+		self :: LogMsg(' failed', false, TEMode :: debug);
+		return false;
 	}
 	/**
 	 * Error
@@ -780,31 +817,21 @@ class TemplateEngine {
 		throw new Exception("The method 'TemplateEngine::$method' does not exist!");
 	}
 
-	/**
-	 * getFile
-	 * read the file (log that) and get the content
-	 * @param string $name filename(relative to TEMPLATE_PATH)
-	 * @param string $content passed by reference contains the file content on success, unmodified otherwise
-	 * @return boolean true if the file was found, readable and loaded
-	 */
-	public static function getFile($name, &$content) {
-		$fname = realpath(self :: $rootPath . self :: $templatePath . $name);
+	private static function doGetFile($templatePath, $name, &$content) {
+		$fname = realpath(self :: $rootPath . $templatePath . $name);
 		$content = '';
 		self :: LogMsg('[getFile]: <em>"' . $name . '"</em> ', true, TEMode :: debug, false);
 		if (!isset(self :: $templateCache[$fname])) {
 			if (!file_exists($fname) || !is_readable($fname)) {
-				self :: LogMsg('file not found!', false, TEMode :: error, true);
-				return false;
+				return array(false, 'file not found!', false, TEMode :: error, true);
 			}
-			if (self :: $force_tpl_extension && !preg_match('/\.tpl$/', $fname)) {
-				self :: LogMsg('invalid file', false, TEMode :: error);
-				return false;
+			if (self :: $force_tpl_extension && !preg_match('/\.tpl$/', $name)) {
+				return array(false, 'invalid file', false, TEMode :: error, true);
 			}
 			if (self :: $jail_to_template_path) {
 				$tplpath = realpath(self :: $rootPath . self :: $templatePath);
 				if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
-					self :: LogMsg('access denied', false, TEMode :: error);
-					return false;
+					return array(false, 'access denied', false, TEMode :: error, true);
 				}
 			}
 			self :: LogMsg(' Cache MISS', true, TEMode :: debug, true);
@@ -819,7 +846,44 @@ class TemplateEngine {
 			$fname = str_replace(realpath(self :: $rootPath) . '/', '', $fname);
 			$content = "<!-- start $fname -->\n" . $content . "<!-- end $fname -->\n";
 		}
-		return true;
+		return array(true);
+
+	}
+
+	/**
+	 * getFile
+	 * read the file (log that) and get the content
+	 * @param string $name filename(relative to TEMPLATE_PATH)
+	 * @param string $content passed by reference contains the file content on success, unmodified otherwise
+	 * @return boolean true if the file was found, readable and loaded
+	 */
+	public static function getFile($name, &$content) {
+		$result = self :: doGetFile(self :: $templatePath, $name, $content);
+		if (true !== $result[0] && self :: $baseTemplatePath) {
+			$result = self :: doGetFile(self :: $baseTemplatePath, $name, $content);
+			if (true === $result[0]) {
+				$ctx = &self :: $contexts[self :: $currentContext];
+				$ctx['override'] = array(
+					'templatePath' => self :: $baseTemplatePath,
+					'ctx' => array(
+						'TEMPLATE_PATH' => self :: $rootPath . self :: $baseTemplatePath
+					)
+				);
+			}
+		}
+		elseif (self :: $contexts[self :: $currentContext]['templatePath'] !== self :: $templatePath) {
+			$ctx = &self :: $contexts[self :: $currentContext];
+			$ctx['override'] = array(
+				'templatePath' => self :: $templatePath,
+				'ctx' => array(
+					'TEMPLATE_PATH' => self :: $rootPath . self :: $templatePath
+				)
+			);
+		}
+		if (true !== $result[0]) {
+			self :: LogMsg($result[1], $result[2], $result[3], $result[4]);
+		}
+		return $result[0];
 	}
 
 	public static function dumpVariablesOnExit() {
@@ -828,9 +892,9 @@ class TemplateEngine {
 	}
 
 	public static function dumpVariables() {
-		$template = self :: $basetemplate;
+		$template = self :: $template;
 		print '<pre style="text-align:left;background-color:white;">';
-		print "Basetemplate: $template\n";
+		print "Template: $template\n";
 		print "Available Template-Variables:\n";
 		print htmlentities(print_r(self :: $variables, true));
 		print "</pre>";

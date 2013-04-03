@@ -75,6 +75,11 @@ Die Inst Methode gibt ein Objekt der TemplateEngine zur\"uck, das kann verwendet
 \subsubsection{clear()}
 Mit der {\tt clear} Methode werden alle gesetzten Variablen gel\"oscht und automatische Variablen wieder zur\"uckgesetzt.
 
+\subsubsection{setBaseTemplatePath(\$path)}
+Setzt den Pfad des basis Templates. Relativ zum RootPath und zum Browser.
+Dieser Pfad wird verwendet wenn ein Template eine .tpl-Datei verwenden will die nicht existiert,
+die TemplateEngine versucht dann die .tpl-Datei im Basis-Template zu finden. Seit Version 2.1.0.
+
 \subsubsection{setTemplatePath(\$path)}
 Setzt den Pfad in dem nach Templates gesucht werden soll. Relativ zum RootPath und zum Browser.
 Der TemplatePath steht Templates als {\tt \{TEMPLATE\_PATH\}} zur Verf\"ugung.

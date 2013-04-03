@@ -46,7 +46,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals($this, TemplateEngine::get('test-variable'), 'complex datatypes supported as template value');
 	}
 
-	public function testsetTitle() {
+	public function testSetTitle() {
 		$this->assertEquals(null, TemplateEngine::get('PAGE_TITLE'), 'page title is not set on initialization');
 		TemplateEngine::setTitle('Unit Tests');
 		$this->assertEquals('Unit Tests', TemplateEngine::get('PAGE_TITLE'), 'page title is set');
@@ -54,7 +54,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals('Unit Tests', $result, 'title available to templates as {PAGE_TITLE}');
 	}
 
-	public function testheader() {
+	public function testHeader() {
 		$expect = '<meta name="generator" value="Unit Tests" />';
 		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
 		TemplateEngine::header($expect);
@@ -63,7 +63,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals($expect, $result, 'HTML for the head section available to templates as {HEADER_TEXT}');
 	}
 
-	public function testaddCSS() {
+	public function testAddCSS() {
 		$expect = '<link type="text/css" rel="stylesheet" href="path/to/css.css" />';
 		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
 		TemplateEngine::addCSS("path/to/css.css");
@@ -72,7 +72,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals($expect, $result, 'link tag for the head section available to templates as {HEADER_TEXT}');
 	}
 
-	public function testaddJS() {
+	public function testAddJS() {
 		$expect = '<script type="text/javascript" src="path/to/js.js" ></script>';
 		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
 		TemplateEngine::addJS("path/to/js.js");
@@ -167,6 +167,21 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	public function testJailToTemplatePathThrows() {
 		TemplateEngine::setTemplatePath('templates/jail-test');
 		TemplateEngine::processTemplate('../te-core-te_existing-template-file-outside-template-path.tpl', false);
+	}
+
+	public function testBaseTemplateLookup() {
+		/* RM */require_once('plugins/TE_LOAD.php');/* /RM */
+		TemplateEngine::setBaseTemplatePath('templates/base-template');
+		TemplateEngine::setMode(TEMode::debug);
+		$result = trim(TemplateEngine::processTemplate('te-core-test-base-lookup.tpl', false));
+		$this->assertEquals('Base: Normal', $result, 'base lookup failed');
+	}
+	public function testSubTemplateOverride() {
+		/* RM */require_once('plugins/TE_LOAD.php');/* /RM */
+		TemplateEngine::setBaseTemplatePath('templates/base-template');
+		TemplateEngine::setMode(TEMode::debug);
+		$result = trim(TemplateEngine::processTemplate('te-core-test-sub-override.tpl', false));
+		$this->assertEquals('Sub:tests/templates/;Base:tests/templates/base-template/;Sub:tests/templates/;', $result, 'sub override failed');
 	}
 }
 
