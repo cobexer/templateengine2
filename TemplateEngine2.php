@@ -177,7 +177,15 @@ class TemplateEngine {
 		self :: $messages_NotFin = array();
 		self :: $messages = array();
 		self :: $contexts = array();
-		self :: $currentContext = -1;
+		self :: $contexts[] = array(
+			'tpl' => '',
+			'ctx' => self :: $variables,
+			'templatePath' => '',
+			'hit' => 0,
+			'miss' => 0,
+			'prevContextActivePlugin' => ''
+		);
+		self :: $currentContext = 0;
 	}
 	/**
 	 * pushConetxt
