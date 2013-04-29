@@ -42,7 +42,9 @@ release: clean build-plugins-dir ${PLUGINS} release-plugins.txt export-base-test
 	@echo "//EOF" >> ${TE_RELEASE_NAME}
 	@cat -s ${TE_RELEASE_NAME} > ${TE_RELEASE_NAME}.tmp
 	@mv ${TE_RELEASE_NAME}.tmp ${TE_RELEASE_NAME}
+ifneq ($(TESTS),skip)
 	$(Q)$(MAKE) -C ${BUILD_DIR}/ coverage
+endif
 	@echo "built release version: TemplateEngine2 ${TE_VER} of ${TE_DATE} (${TE_COMMIT})"
 
 doc:
