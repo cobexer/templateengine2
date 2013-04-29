@@ -183,6 +183,16 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$result = trim(TemplateEngine::processTemplate('te-core-test-sub-override.tpl', false));
 		$this->assertEquals('Sub:tests/templates/;Base:tests/templates/base-template/;Sub:tests/templates/;', $result, 'sub override failed');
 	}
+	public function TE_TEST_PLUGIN_PUSH_CONTEXT($context, $match) {
+		return TemplateEngine :: pushContext('{' . $match[1] . '}', array($match[1] => 'context'));
+	}
+
+	public function testPluginPushContext() {
+		TemplateEngine::registerPlugin('TE_TEST_PLUGIN_PUSH_CONTEXT', '/\{CONTEXT=(.*?)\}/', array($this, 'TE_TEST_PLUGIN_PUSH_CONTEXT'));
+		TemplateEngine::set('TEST', 'base');
+		$result = trim(TemplateEngine::processTemplate('te-core-te_plugin_push_context_test.tpl', false));
+		$this->assertEquals('from: context', $result, 'variable lookup using pushContext');
+	}
 }
 
 //EOF
