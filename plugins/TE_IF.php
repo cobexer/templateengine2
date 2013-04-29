@@ -27,7 +27,7 @@ function TE_PLUGIN_TE_IF(array $ctx, array $match) {
 	$block = $match['block'];
 	$nblock = isset($match['nblock']) ? $match['nblock'] : '';
 	$val = isset($ctx[$key]) ? $ctx[$key] : null;
-	if(null == $val && 'null' !== $literal && !TemplateEngine :: lookupVar($key, $val)) {
+	if(null == $val && !TemplateEngine :: lookupVar($key, $val) && 'null' !== $literal) {
 		TemplateEngine :: LogMsg('[IF]: Value <em>'.$key.'</em> not set, but used by IF', false, TEMode::error);
 		return false;
 	}
