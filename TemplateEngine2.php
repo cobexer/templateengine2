@@ -837,7 +837,7 @@ class TemplateEngine {
 				return array(false, 'invalid file', false, TEMode :: error, true);
 			}
 			if (self :: $jail_to_template_path) {
-				$tplpath = realpath(self :: $rootPath . self :: $templatePath);
+				$tplpath = realpath(self :: $rootPath . $templatePath);
 				if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
 					return array(false, 'access denied', false, TEMode :: error, true);
 				}
