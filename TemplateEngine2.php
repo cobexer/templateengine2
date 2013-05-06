@@ -141,6 +141,15 @@ class TemplateEngine {
 	 */
 	private static $template = '';
 	/**
+	 * @static this array is used to track all options,
+	 */
+	private static $options = array();
+	/**
+	 * @static this array is used to track all default options,
+	 */
+	private static $defaultOptions = array(
+	);
+	/**
 	 * __construct
 	 * initializes a new object of the TemplateEngine
 	 * @access public
@@ -730,6 +739,23 @@ class TemplateEngine {
 	public static function forceMode($mode) {
 		self :: $mode = $mode;
 		self :: $mode_forced = true;
+	}
+
+	/**
+	 * option
+	 * the option function can be used to get or set the value of an option.
+	 * @param string $name name of the option
+	 * @param mixed $value optional value of the option, if specified this function is a setter
+	 * @return mixed current value of the option
+	 */
+	public static function option($name, $value = null) {
+		if (func_num_args() > 1) {
+			self :: $options[$name] = $value;
+		}
+		if (isset(self :: $options[$name])) {
+			return self :: $options[$name];
+		}
+		return self :: $defaultOptions[$name];
 	}
 
 	/**
