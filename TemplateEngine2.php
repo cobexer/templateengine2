@@ -192,7 +192,7 @@ class TemplateEngine {
 			'templatePath' => '',
 			'hit' => 0,
 			'miss' => 0,
-			'prevContextActivePlugin' => ''
+			'prevContextActivePlugin' => '',
 		);
 		self :: $currentContext = 0;
 	}
@@ -213,7 +213,7 @@ class TemplateEngine {
 			'templatePath' => $templatePath,
 			'hit' => 0,
 			'miss' => 0,
-			'prevContextActivePlugin' => self :: $activePlugin
+			'prevContextActivePlugin' => self :: $activePlugin,
 		);
 		self :: $currentContext += 1;
 		self :: processCurrentContext();
@@ -293,7 +293,7 @@ class TemplateEngine {
 	public static function registerPlugin($plugin, $regexp, $callback) {
 		self :: $pluginRegistration[$plugin] = array(
 			'regex' => $regexp,
-			'cb' => $callback
+			'cb' => $callback,
 		);
 	}
 	/**
@@ -661,13 +661,13 @@ class TemplateEngine {
 		self :: LogMsg('<em>formatting messages...</em>', true, TEMode :: debug);
 		$succ = array(
 			true => '[ <strong class="te_msg_done">done</strong> ]',
-			false => '[<strong class="te_msg_failed">failed</strong>]'
+			false => '[<strong class="te_msg_failed">failed</strong>]',
 		);
 		$mode = array(
 			TEMode :: debug   => '<strong class="te_msg_dbg">[ DEBUG ]: </strong>',
 			TEMode :: warning => '<strong class="te_msg_wrn">[WARNING]: </strong>',
 			TEMode :: error   => '<strong class="te_msg_err">[ ERROR ]: </strong>',
-			TEMode :: none    => '<strong class="te_msg_non">[  NONE ]: </strong>'
+			TEMode :: none    => '<strong class="te_msg_non">[  NONE ]: </strong>',
 		);
 		if (count(self :: $messages)) {
 			$div = '<div id="te_message_log">';
@@ -900,8 +900,8 @@ class TemplateEngine {
 				$ctx['override'] = array(
 					'templatePath' => self :: $baseTemplatePath,
 					'ctx' => array(
-						'TEMPLATE_PATH' => self :: $rootPath . self :: $baseTemplatePath
-					)
+						'TEMPLATE_PATH' => self :: $rootPath . self :: $baseTemplatePath,
+					),
 				);
 			}
 		}
@@ -910,8 +910,8 @@ class TemplateEngine {
 			$ctx['override'] = array(
 				'templatePath' => self :: $templatePath,
 				'ctx' => array(
-					'TEMPLATE_PATH' => self :: $rootPath . self :: $templatePath
-				)
+					'TEMPLATE_PATH' => self :: $rootPath . self :: $templatePath,
+				),
 			);
 		}
 		if (true !== $result[0]) {
