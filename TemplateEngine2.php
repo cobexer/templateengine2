@@ -202,7 +202,7 @@ class TemplateEngine {
 	 * push a new template context onto the context stack
 	 * @param $templateString string the template string to process in this context
 	 * @param $context array the context to work on
-	 * @return void
+	 * @return the resulting template string
 	 */
 	public static function pushContext($templateString, array $context, $templatePath = null) {
 		if (null === $templatePath) {
