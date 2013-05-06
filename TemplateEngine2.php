@@ -42,10 +42,6 @@ class TemplateEngine {
 	 */
 	private static $mode_forced = false;
 	/**
-	 * @static boolean put filename into a comment for all loaded files
-	 */
-	private static $debug_files = false;
-	/**
 	 * @static boolean enable forcing the file extension to tpl (disallow including .php,...)
 	 */
 	private static $force_tpl_extension = true;
@@ -149,6 +145,10 @@ class TemplateEngine {
 	 */
 	private static $defaultOptions = array(
 		'plugin_profiling' => false,
+		/**
+		 * put filename into a comment for all loaded files
+		 */
+		'debug_files' => false,
 	);
 	/**
 	 * __construct
@@ -835,9 +835,10 @@ class TemplateEngine {
 	 * setFileDebugMode
 	 * enable or disable file debugging mode
 	 * @param boolean $mode set to true to enable comment insertion
+	 * @deprecated
 	 */
 	public static function setFileDebugMode($mode) {
-		self :: $debug_files = $mode;
+		self :: option('debug_files', $mode);
 	}
 
 	/**
@@ -936,7 +937,7 @@ class TemplateEngine {
 			self :: LogMsg(' Cache HIT', true, TEMode :: debug, true);
 			$content = self :: $templateCache[$fname];
 		}
-		if (self :: $debug_files) {
+		if (self :: option('debug_files')) {
 			$fname = str_replace(realpath(self :: $rootPath) . '/', '', $fname);
 			$content = "<!-- start $fname -->\n" . $content . "<!-- end $fname -->\n";
 		}
@@ -1014,7 +1015,7 @@ if(isset($_GET['show_timing'])) {
 }
 // activate file debugging if 'debug_files' is set in $_GET
 if(isset($_GET['debug_files'])) {
-	TemplateEngine :: setFileDebugMode(true);
+	TemplateEngine :: option('debug_files', true);
 }
 //don't gzip if impossible ;)
 if (!function_exists('gzencode')) {
