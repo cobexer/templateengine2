@@ -783,6 +783,9 @@ class TemplateEngine {
 	}
 
 	public static function shutdown_function() {
+		if (self :: $timing_enabled) {
+			self :: printTimingStatistics();
+		}
 		if (self :: option('plugin_profiling')) {
 			self :: printPluginProfiling();
 		}
@@ -878,7 +881,6 @@ class TemplateEngine {
 	public static function enableTiming() {
 		self :: noGzip();
 		self :: $timing_enabled = true;
-		register_shutdown_function(array('TemplateEngine', 'printTimingStatistics'));
 	}
 
 	/**
