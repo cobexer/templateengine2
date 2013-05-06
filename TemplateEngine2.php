@@ -148,6 +148,7 @@ class TemplateEngine {
 	 * @static this array is used to track all default options,
 	 */
 	private static $defaultOptions = array(
+		'plugin_profiling' => false,
 	);
 	/**
 	 * __construct
@@ -294,6 +295,10 @@ class TemplateEngine {
 		self :: $pluginRegistration[$plugin] = array(
 			'regex' => $regexp,
 			'cb' => $callback,
+			'_regex_time' => 0,
+			'_total_hit' => 0,
+			'_total_try' => 0,
+			'_total_decline' => 0,
 		);
 	}
 	/**
@@ -384,15 +389,23 @@ class TemplateEngine {
 	 */
 	private static function processCurrentContext() {
 		//TODO: push context recursion
+		$profile = self :: option('plugin_profiling');
 		$recursion_limit = 32;
 		$ctx = &self :: $contexts[self :: $currentContext];
 		if(strlen($ctx['tpl']) > 0) {
 			do {
 				$ctx['hit'] = 0;
 				$ctx['miss'] = 0;
-				foreach (self :: $pluginRegistration as $plugin => $pdata) {
+				foreach (self :: $pluginRegistration as $plugin => &$pdata) {
 					self :: $activePlugin = $plugin;
+					if ($profile) {
+						$pdata['_start'] = microtime(true);
+						++$pdata['_total_try'];
+					}
 					$ctx['tpl'] = preg_replace_callback($pdata['regex'], array('TemplateEngine', 'replace_callback'), $ctx['tpl']);
+					if ($profile) {
+						$pdata['_regex_time'] += microtime(true) - $pdata['_start'];
+					}
 				}
 			}
 			while(($ctx['hit'] > 0) && $recursion_limit--);
@@ -456,18 +469,30 @@ class TemplateEngine {
 	 * @return string the replacement for the match
 	 */
 	public static function replace_callback(array $match) {
-		$callback = self :: $pluginRegistration[self :: $activePlugin]['cb'];
+		$profiling = self :: option('plugin_profiling');
+		$plugin = &self :: $pluginRegistration[self :: $activePlugin];
+		if ($profiling) {
+			$plugin['_regex_time'] += microtime(true) - $plugin['_start'];
+			++$plugin['_total_hit'];
+		}
 		$ctx = &self :: $contexts[self :: $currentContext];
-		$res = call_user_func_array($callback, array($ctx['ctx'], $match));
+		$res = call_user_func_array($plugin['cb'], array($ctx['ctx'], $match));
 		if (false !== $res) {
 			if (isset($ctx['override'])) {
 				$res = self :: pushContext($res, $ctx['override']['ctx'], $ctx['override']['templatePath']);
 				unset($ctx['override']);
 			}
 			++$ctx['hit'];
+			if ($profiling) {
+				$plugin['_start'] = microtime(true);
+			}
 			return $res;
 		}
 		++$ctx['miss'];
+		if ($profiling) {
+			$plugin['_start'] = microtime(true);
+			++$plugin['_total_decline'];
+		}
 		return $match[0];
 	}
 	/**
@@ -730,6 +755,39 @@ class TemplateEngine {
 		print '</table></div>';
 	}
 
+	private static function printPluginProfiling() {
+		print '<hr /><div style="background-color:#888;"><table style="margin: 0 auto;';
+		print 'border:1px solid green;width:70%;"><thead><tr><th>Plugin</th>';
+		print '<th>Regex matching time</th><th>Tries</th><th>Hit</th><th>Decline</th></tr></thead>';
+		$totalTime = 0;
+		$totalTry = 0;
+		$totalHit = 0;
+		$totalDecline = 0;
+		foreach(self :: $pluginRegistration as $name => $plugin) {
+			$totalTime += $plugin['_regex_time'];
+			$totalTry += $plugin['_total_try'];
+			$totalHit += $plugin['_total_hit'];
+			$totalDecline += $plugin['_total_decline'];
+			print '<tr>';
+			print '<td>' . $name . '</td>';
+			print '<td>' . ($plugin['_regex_time'] * 1000) . 'ms</td>';
+			print '<td>' . $plugin['_total_try'] . '</td>';
+			print '<td>' . $plugin['_total_hit'] . '</td>';
+			print '<td>' . $plugin['_total_decline'] . '</td>';
+			print '</tr>';
+		}
+		print '<tr>';
+		print '<td>Total</td><td>' . ($totalTime * 1000) . '</td>';
+		print "<td>$totalTry</td><td>$totalHit</td><td>$totalDecline</td>";
+		print '</tr></table></div>';
+	}
+
+	public static function shutdown_function() {
+		if (self :: option('plugin_profiling')) {
+			self :: printPluginProfiling();
+		}
+	}
+
 	/**
 	 * forceMode
 	 * force the given log level, ignore Templates setting the level differently
@@ -940,6 +998,7 @@ class TemplateEngine {
 // #######################################################################################
 // setup TEmplateEngine environment
 new TemplateEngine(); //required! as the first instance clears and initializes the TE
+register_shutdown_function(array('TemplateEngine', 'shutdown_function'));
 TemplateEngine :: captureTime('TEincluded'); //< page start init
 TemplateEngine :: useTEErrorHandler(!isset($_GET['force_def_err_handler']));
 
@@ -987,5 +1046,10 @@ function TE_php_exception_handler($exception) {
 
 if (!isset($_GET['force_def_exception_handler'])) {
 	set_exception_handler('TE_php_exception_handler');
+}
+
+if (isset($_GET['te_profile'])) {
+	TemplateEngine :: noGzip();
+	TemplateEngine :: option('plugin_profiling', true);
 }
 //EOF
