@@ -193,6 +193,20 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$result = trim(TemplateEngine::processTemplate('te-core-te_plugin_push_context_test.tpl', false));
 		$this->assertEquals('from: context', $result, 'variable lookup using pushContext');
 	}
+
+	public function testEvents() {
+		$args = array();
+		TemplateEngine :: on('test_events_event', function($arg1, $arg2, $arg3) use (&$args) {
+			$args['1'] = $arg1;
+			$args['2'] = $arg2;
+			$args['3'] = $arg3;
+		});
+		$result = TemplateEngine :: trigger('test_events_event', "aaa", $this, true);
+		$this->assertEquals(3, count($args), "event handler has been called");
+		$this->assertEquals("aaa", $args['1'], "arguments passed along");
+		$this->assertEquals($this, $args['2'], "arguments passed along");
+		$this->assertEquals(true, $args['3'], "arguments passed along");
+	}
 }
 
 //EOF

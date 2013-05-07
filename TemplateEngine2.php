@@ -151,6 +151,11 @@ class TemplateEngine {
 		'debug_files' => false,
 	);
 	/**
+	 * @static this array contains all registered event handlers grouped by event
+	 */
+	private static $handlers = array(
+	);
+	/**
 	 * __construct
 	 * initializes a new object of the TemplateEngine
 	 * @access public
@@ -817,6 +822,34 @@ class TemplateEngine {
 			return self :: $options[$name];
 		}
 		return self :: $defaultOptions[$name];
+	}
+
+	/**
+	 * on
+	 * register an event handler for the given event
+	 */
+	public static function on($event, $callback) {
+		if (!isset(self :: $handlers[$event])) {
+			self :: $handlers[$event] = array();
+		}
+		self :: $handlers[$event][] = $callback;
+	}
+
+	/**
+	 * trigger
+	 * trigger the given event, calling all event handlers in turn
+	 * @param string $event name of the event to trigger
+	 * @return boolean false if any of the event handlers returned false
+	 */
+	public static function trigger($event) {
+		$args = func_get_args();
+		$event_name = $args[0];
+		$args = array_splice($args, 1);
+		$result = true;
+		foreach(self :: $handlers[$event_name] as $callback) {
+			$result = false !== call_user_func_array($callback, $args) && $result;
+		}
+		return $result;
 	}
 
 	/**
