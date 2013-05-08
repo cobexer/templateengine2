@@ -149,6 +149,10 @@ class TemplateEngine {
 		 * gzip the response in case the browser supports it
 		 */
 		'gzip' => true,
+		/**
+		 * dump variables at the end of the response
+		 */
+		'dump_variables' => false,
 	);
 	/**
 	 * @static this array contains all registered event handlers grouped by event
@@ -789,6 +793,9 @@ class TemplateEngine {
 	}
 
 	public static function shutdown_function() {
+		if (self :: option('dump_variables')) {
+			self :: dumpVariables();
+		}
 		if (self :: $timing_enabled) {
 			self :: printTimingStatistics();
 		}
@@ -1019,8 +1026,7 @@ class TemplateEngine {
 	}
 
 	public static function dumpVariablesOnExit() {
-		register_shutdown_function(array('TemplateEngine', 'dumpVariables'));
-		self :: noGzip();
+		self :: option('dump_variables', true);
 	}
 
 	public static function dumpVariables() {
