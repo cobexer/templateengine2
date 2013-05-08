@@ -1025,6 +1025,9 @@ class TemplateEngine {
 		return $result[0];
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function dumpVariablesOnExit() {
 		self :: option('dump_variables', true);
 	}
@@ -1077,7 +1080,7 @@ if (!function_exists('gzencode')) {
 }
 // dump name and value of all set template variables
 if(isset($_GET['te_dump'])) {
-	TemplateEngine :: dumpVariablesOnExit();
+	TemplateEngine :: option('dump_variables', true);
 }
 /**
  * TE_php_err_handler
