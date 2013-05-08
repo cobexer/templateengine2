@@ -59,10 +59,6 @@ class TemplateEngine {
 	 */
 	private static $havingSession = false;
 	/**
-	 * @static boolean used to programmatically disable gzipping
-	 */
-	private static $allow_gzip = true;
-	/**
 	 * @static array array containing the messages to be displayed
 	 */
 	private static $messages = array();
@@ -149,11 +145,16 @@ class TemplateEngine {
 		 * put filename into a comment for all loaded files
 		 */
 		'debug_files' => false,
+		/**
+		 * gzip the response in case the browser supports it
+		 */
+		'gzip' => true,
 	);
 	/**
 	 * @static this array contains all registered event handlers grouped by event
 	 */
 	private static $handlers = array(
+		'set_option' => array(),
 	);
 	/**
 	 * __construct
@@ -429,7 +430,7 @@ class TemplateEngine {
 		header("Content-Type: text/html; charset=utf-8");
 		$result = self :: processTemplate($template, $havingSession);
 		//compress using gzip if the browser supports it
-		if (self :: $allow_gzip && strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
+		if (self :: option('gzip') && strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			//well if YOU used print/echo before the complete content will be garbage it's YOUR fault!
 			header('Content-Encoding: gzip');
 			//TODO: ob_start, ob_gz_handler?
@@ -816,7 +817,9 @@ class TemplateEngine {
 	 */
 	public static function option($name, $value = null) {
 		if (func_num_args() > 1) {
-			self :: $options[$name] = $value;
+			if (self :: trigger('set_option', $name, $value)) {
+				self :: $options[$name] = $value;
+			}
 		}
 		if (isset(self :: $options[$name])) {
 			return self :: $options[$name];
@@ -902,9 +905,10 @@ class TemplateEngine {
 	 * noGzip
 	 * disallow gzipping
 	 * @return void
+	 * @deprecated
 	 */
 	public static function noGzip() {
-		self :: $allow_gzip = false;
+		self :: option('gzip', false);
 	}
 
 	/**
@@ -1035,6 +1039,17 @@ class TemplateEngine {
 // setup TEmplateEngine environment
 new TemplateEngine(); //required! as the first instance clears and initializes the TE
 register_shutdown_function(array('TemplateEngine', 'shutdown_function'));
+TemplateEngine :: on('set_option', function($name, $value) {
+	switch ($name) {
+		case 'dump_variables':
+		case 'plugin_profiling':
+			TemplateEngine :: option('gzip', false);
+			break;
+		default:
+			break;
+	}
+	return true;
+});
 TemplateEngine :: captureTime('TEincluded'); //< page start init
 TemplateEngine :: useTEErrorHandler(!isset($_GET['force_def_err_handler']));
 
@@ -1052,7 +1067,7 @@ if(isset($_GET['debug_files'])) {
 }
 //don't gzip if impossible ;)
 if (!function_exists('gzencode')) {
-	TemplateEngine :: noGzip();
+	TemplateEngine :: option('gzip', false);
 }
 // dump name and value of all set template variables
 if(isset($_GET['te_dump'])) {
@@ -1085,7 +1100,6 @@ if (!isset($_GET['force_def_exception_handler'])) {
 }
 
 if (isset($_GET['te_profile'])) {
-	TemplateEngine :: noGzip();
 	TemplateEngine :: option('plugin_profiling', true);
 }
 //EOF
