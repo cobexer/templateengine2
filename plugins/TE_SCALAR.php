@@ -31,6 +31,6 @@ function TE_PLUGIN_TE_SCALAR(array $ctx, array $match) {
 	return false;
 }
 
-TemplateEngine :: registerPlugin('TE_SCALAR', '/\{([A-Z0-9_]*)(?:\|(?P<escaper>[A-Z0-9_]+))?\}/', 'TE_PLUGIN_TE_SCALAR');
+TemplateEngine :: registerPlugin('TE_SCALAR', '/\{([A-Za-z0-9_]*)(?:\|(?P<escaper>[A-Z0-9_]+))?\}/', 'TE_PLUGIN_TE_SCALAR');
 
 //EOF

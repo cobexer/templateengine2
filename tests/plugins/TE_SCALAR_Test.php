@@ -40,6 +40,16 @@ class TE_SCALAR_Test extends TemplateEngineTestBase
 		$this->assertEquals("<strong>HTML</strong> as is.", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar.tpl', false)), 'HTML used as is');
 	}
 
+	public function testVarNameLowercase() {
+		TemplateEngine::set('variable', "lowercase");
+		$this->assertEquals("variable: lowercase", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar-lowercase.tpl', false)), 'lowercase varable names are supported');
+	}
+
+	public function testVarNameMixedcase() {
+		TemplateEngine::set('varIable', "mixedcase");
+		$this->assertEquals("varIable: mixedcase", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar-mixedcase.tpl', false)), 'mixedcase varable names are supported');
+	}
+
 	public function testVarTemplateCode() {
 		TemplateEngine::set('VARIABLE', "Template code: {ROOT_PATH}{UNDEFINED_VAR}");
 		$this->assertEquals("Template code: " . TemplateEngine::getRootPath() . "{UNDEFINED_VAR}", trim(TemplateEngine::processTemplate('plugins/TE_SCALAR/scalar.tpl', false)), 'Template code used and executed as expected');
