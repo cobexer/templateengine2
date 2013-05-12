@@ -42,10 +42,6 @@ class TemplateEngine {
 	 */
 	private static $mode_forced = false;
 	/**
-	 * @static boolean enable forcing the file extension to tpl (disallow including .php,...)
-	 */
-	private static $force_tpl_extension = true;
-	/**
 	 * @static boolean disallow any file access outside the template path
 	 */
 	private static $jail_to_template_path = true;
@@ -153,6 +149,10 @@ class TemplateEngine {
 		 * dump variables at the end of the response
 		 */
 		'dump_variables' => false,
+		/**
+		 * force the file extension of files to tpl (disallow including .php,...)
+		 */
+		'force_tpl_extension' => true,
 	);
 	/**
 	 * @static this array contains all registered event handlers grouped by event
@@ -888,12 +888,10 @@ class TemplateEngine {
 	 * setForceTplExtension
 	 * enable or disable file extension sanity check
 	 * @param boolean $mode set to true to enable sanity check
+	 * @deprecated
 	 */
 	public static function setForceTplExtension($mode) {
-		self :: $force_tpl_extension = $mode;
-		if (!self :: $jail_to_template_path && !self :: $force_tpl_extension) {
-			self :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
-		}
+		self :: option('force_tpl_extension', $mode);
 	}
 
 	/**
@@ -964,7 +962,7 @@ class TemplateEngine {
 			if (!file_exists($fname) || !is_readable($fname)) {
 				return array(false, 'file not found!', false, TEMode :: error, true);
 			}
-			if (self :: $force_tpl_extension && !preg_match('/\.tpl$/', $name)) {
+			if (self :: option('force_tpl_extension') && !preg_match('/\.tpl$/', $name)) {
 				return array(false, 'invalid file', false, TEMode :: error, true);
 			}
 			if (self :: $jail_to_template_path) {
@@ -1053,6 +1051,11 @@ TemplateEngine :: on('set_option', function($name, $value) {
 		case 'dump_variables':
 		case 'plugin_profiling':
 			TemplateEngine :: option('gzip', false);
+			break;
+		case 'force_tpl_extension':
+			if (!$value && !TemplateEngine :: option('jail_to_template_path')) {
+				TemplateEngine :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
+			}
 			break;
 		default:
 			break;
