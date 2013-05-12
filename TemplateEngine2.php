@@ -42,10 +42,6 @@ class TemplateEngine {
 	 */
 	private static $mode_forced = false;
 	/**
-	 * @static boolean disallow any file access outside the template path
-	 */
-	private static $jail_to_template_path = true;
-	/**
 	 * @static boolean set to true at the beginning of the first context processing
 	 */
 	private static $running = false;
@@ -153,6 +149,10 @@ class TemplateEngine {
 		 * force the file extension of files to tpl (disallow including .php,...)
 		 */
 		'force_tpl_extension' => true,
+		/**
+		 * disallow any file access outside the template path
+		 */
+		'jail_to_template_path' => true,
 	);
 	/**
 	 * @static this array contains all registered event handlers grouped by event
@@ -898,12 +898,10 @@ class TemplateEngine {
 	 * setJailToTemplatePath
 	 * enable or disable file accessing files outside the set template path
 	 * @param boolean $mode set to true to enable security check
+	 * @deprecated
 	 */
 	public static function setJailToTemplatePath($mode) {
-		self :: $jail_to_template_path = $mode;
-		if (!self :: $jail_to_template_path && !self :: $force_tpl_extension) {
-			self :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
-		}
+		self :: option('jail_to_template_path', $mode);
 	}
 
 	/**
@@ -965,7 +963,7 @@ class TemplateEngine {
 			if (self :: option('force_tpl_extension') && !preg_match('/\.tpl$/', $name)) {
 				return array(false, 'invalid file', false, TEMode :: error, true);
 			}
-			if (self :: $jail_to_template_path) {
+			if (self :: option('jail_to_template_path')) {
 				$tplpath = realpath(self :: $rootPath . $templatePath);
 				if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
 					return array(false, 'access denied', false, TEMode :: error, true);
@@ -1054,6 +1052,11 @@ TemplateEngine :: on('set_option', function($name, $value) {
 			break;
 		case 'force_tpl_extension':
 			if (!$value && !TemplateEngine :: option('jail_to_template_path')) {
+				TemplateEngine :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
+			}
+			break;
+		case 'jail_to_template_path':
+			if (!$value && !TemplateEngine :: option('force_tpl_extension')) {
 				TemplateEngine :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
 			}
 			break;
