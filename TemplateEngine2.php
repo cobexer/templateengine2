@@ -67,10 +67,6 @@ class TemplateEngine {
 	 */
 	private static $timing_data = array();
 	/**
-	 * @static boolean enable time capturing
-	 */
-	private static $timing_enabled = false;
-	/**
 	 * @static TemplateEngine instance of the TemplateEngine
 	 */
 	private static $instance = null;
@@ -153,6 +149,10 @@ class TemplateEngine {
 		 * disallow any file access outside the template path
 		 */
 		'jail_to_template_path' => true,
+		/**
+		 * enable time capturing
+		 */
+		'timing' => false,
 	);
 	/**
 	 * @static this array contains all registered event handlers grouped by event
@@ -796,7 +796,7 @@ class TemplateEngine {
 		if (self :: option('dump_variables')) {
 			self :: dumpVariables();
 		}
-		if (self :: $timing_enabled) {
+		if (self :: option('timing')) {
 			self :: printTimingStatistics();
 		}
 		if (self :: option('plugin_profiling')) {
@@ -918,10 +918,10 @@ class TemplateEngine {
 	 * enableTiming
 	 * set capturing of timing information to on
 	 * @return void
+	 * @deprecated
 	 */
 	public static function enableTiming() {
-		self :: noGzip();
-		self :: $timing_enabled = true;
+		self :: option('timing', true);
 	}
 
 	/**
@@ -1048,6 +1048,7 @@ TemplateEngine :: on('set_option', function($name, $value) {
 	switch ($name) {
 		case 'dump_variables':
 		case 'plugin_profiling':
+		case 'timing':
 			TemplateEngine :: option('gzip', false);
 			break;
 		case 'force_tpl_extension':
@@ -1074,7 +1075,7 @@ if(isset($_GET['force_debug'])) {
 }
 // activate timing information if 'show_timing' is set in $_GET
 if(isset($_GET['show_timing'])) {
-	TemplateEngine :: enableTiming();
+	TemplateEngine :: option('timing', true);
 }
 // activate file debugging if 'debug_files' is set in $_GET
 if(isset($_GET['debug_files'])) {
