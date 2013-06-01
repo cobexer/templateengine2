@@ -176,6 +176,15 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$result = trim(TemplateEngine::processTemplate('te-core-test-base-lookup.tpl', false));
 		$this->assertEquals('Base: Normal', $result, 'base lookup failed');
 	}
+
+	public function testTemplateCacheBaseTemplateLookup() {
+		/* RM */require_once('plugins/TE_LOAD.php');/* /RM */
+		TemplateEngine::setBaseTemplatePath('templates/base-template');
+		TemplateEngine::setMode(TEMode::debug);
+		$result = trim(TemplateEngine::processTemplate('te-core-tpl-cache-base-template-interaction.tpl', false));
+		$this->assertEquals('Base:tests/templates/base-template/;Sub:tests/templates/;#Base:tests/templates/base-template/;Sub:tests/templates/;', $result, 'template cache breaks TEMPLATE_PATH in cached templates');
+	}
+
 	public function testSubTemplateOverride() {
 		/* RM */require_once('plugins/TE_LOAD.php');/* /RM */
 		TemplateEngine::setBaseTemplatePath('templates/base-template');

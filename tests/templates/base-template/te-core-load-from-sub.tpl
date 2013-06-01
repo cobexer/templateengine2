@@ -1,1 +1,0 @@
-Base:{TEMPLATE_PATH};

@@ -22,6 +22,36 @@ final class TEMode {
 	const error = 10;
 	const none =  15;
 }
+
+/**
+ * class TEEventPhase specifies the phase that the event handler wants to listen for the event to occur.
+ */
+final class TEEventPhase {
+	const evaluate = 0;
+	const execute = 1;
+	const inform = 2;
+}
+
+/**
+ * class TEEventRegistration is used to track the registered event handlers for an event.
+ */
+class TEEventRegistration {
+	private $handlers;
+	public function __construct() {
+		$this->handlers = array(
+			TEEventPhase :: evaluate => array(),
+			TEEventPhase :: execute => array(),
+			TEEventPhase :: inform => array(),
+		);
+	}
+	public function on($phase, $handler) {
+		$this->handlers[$phase][] = $handler;
+	}
+	public function get($phase) {
+		return $this->handlers[$phase];
+	}
+}
+
 /**
  * class TETemplateNotFoundException thrown if a template has not been found
  */
@@ -158,7 +188,7 @@ class TemplateEngine {
 	 * @static this array contains all registered event handlers grouped by event
 	 */
 	private static $handlers = array(
-		'set_option' => array(),
+		'set_option' => null,
 	);
 	/**
 	 * __construct
@@ -824,9 +854,7 @@ class TemplateEngine {
 	 */
 	public static function option($name, $value = null) {
 		if (func_num_args() > 1) {
-			if (self :: trigger('set_option', $name, $value)) {
-				self :: $options[$name] = $value;
-			}
+			self :: trigger('set_option', $name, $value);
 		}
 		if (isset(self :: $options[$name])) {
 			return self :: $options[$name];
@@ -834,15 +862,19 @@ class TemplateEngine {
 		return self :: $defaultOptions[$name];
 	}
 
+	private static function _set_option($name, $value) {
+		self :: $options[$name] = $value;
+	}
+
 	/**
 	 * on
 	 * register an event handler for the given event
 	 */
-	public static function on($event, $callback) {
-		if (!isset(self :: $handlers[$event])) {
-			self :: $handlers[$event] = array();
+	public static function on($event, $callback, $phase = TEEventPhase :: inform) {
+		if (!isset(self :: $handlers[$event]) || null === self :: $handlers[$event]) {
+			self :: $handlers[$event] = new TEEventRegistration();
 		}
-		self :: $handlers[$event][] = $callback;
+		self :: $handlers[$event]->on($phase, $callback);
 	}
 
 	/**
@@ -856,8 +888,19 @@ class TemplateEngine {
 		$event_name = $args[0];
 		$args = array_splice($args, 1);
 		$result = true;
-		foreach(self :: $handlers[$event_name] as $callback) {
-			$result = false !== call_user_func_array($callback, $args) && $result;
+		if (isset(self :: $handlers[$event_name])) {
+			$evt = self :: $handlers[$event_name];
+			foreach($evt->get(TEEventPhase :: evaluate) as $callback) {
+				$result = $result && false !== call_user_func_array($callback, $args);
+			}
+			if ($result) {
+				foreach($evt->get(TEEventPhase :: execute) as $callback) {
+					call_user_func_array($callback, $args);
+				}
+				foreach($evt->get(TEEventPhase :: inform) as $callback) {
+					call_user_func_array($callback, $args);
+				}
+			}
 		}
 		return $result;
 	}
@@ -953,6 +996,7 @@ class TemplateEngine {
 	}
 
 	private static function doGetFile($templatePath, $name, &$content) {
+		//TODO: move the cache one level up or keep on this level??
 		$fname = realpath(self :: $rootPath . $templatePath . $name);
 		$content = '';
 		self :: LogMsg('[getFile]: <em>"' . $name . '"</em> ', true, TEMode :: debug, false);
@@ -985,6 +1029,15 @@ class TemplateEngine {
 
 	}
 
+	private static function addOverride($path) {
+		$ctx = &self :: $contexts[self :: $currentContext];
+		$ctx['override'] = array(
+			'templatePath' => $path,
+			'ctx' => array(
+				'TEMPLATE_PATH' => self :: $rootPath . $path,
+			),
+		);
+	}
 	/**
 	 * getFile
 	 * read the file (log that) and get the content
@@ -993,27 +1046,17 @@ class TemplateEngine {
 	 * @return boolean true if the file was found, readable and loaded
 	 */
 	public static function getFile($name, &$content) {
+		//TODO: move template caching logic here
+		//TODO: let possible getFile plugins specify if their result can be cached
 		$result = self :: doGetFile(self :: $templatePath, $name, $content);
 		if (true !== $result[0] && self :: $baseTemplatePath) {
 			$result = self :: doGetFile(self :: $baseTemplatePath, $name, $content);
 			if (true === $result[0]) {
-				$ctx = &self :: $contexts[self :: $currentContext];
-				$ctx['override'] = array(
-					'templatePath' => self :: $baseTemplatePath,
-					'ctx' => array(
-						'TEMPLATE_PATH' => self :: $rootPath . self :: $baseTemplatePath,
-					),
-				);
+				self :: addOverride(self :: $baseTemplatePath);
 			}
 		}
 		elseif (self :: $contexts[self :: $currentContext]['templatePath'] !== self :: $templatePath) {
-			$ctx = &self :: $contexts[self :: $currentContext];
-			$ctx['override'] = array(
-				'templatePath' => self :: $templatePath,
-				'ctx' => array(
-					'TEMPLATE_PATH' => self :: $rootPath . self :: $templatePath,
-				),
-			);
+			self :: addOverride(self :: $templatePath);
 		}
 		if (true !== $result[0]) {
 			self :: LogMsg($result[1], $result[2], $result[3], $result[4]);
@@ -1036,36 +1079,42 @@ class TemplateEngine {
 		print htmlentities(print_r(self :: $variables, true));
 		print "</pre>";
 	}
+
+	public static function _init() {
+		new TemplateEngine(); //required! as the first instance clears and initializes the TE
+		register_shutdown_function(array('TemplateEngine', 'shutdown_function'));
+		self :: on('set_option', array('TemplateEngine', '_set_option'), TEEventPhase :: execute);
+		self :: on('set_option', array('TemplateEngine', '_set_option_handler'), TEEventPhase :: inform);
+	}
+
+	private static function _set_option_handler($name, $value) {
+		switch ($name) {
+			case 'dump_variables':
+			case 'plugin_profiling':
+			case 'timing':
+				self :: option('gzip', false);
+				break;
+			case 'force_tpl_extension':
+				if (!$value && !self :: option('jail_to_template_path')) {
+					self :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
+				}
+				break;
+			case 'jail_to_template_path':
+				if (!$value && !self :: option('force_tpl_extension')) {
+					self :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
+				}
+				break;
+			default:
+				break;
+		}
+	}
 };
 
 // #######################################################################################
 // setup the use of the TemplateEngine, handle GET parameters, setup php-error-handler,...
 // #######################################################################################
 // setup TEmplateEngine environment
-new TemplateEngine(); //required! as the first instance clears and initializes the TE
-register_shutdown_function(array('TemplateEngine', 'shutdown_function'));
-TemplateEngine :: on('set_option', function($name, $value) {
-	switch ($name) {
-		case 'dump_variables':
-		case 'plugin_profiling':
-		case 'timing':
-			TemplateEngine :: option('gzip', false);
-			break;
-		case 'force_tpl_extension':
-			if (!$value && !TemplateEngine :: option('jail_to_template_path')) {
-				TemplateEngine :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
-			}
-			break;
-		case 'jail_to_template_path':
-			if (!$value && !TemplateEngine :: option('force_tpl_extension')) {
-				TemplateEngine :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
-			}
-			break;
-		default:
-			break;
-	}
-	return true;
-});
+TemplateEngine :: _init();
 TemplateEngine :: captureTime('TEincluded'); //< page start init
 TemplateEngine :: useTEErrorHandler(!isset($_GET['force_def_err_handler']));
 
