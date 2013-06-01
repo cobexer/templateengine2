@@ -5,6 +5,10 @@
 #
 # TODOs
 #
+ * setMode -> option('mode', $mode)
+ * make sure the Changelog is included in a release
+ * add upgrade guide
+ * add event namespace support ala jQuery?
  * support for mime typed plugins: let plugins specify for what kind of mime types they want to be executed:
   * text/* for all text types, text/css for all css files, application/json for json outputs(specify as regex for easy handling)
   * there can then be good support for other content types
@@ -17,7 +21,6 @@
  * the singleton behavior must DIE!
   * -> so that an escape method can execute another template engine instance to do BBCode processing, or inline css, or javascript, or whatever
  * define public regex pattern that matches on escape methods, validate registrations and allow plugins to use that public variable
- * add setOption && getOption function to control all available options through those 2 functions(store all options in an associative array)
  * TODO: sort & group ideas by topic and type
  * add Translation support (gettext)
  * process own documentation with the TE?

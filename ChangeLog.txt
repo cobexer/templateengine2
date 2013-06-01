@@ -2,10 +2,29 @@
 # ChangeLog
 #
 
- * v2.0.1
+ * v2.1.0
+  * some plugins now support lowercase variable names like: {id}
+  * new event system
+   * new event set_option: emitted when an option is changed by using ::option($name, $value)
+   * use TemplateEngine::on($event, $callback[, $phase = TEEventPhase::{evaluate,execute,inform]) to listen for events
+    * evaluate phase: handlers may cancel the event by returning false
+    * execute phase: handlers execute the event (for example the handler for the execute phase of the set_option event actually modifies the option)
+    * inform phase: handlers are being informed that the event happened (set_option: the option has been modified)
+   * use TemplateEngine::trigger($event[, $arg, ...]) to broadcast events
+  * new option($name[, $value) API
+   * new option plugin_profiling: used to check plugin efficiency, enabled using the new te_profile URL parameter
+   * new option debug_files: port setFileDebugMode() to the option() api
+   * new option gzip: port noGzip() to option('gzip')
+   * new option dump_variables: port dumpVariablesOnExit() to option('dump_variables')
+   * new option force_tpl_extension: port setForceTplExtension() to option('force_tpl_extension')
+   * new option jail_to_template_path: port setJailToTemplatePath() to option('jail_to_template_path')
+   * new option timing: port enableTiming() to option('timing')
+  * fixed a bug in IF that prevented it from correctly looking up the variable in a nested scope (like in a template included with FOREACH, or from a base template)
+  * template inheritance: use setBaseTemplatePath to define the base template from which you can then inherit template files
   * Makefile to automate release building, testing,...
   * moved all plugins to separate files -> compiled together using a config file
   * new plugin registration used to specify advanced plugin properties
+  //FIXME: err that did not happen did it?
    * dependencies between plugins and plugin -> escape methods for checking if the resulting configuration is valid
    * weight for controlling when the plugin will run
    * registration interface that allows for future additions
