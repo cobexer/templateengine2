@@ -124,6 +124,22 @@ class TE_IF_Test extends TemplateEngineTestBase
 		$this->assertEquals(true, $this->TE_IF_ESC_called, 'escape method called');
 		$this->assertEquals('true', $result, 'variable escaped and escaped variable used');
 	}
+
+	public function testVarVarLowercase() {
+		TemplateEngine::set('var1', '42');
+		TemplateEngine::set('var2', '42');
+		$result = str_replace(array("\n", "\r"), "", TemplateEngine::processTemplate('plugins/TE_IF/var-op-var-lowercase.tpl', false));
+		$expected = 'true:true:gte:>=:lte:<=:eq:==:eq:==:gte:>=:lte:<=';
+		$this->assertEquals($expected, $result, "var1(42) op {var2}(42): operators evaluate the correct values");
+		TemplateEngine::set('var2', 1337);
+		$result = str_replace(array("\n", "\r"), "", TemplateEngine::processTemplate('plugins/TE_IF/var-op-var-lowercase.tpl', false));
+		$expected = 'true:true:lt:<:lte:<=:ne:!=:ne:!=:lt:<:lte:<=';
+		$this->assertEquals($expected, $result, "var1(42) op {var2}(1337): operators evaluate the correct values");
+		TemplateEngine::set('var2', 2);
+		$result = str_replace(array("\n", "\r"), "", TemplateEngine::processTemplate('plugins/TE_IF/var-op-var-lowercase.tpl', false));
+		$expected = 'true:true:gte:>=:gt:>:ne:!=:ne:!=:gte:>=:gt:>';
+		$this->assertEquals($expected, $result, "var1(42) op {var2}(2): operators evaluate the correct values");
+	}
 }
 
 //EOF
