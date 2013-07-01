@@ -22,8 +22,8 @@ function TE_PLUGIN_TE_SCALAR(array $ctx, array $match) {
 	elseif (TemplateEngine :: lookupVar($match[1], $val)) {
 		$found = true;
 	}
-	if ($found && isset($match['escaper']) && '' != $match['escaper']) {
-		return TemplateEngine :: escape($match['escaper'], $val);
+	if ($found && isset($match[2]) && '' != $match[2]) {
+		return TemplateEngine :: escape($match[2], $val);
 	}
 	elseif ($found) {
 		return (string)$val;
@@ -31,6 +31,6 @@ function TE_PLUGIN_TE_SCALAR(array $ctx, array $match) {
 	return false;
 }
 
-TemplateEngine :: registerPlugin('TE_SCALAR', '/\{([A-Za-z0-9_]*)(?:\|(?P<escaper>[A-Z0-9_]+))?\}/', 'TE_PLUGIN_TE_SCALAR');
+TemplateEngine :: registerPlugin('TE_SCALAR', '/\{(' . TE_regex_varname . ')(?:\|(' . TE_regex_escape_method . '))?\}/', 'TE_PLUGIN_TE_SCALAR');
 
 //EOF
