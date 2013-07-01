@@ -332,14 +332,19 @@ class TemplateEngine {
 	 * @todo document callback interface
 	 */
 	public static function registerPlugin($plugin, $regexp, $callback) {
-		self :: $pluginRegistration[$plugin] = array(
-			'regex' => $regexp,
-			'cb' => $callback,
-			'_regex_time' => 0,
-			'_total_hit' => 0,
-			'_total_try' => 0,
-			'_total_decline' => 0,
-		);
+		if (NULL === @preg_replace($regexp, '', '')) {
+			self :: LogMsg('Error testing the regex of the ' . $plugin . ' Plugin: ' . preg_last_error(), false, TEMode :: error);
+		}
+		else {
+			self :: $pluginRegistration[$plugin] = array(
+				'regex' => $regexp,
+				'cb' => $callback,
+				'_regex_time' => 0,
+				'_total_hit' => 0,
+				'_total_try' => 0,
+				'_total_decline' => 0,
+			);
+		}
 	}
 	/**
 	 * unregisterPlugin
