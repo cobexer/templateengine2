@@ -46,6 +46,6 @@ function TE_PLUGIN_TE_FOREACH_INLINE(array $ctx, array $match) {
 	return $res;
 }
 
-TemplateEngine :: registerPlugin('TE_FOREACH_INLINE', '/\{FOREACH\[(?P<variable>[A-Z0-9_]+)\]\}(?P<block>(?:(?'.'>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*)(?:\{FOREACH:ELSE\}(?P<nblock>(?:(?'.'>[^{]*?)|(?:\{)(?!(FOREACH\[([A-Z0-9_]+)\]\}))|(?R))*))?\{\/FOREACH\}/Us', 'TE_PLUGIN_TE_FOREACH_INLINE');
+TemplateEngine :: registerPlugin('TE_FOREACH_INLINE', '/\{FOREACH\[(?P<variable>' . TE_regex_varname . ')\]\}(?P<block>(?:(?'.'>[^{]*?)|(?:\{)(?!(FOREACH\[(' . TE_regex_varname . ')\]\}))|(?R))*)(?:\{FOREACH:ELSE\}(?P<nblock>(?:(?'.'>[^{]*?)|(?:\{)(?!(FOREACH\[(' . TE_regex_varname . ')\]\}))|(?R))*))?\{\/FOREACH\}/Us', 'TE_PLUGIN_TE_FOREACH_INLINE');
 
 //EOF

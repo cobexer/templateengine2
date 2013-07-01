@@ -92,4 +92,10 @@ class TE_FOREACH_INLINE_Test extends TemplateEngineTestBase
 		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_INLINE/scope-chain-lookup.tpl', false));
 		$this->assertEquals("global:global", $result, 'scope chain lookup');
 	}
+
+	public function testLowercaseVariable() {
+		TemplateEngine::set('element', array(array('name'=>'Phone', 'amount'=>5), array('name'=>'Netbook', 'amount'=>2)));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_INLINE/lowercase-variable.tpl', false));
+		$this->assertEquals("0: Phone #5 (odd)\n1: Netbook #2 ()", $result, 'lowercase varaible with simple array correctly processed');
+	}
 }
