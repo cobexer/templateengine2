@@ -47,4 +47,11 @@ class TE_SELECT_Test extends TemplateEngineTestBase
 		$expected = '{SELECT=OPTIONS}';
 		$this->assertEquals($expected, $result, 'select rejects non array variables');
 	}
+
+	public function testSelectLowercaseVariables() {
+		TemplateEngine::set('options', array(array('name'=>'ABC', 'value'=>'#0001'),array('name'=>'DEF', 'value'=>'#0002')));
+		$result = str_replace(array("\n", "\t"), "", trim(TemplateEngine::processTemplate('plugins/TE_SELECT/select-lowercase.tpl', false)));
+		$expected = '<option value="#0001">ABC</option><option value="#0002">DEF</option>';
+		$this->assertEquals($expected, $result, 'option tags rendered as expected');
+	}
 }
