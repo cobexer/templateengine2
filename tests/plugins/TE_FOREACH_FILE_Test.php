@@ -94,4 +94,11 @@ class TE_FOREACH_FILE_Test extends TemplateEngineTestBase
 		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/scope-chain-lookup.tpl', false));
 		$this->assertEquals("global:global", $result, 'scope chain lookup');
 	}
+
+	public function testSimpleArrayLowercase() {
+		TemplateEngine::set('element', array(array('name'=>'Phone', 'amount'=>5), array('name'=>'Netbook', 'amount'=>2)));
+		$result = trim(TemplateEngine::processTemplate('plugins/TE_FOREACH_FILE/simple-elements-lowercase.tpl', false));
+		$this->assertEquals("0: Phone #5 (odd)\n1: Netbook #2 ()", $result, 'lowercase vars simple array correctly processed');
+	}
+
 }

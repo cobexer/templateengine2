@@ -52,6 +52,6 @@ function TE_PLUGIN_TE_FOREACH_FILE(array $ctx, array $match) {
 	return $res;
 }
 
-TemplateEngine :: registerPlugin('TE_FOREACH_FILE', '/\{FOREACH\[([A-Z0-9_]+)\]=([^\}]+)\}/Um', 'TE_PLUGIN_TE_FOREACH_FILE');
+TemplateEngine :: registerPlugin('TE_FOREACH_FILE', '/\{FOREACH\[(' . TE_regex_varname . ')\]=([^\}]+)\}/Um', 'TE_PLUGIN_TE_FOREACH_FILE');
 
 //EOF
