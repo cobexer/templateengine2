@@ -13,6 +13,9 @@
  */
 require_once(dirname(realpath(__FILE__)).'/TE_setup2.php');
 
+const TE_regex_varname = '[A-Za-z0-9_]+';
+const TE_regex_escape_method = '[A-Z_]+';
+
 /**
  * class TEMode specifies the mode for the messages the TemplateEngine will display
  */
