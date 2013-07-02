@@ -709,19 +709,7 @@ class TemplateEngine {
 				self :: $messages_NotFin = array();
 				$msg = $oldmsg . $msg;
 			}
-			$item = array();
-			$item['mode'] = $mode;
-			$item['msg'] = $msg;
-			$item['success'] = $success;
-			self :: $messages[] = $item;
-			if (function_exists('flog')) {
-				//TODO: choose function based on $mode
-				flog(($mode !== TEMode :: error) ? 'info' : 'error', $msg);
-			}
-			if (class_exists('AJAX', false)) {
-				//TODO: choose function based on $mode
-				AJAX::warning($msg);
-			}
+			self :: trigger('log', $msg, $success, $mode);
 		}
 	}
 	/**
@@ -1093,6 +1081,15 @@ class TemplateEngine {
 		register_shutdown_function(array('TemplateEngine', 'shutdown_function'));
 		self :: on('set_option', array('TemplateEngine', '_set_option'), TEEventPhase :: execute);
 		self :: on('set_option', array('TemplateEngine', '_set_option_handler'), TEEventPhase :: inform);
+		self :: on('log', array('TemplateEngine', '_log'), TEEventPhase :: execute);
+	}
+
+	private static function _log($msg, $success, $mode) {
+		self :: $messages[] = array(
+			'mode' => $mode,
+			'success' => $success,
+			'msg' => $msg,
+		);
 	}
 
 	private static function _set_option_handler($name, $value) {
