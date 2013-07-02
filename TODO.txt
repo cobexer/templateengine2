@@ -20,7 +20,6 @@
   * don't run cachable plugins on cached resources?
  * the singleton behavior must DIE!
   * -> so that an escape method can execute another template engine instance to do BBCode processing, or inline css, or javascript, or whatever
- * define public regex pattern that matches on escape methods, validate registrations and allow plugins to use that public variable
  * TODO: sort & group ideas by topic and type
  * add Translation support (gettext)
  * process own documentation with the TE?
@@ -38,7 +37,6 @@
  * Template directive for image sprite based icons like: {IMAGE[ui]=disk} -> <span class="ui-icon ui-icon-disk"></span> or in general {IMAGE[namespace]=icon-name} -> HTML (with the help of the image sprite definition)
  * add sprite definitions for FAMFAMFAM icons, and jQuery UI (mobile?)
  * move all hardcoded template variable names to a configuration object (TE_ERRORS, HEADER_TEXT, ...)
- * add plugin interface for the LogMsg log buffer
  * allow getFile to be implemented by a plugin(read templates from database for example)
  * move all those option variables into an array -> easier to move configuration to another file
  * document callbacks inline
