@@ -3,9 +3,10 @@
 #
 
  * v2.1.0
-  * some plugins now support lowercase variable names like: {id}
+  * all included plugins now support lowercase variable names like: {id}
   * new event system
    * new event set_option: emitted when an option is changed by using ::option($name, $value)
+   * new event log: emitted when a log message is finished signature: handler($msg, $success, $mode)
    * use TemplateEngine::on($event, $callback[, $phase = TEEventPhase::{evaluate,execute,inform]) to listen for events
     * evaluate phase: handlers may cancel the event by returning false
     * execute phase: handlers execute the event (for example the handler for the execute phase of the set_option event actually modifies the option)
@@ -28,5 +29,8 @@
    * dependencies between plugins and plugin -> escape methods for checking if the resulting configuration is valid
    * weight for controlling when the plugin will run
    * registration interface that allows for future additions
-  * PHPUnit test Suite that tests all features of the TemplateEngine +
-    coverage reports
+  * PHPUnit test Suite that tests all features of the TemplateEngine + coverage reports
+  - For plugin authors:
+   - when a plugin is registered for the TE the given regex is tested to make
+     sure reguar expressions with syntax errors don't brick the TE
+   - new global variables: TE_regex_varname and TE_regex_escape_method to ease plugin integration
