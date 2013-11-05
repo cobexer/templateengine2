@@ -216,6 +216,89 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals($this, $args['2'], "arguments passed along");
 		$this->assertEquals(true, $args['3'], "arguments passed along");
 	}
+
+	public function testSetOption() {
+		$eval = 0;
+		$execute = 0;
+		$inform = 0;
+		$callbackInvocation = 0;
+		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip option turned on');
+		$argsEval = array();
+		$argsExecute = array();
+		$argsInform = array();
+		TemplateEngine :: on('set_option', function($name, $value) use (&$argsEval, &$eval, &$callbackInvocation) {
+			$argsEval['name'] = $name;
+			$argsEval['value'] = $value;
+			$eval = ++$callbackInvocation;
+		}, TEEventPhase :: evaluate);
+		TemplateEngine :: on('set_option', function($name, $value) use (&$argsExecute, &$execute, &$callbackInvocation) {
+			$argsExecute['name'] = $name;
+			$argsExecute['value'] = $value;
+			$execute = ++$callbackInvocation;
+		}, TEEventPhase :: execute);
+		TemplateEngine :: on('set_option', function($name, $value) use (&$argsInform, &$inform, &$callbackInvocation) {
+			$argsInform['name'] = $name;
+			$argsInform['value'] = $value;
+			$inform = ++$callbackInvocation;
+		}, TEEventPhase :: inform);
+		TemplateEngine :: option('gzip', false);
+		$this->assertEquals(2, count($argsEval), "event handler has been called");
+		$this->assertEquals("gzip", $argsEval['name'], "option name passed along");
+		$this->assertEquals(false, $argsEval['value'], "new option value passed along");
+		$this->assertEquals(1, $eval, "eval event handler has been called first");
+
+		$this->assertEquals(2, count($argsExecute), "event handler has been called");
+		$this->assertEquals("gzip", $argsExecute['name'], "option name passed along");
+		$this->assertEquals(false, $argsExecute['value'], "new option value passed along");
+		$this->assertEquals(2, $execute, "execute event handler has been called second");
+
+		$this->assertEquals(2, count($argsInform), "event handler has been called");
+		$this->assertEquals("gzip", $argsInform['name'], "option name passed along");
+		$this->assertEquals(false, $argsInform['value'], "new option value passed along");
+		$this->assertEquals(3, $inform, "inform event handler has been called third");
+
+		$this->assertEquals(false, TemplateEngine :: option('gzip'), 'gzip option turned off');
+	}
+
+	public function testInhibitSetOption() {
+		$eval = 0;
+		$execute = 0;
+		$inform = 0;
+		$callbackInvocation = 0;
+		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip option turned on');
+		$argsEval = array();
+		$argsExecute = array();
+		$argsInform = array();
+		TemplateEngine :: on('set_option', function($name, $value) use (&$argsEval, &$eval, &$callbackInvocation) {
+			$argsEval['name'] = $name;
+			$argsEval['value'] = $value;
+			$eval = ++$callbackInvocation;
+			return false;
+		}, TEEventPhase :: evaluate);
+		TemplateEngine :: on('set_option', function($name, $value) use (&$argsExecute, &$execute, &$callbackInvocation) {
+			$argsExecute['name'] = $name;
+			$argsExecute['value'] = $value;
+			$execute = ++$callbackInvocation;
+		}, TEEventPhase :: execute);
+		TemplateEngine :: on('set_option', function($name, $value) use (&$argsInform, &$inform, &$callbackInvocation) {
+			$argsInform['name'] = $name;
+			$argsInform['value'] = $value;
+			$inform = ++$callbackInvocation;
+		}, TEEventPhase :: inform);
+		TemplateEngine :: option('gzip', false);
+		$this->assertEquals(2, count($argsEval), "event handler has been called");
+		$this->assertEquals("gzip", $argsEval['name'], "option name passed along");
+		$this->assertEquals(false, $argsEval['value'], "new option value passed along");
+		$this->assertEquals(1, $eval, "eval event handler has been called first");
+
+		$this->assertEquals(0, count($argsExecute), "event handler has been called");
+		$this->assertEquals(0, $execute, "execute event handler has been called second");
+
+		$this->assertEquals(0, count($argsInform), "event handler has been called");
+		$this->assertEquals(0, $inform, "inform event handler has been called third");
+
+		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip option still turned on');
+	}
 }
 
 //EOF
