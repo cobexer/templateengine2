@@ -974,7 +974,7 @@ class TemplateEngine {
 			set_error_handler("TE_php_err_handler");
 		}
 		else {
-			self :: noGzip();
+			self :: option('gzip', false);
 		}
 	}
 
