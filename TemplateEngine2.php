@@ -1152,8 +1152,8 @@ if(isset($_GET['te_dump'])) {
  * @param integer $errline line number where the error occured
  * @param array $errorcontext unused data that might be given by php
  */
-function TE_php_err_handler($errno, $errstr, $errfile= '', $errline= '', $errcontext= array()) {
-	TemplateEngine :: LogMsg('#'.$errno.': '.$errstr.' @'.$errfile.'('.$errline.')', false, TEMode::error);
+function TE_php_err_handler($errno, $errstr, $errfile = '', $errline = '', $errcontext = array()) {
+	TemplateEngine :: LogMsg("#$errno: $errstr @$errfile($errline)", false, TEMode::error);
 }
 
 /**
@@ -1162,7 +1162,7 @@ function TE_php_err_handler($errno, $errstr, $errfile= '', $errline= '', $errcon
  * @param object $exception the exception object
  */
 function TE_php_exception_handler($exception) {
-	print "Unhandled Exception: " . $exception->getMessage() . "\n";
+	print "Unhandled Exception: " . $exception->getMessage();
 }
 
 if (!isset($_GET['force_def_exception_handler'])) {
