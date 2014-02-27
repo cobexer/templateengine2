@@ -24,9 +24,6 @@ class TemplateEngineTestBase extends PHPUnit_Framework_TestCase
 	protected function tearDown() {
 		TemplateEngine::clear();
 	}
-
-	public function testDisablePHPUnitWarning() {
-	}
 }
 
 //EOF
