@@ -201,6 +201,9 @@ class TemplateEngine {
 	 */
 	private static $handlers = array(
 		'set_option' => null,
+		'static_init' => null,
+		'init' => null,
+		'log' => null,
 	);
 	/**
 	 * __construct
