@@ -1110,15 +1110,13 @@ class TemplateEngine {
 			case 'dump_variables':
 			case 'plugin_profiling':
 			case 'timing':
-				self :: option('gzip', false);
-				break;
-			case 'force_tpl_extension':
-				if (!$value && !self :: option('jail_to_template_path')) {
-					self :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
+				if ($value) {
+					self :: option('gzip', false);
 				}
 				break;
+			case 'force_tpl_extension':
 			case 'jail_to_template_path':
-				if (!$value && !self :: option('force_tpl_extension')) {
+				if (!self :: option('force_tpl_extension') && !self :: option('jail_to_template_path')) {
 					self :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
 				}
 				break;
