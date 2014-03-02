@@ -11,7 +11,10 @@
  * @version @VERSION@ (@COMMIT@)
  * @package TemplateEngine2
  */
-require_once(dirname(realpath(__FILE__)).'/TE_setup2.php');
+$te_setup_filename = dirname(realpath(__FILE__)) . '/TE_setup2.php';
+if (file_exists($te_setup_filename)) {
+	require_once($te_setup_filename);
+}
 
 const TE_regex_varname = '[A-Za-z0-9_]+';
 const TE_regex_escape_method = '[A-Z_]+';
@@ -497,10 +500,12 @@ class TemplateEngine {
 		self :: $havingSession = $havingSession;
 		self :: $template = $template;
 		self :: captureTime('startTE'); //< init time measurement
-		self :: $running = true; //< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly -> append it to the Log (with LogMsg)
-		TE_static_setup(); //< common static (session independent) data will be set here
+		//< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly
+		// -> append it to the Log (with LogMsg)
+		self :: $running = true;
+		self :: trigger('static_init', self :: Inst()); //< common static (session independent) data will be set here
 		if(self :: $havingSession) {
-			TE_setup(); //< do TE initialisation (common data will be set there)
+			self :: trigger('init', self :: Inst()); //< do TE initialisation (common data will be set there)
 		}
 		$tpl = '';
 		if (!self :: getFile($template, $tpl)) {
@@ -1070,12 +1075,18 @@ class TemplateEngine {
 		print "</pre>";
 	}
 
-	public static function _init() {
+	public static function _te_init() {
 		new TemplateEngine(); //required! as the first instance clears and initializes the TE
 		register_shutdown_function(array('TemplateEngine', 'shutdown_function'));
 		self :: on('set_option', array('TemplateEngine', '_set_option'), TEEventPhase :: execute);
 		self :: on('set_option', array('TemplateEngine', '_set_option_handler'), TEEventPhase :: inform);
 		self :: on('log', array('TemplateEngine', '_log'), TEEventPhase :: execute);
+		if (function_exists('TE_static_setup')) {
+			self :: on('static_init', array('TemplateEngine', '_static_init'), TEEventPhase :: execute);
+		}
+		if (function_exists('TE_setup')) {
+			self :: on('init', array('TemplateEngine', '_init'), TEEventPhase :: execute);
+		}
 	}
 
 	private static function _log($msg, $success, $mode) {
@@ -1084,6 +1095,14 @@ class TemplateEngine {
 			'success' => $success,
 			'msg' => $msg,
 		);
+	}
+
+	private static function _static_init($te) {
+		TE_static_setup();
+	}
+
+	private static function _init($te) {
+		TE_setup();
 	}
 
 	private static function _set_option_handler($name, $value) {
@@ -1113,7 +1132,7 @@ class TemplateEngine {
 // setup the use of the TemplateEngine, handle GET parameters, setup php-error-handler,...
 // #######################################################################################
 // setup TEmplateEngine environment
-TemplateEngine :: _init();
+TemplateEngine :: _te_init();
 TemplateEngine :: captureTime('TEincluded'); //< page start init
 TemplateEngine :: useTEErrorHandler(!isset($_GET['force_def_err_handler']));
 
