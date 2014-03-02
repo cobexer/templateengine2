@@ -392,6 +392,14 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		TemplateEngine :: Info('some info');
 		$this->assertEquals("error: some error;warning: some warning;info: some info;", trim(TemplateEngine::processTemplate('te-core-error-warning-info.tpl', true)), 'errors, warnings and infos');
 	}
+
+	public function testNonStaticCallRerouting() {
+		TemplateEngine :: set('rerouted_set', '');
+		$this->assertEquals('', TemplateEngine::get('rerouted_set'), 'rerouted_set is empty');
+		$te = TemplateEngine :: Inst();
+		$te->set('rerouted_set', 'succeeded');
+		$this->assertEquals('succeeded', TemplateEngine :: get('rerouted_set'), 'set call on TemplateEngine object redirected to the static set class function');
+	}
 }
 
 //EOF
