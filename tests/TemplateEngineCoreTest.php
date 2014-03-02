@@ -365,6 +365,25 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals('yes', TemplateEngine::get('static_init'), 'static_init is defined');
 		$this->assertEquals('yes', TemplateEngine::get('init'), 'init is defined');
 	}
+
+	public function testOutput() {
+		ob_start();
+		TemplateEngine :: set('output_test', 'huge success');
+		TemplateEngine::output('te-core-output.tpl', false);
+		$result = ob_get_contents();
+		ob_end_clean();
+		$this->assertEquals('huge success', $result, 'output is a huge success');
+	}
+
+	public function testOutputGzip() {
+		ob_start();
+		$_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip';
+		TemplateEngine :: set('output_test', 'huge success');
+		TemplateEngine::output('te-core-output.tpl', false);
+		$result = ob_get_contents();
+		ob_end_clean();
+		$this->assertEquals(gzencode('huge success'), $result, 'output is a huge gzipped success');
+	}
 }
 
 //EOF
