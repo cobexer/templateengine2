@@ -368,6 +368,26 @@ class TemplateEngine {
 	}
 
 	/**
+	 * getPluginStatistics
+	 * get hit, try and decline counts as well as regex_time for all registered plugins
+	 * (will return 0 for all values if plugin profiling was disabled)
+	 * @return associative array with statistics for every plugin
+	 */
+	public static function getPluginStatistics() {
+		$result = false;
+		$result = array();
+		foreach(self :: $pluginRegistration as $pluginName => $stats) {
+			$result[$pluginName] = array(
+				'hit' => $stats['_total_hit'],
+				'try' => $stats['_total_try'],
+				'decline' => $stats['_total_decline'],
+				'regex_time' => $stats['_regex_time'] * 1000,
+			);
+		}
+		return $result;
+	}
+
+	/**
 	 * setBaseTemplatePath
 	 * sets the path tho a base template, in case the current template requests a
 	 * file that does not exist in the current template, but does exist in the base

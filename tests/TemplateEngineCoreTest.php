@@ -92,6 +92,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 	private $TE_TEST_PLUGIN_called = false;
 	private $TE_TEST_PLUGIN_DENY = false;
+	private $TE_TEST_PLUGIN_DO_UNREGISTER = true;
 
 	public function TE_TEST_PLUGIN($context, $match) {
 		$this->TE_TEST_PLUGIN_called = true;
@@ -117,10 +118,36 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals(true, $this->TE_TEST_PLUGIN_called, 'plugin has been executed');
 		$this->assertEquals('some content "{TE_TEST=success}" all around', $result, 'custom template not replaced (denied match)');
 		$this->TE_TEST_PLUGIN_called = false;
-		TemplateEngine::unregisterPlugin('TE_TEST_PLUGIN');
-		$result = trim(TemplateEngine::processTemplate('te-core-te_plugin_test.tpl', false));
-		$this->assertEquals(false, $this->TE_TEST_PLUGIN_called, 'plugin has not been executed');
-		$this->assertEquals('some content "{TE_TEST=success}" all around', $result, 'custom template not executed');
+		if ($this->TE_TEST_PLUGIN_DO_UNREGISTER) {
+			TemplateEngine::unregisterPlugin('TE_TEST_PLUGIN');
+			$result = trim(TemplateEngine::processTemplate('te-core-te_plugin_test.tpl', false));
+			$this->assertEquals(false, $this->TE_TEST_PLUGIN_called, 'plugin has not been executed');
+			$this->assertEquals('some content "{TE_TEST=success}" all around', $result, 'custom template not executed');
+		}
+	}
+
+	public function testPluginStatistics() {
+		//FIXME: call TemplateEngine :: shutdown_function() and test the output too
+		TemplateEngine :: option('plugin_profiling', true);
+		$this->TE_TEST_PLUGIN_DO_UNREGISTER = false;
+		$this->testPluginRegistration();
+		$total = array(
+			'hit' => 0,
+			'try' => 0,
+			'decline' => 0,
+			'regex_time' => 0,
+		);
+		$stats = TemplateEngine :: getPluginStatistics();
+		foreach($stats as $stat) {
+			$total['hit'] += $stat['hit'];
+			$total['try'] += $stat['try'];
+			$total['decline'] += $stat['decline'];
+			$total['regex_time'] += $stat['regex_time'];
+		}
+		$this->assertGreaterThan(0, $total['hit'], 'total hits');
+		$this->assertGreaterThan(0, $total['try'], 'total tries');
+		$this->assertGreaterThan(0, $total['decline'], 'total declines');
+		$this->assertGreaterThan(0, $total['regex_time'], 'total regex_time');
 	}
 
 	private $TE_TEST_ESCAPER_called = false;
