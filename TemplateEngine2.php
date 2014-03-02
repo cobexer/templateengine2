@@ -21,7 +21,7 @@ const TE_regex_escape_method = '[A-Z_]+';
  */
 final class TEMode {
 	const debug =  0;
-	const warning =   5;
+	const warning = 5;
 	const error = 10;
 	const none =  15;
 }
@@ -481,11 +481,9 @@ class TemplateEngine {
 			//well if YOU used print/echo before the complete content will be garbage it's YOUR fault!
 			header('Content-Encoding: gzip');
 			//TODO: ob_start, ob_gz_handler?
-			print gzencode($result);
+			$result = gzencode($result);
 		}
-		else {
-			print $result;
-		}
+		print $result;
 	}
 	/**
 	 * processTemplate
@@ -529,7 +527,7 @@ class TemplateEngine {
 			++$plugin['_total_hit'];
 		}
 		$ctx = &self :: $contexts[self :: $currentContext];
-		$res = call_user_func_array($plugin['cb'], array($ctx['ctx'], $match));
+		$res = call_user_func($plugin['cb'], $ctx['ctx'], $match);
 		if (false !== $res) {
 			if (isset($ctx['override'])) {
 				$res = self :: pushContext($res, $ctx['override']['ctx'], $ctx['override']['templatePath']);
@@ -601,18 +599,24 @@ class TemplateEngine {
 		self :: LogMsg(' failed', false, TEMode :: debug);
 		return false;
 	}
+
+	private static function addMsgInternal($class, $msg) {
+		$classUpper = strtoupper($class);
+		if (!self :: $running) {
+			array_push(self :: $variables['TE_' . $classUpper . 'S'], array('CLASS' => $class, 'TEXT' => $msg));
+		}
+		else {
+			self :: LogMsg('[' . $classUpper . ']: ' . $msg, false, TEMode :: error);
+		}
+	}
+
 	/**
 	 * Error
 	 * add an error message to display to the user
 	 * @param string $error message
 	 */
 	public static function Error($error) {
-		if (!self :: $running) {
-			array_push(self :: $variables['TE_ERRORS'], array('CLASS' => 'error', 'TEXT' => $error));
-		}
-		else {
-			self :: LogMsg('[ERROR]: ' . $error, false, TEMode :: error);
-		}
+		self :: addMsgInternal('error', $error);
 	}
 	/**
 	 * Warning
@@ -620,12 +624,7 @@ class TemplateEngine {
 	 * @param string $warning message
 	 */
 	public static function Warning($warning) {
-		if (!self :: $running) {
-			array_push(self :: $variables['TE_WARNINGS'], array('CLASS' => 'warning', 'TEXT' => $warning));
-		}
-		else {
-			self :: LogMsg('[WARNING]: ' . $warning, false, TEMode :: error);
-		}
+		self :: addMsgInternal('warning', $error);
 	}
 	/**
 	 * Info
@@ -633,12 +632,7 @@ class TemplateEngine {
 	 * @param string $info message
 	 */
 	public static function Info($info) {
-		if (!self :: $running) {
-			array_push(self :: $variables['TE_INFOS'], array('CLASS' => 'info', 'TEXT' => $info));
-		}
-		else {
-			self :: LogMsg('[INFO]: ' . $info, false, TEMode :: error);
-		}
+		self :: addMsgInternal('info', $error);
 	}
 	/**
 	 * setTitle
@@ -678,7 +672,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function addJS($js) {
-		$t = "\t".'<script type="text/javascript" src="' . $js . '" ></script>'."\n";
+		$t = "\t".'<script type="text/javascript" src="' . $js . '"></script>'."\n";
 		self :: $variables['HEADER_TEXT'] .= $t;
 	}
 	/**
@@ -708,14 +702,12 @@ class TemplateEngine {
 			array_push(self :: $messages_NotFin, $msg);
 			return;
 		}
-		else {
-			if(!empty(self :: $messages_NotFin)) {
-				$oldmsg = implode('', self :: $messages_NotFin);
-				self :: $messages_NotFin = array();
-				$msg = $oldmsg . $msg;
-			}
-			self :: trigger('log', $msg, $success, $mode);
+		if(!empty(self :: $messages_NotFin)) {
+			$oldmsg = implode('', self :: $messages_NotFin);
+			self :: $messages_NotFin = array();
+			$msg = $oldmsg . $msg;
 		}
+		self :: trigger('log', $msg, $success, $mode);
 	}
 	/**
 	 * formatLogMessages
@@ -735,21 +727,18 @@ class TemplateEngine {
 			TEMode :: error   => '<strong class="te_msg_err">[ ERROR ]: </strong>',
 			TEMode :: none    => '<strong class="te_msg_non">[  NONE ]: </strong>',
 		);
-		if (count(self :: $messages)) {
-			$div = '<div id="te_message_log">';
-			$msg = '';
-			foreach(self :: $messages as $message) {
-				if ($message['mode'] >= self :: $mode) {
-					$msg .= '<div>';
-					$msg .= @$mode[$message['mode']];
-					$msg .= '<span>' . $succ[$message['success']] . '</span>';
-					$msg .= $message['msg'];
-					$msg .= '</div>';
-				}
+		$msg = '';
+		foreach(self :: $messages as $message) {
+			if ($message['mode'] >= self :: $mode) {
+				$msg .= '<div>';
+				$msg .= @$mode[$message['mode']];
+				$msg .= '<span>' . $succ[$message['success']] . '</span>';
+				$msg .= $message['msg'];
+				$msg .= '</div>';
 			}
-			if (strlen($msg)) {
-				$html .= $div . $msg . '</div>';
-			}
+		}
+		if (!empty($msg)) {
+			$html .= '<div id="te_message_log">' . $msg . '</div>';
 		}
 		return $html;
 	}
