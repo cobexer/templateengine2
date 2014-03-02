@@ -333,6 +333,38 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip option still turned on');
 	}
+
+	public function testStaticInitEvent() {
+		TemplateEngine :: set('static_init', '');
+		TemplateEngine :: set('init', '');
+		$this->assertEquals('', TemplateEngine::get('static_init'), 'static_init is empty');
+		$this->assertEquals('', TemplateEngine::get('init'), 'init is empty');
+		TemplateEngine :: on('static_init', function() {
+			TemplateEngine :: set('static_init', 'yes');
+		});
+		TemplateEngine :: on('init', function() {
+			TemplateEngine :: set('init', 'yes');
+		});
+		$this->assertEquals("yes##", trim(TemplateEngine::processTemplate('te-core-static_init.tpl', false)), 'static_init = yes#init = #');
+		$this->assertEquals('yes', TemplateEngine::get('static_init'), 'static_init is defined');
+		$this->assertEquals('', TemplateEngine::get('init'), 'init is empty');
+	}
+
+	public function testStaticAndSessionInitEvent() {
+		TemplateEngine :: set('static_init', '');
+		TemplateEngine :: set('init', '');
+		$this->assertEquals('', TemplateEngine::get('static_init'), 'static_init is empty');
+		$this->assertEquals('', TemplateEngine::get('init'), 'init is empty');
+		TemplateEngine :: on('static_init', function() {
+			TemplateEngine :: set('static_init', 'yes');
+		});
+		TemplateEngine :: on('init', function() {
+			TemplateEngine :: set('init', 'yes');
+		});
+		$this->assertEquals("yes#yes#", trim(TemplateEngine::processTemplate('te-core-init.tpl', true)), 'static_init = yes#init = yes#');
+		$this->assertEquals('yes', TemplateEngine::get('static_init'), 'static_init is defined');
+		$this->assertEquals('yes', TemplateEngine::get('init'), 'init is defined');
+	}
 }
 
 //EOF
