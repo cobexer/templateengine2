@@ -649,7 +649,7 @@ class TemplateEngine {
 	 * @param string $warning message
 	 */
 	public static function Warning($warning) {
-		self :: addMsgInternal('warning', $error);
+		self :: addMsgInternal('warning', $warning);
 	}
 	/**
 	 * Info
@@ -657,7 +657,7 @@ class TemplateEngine {
 	 * @param string $info message
 	 */
 	public static function Info($info) {
-		self :: addMsgInternal('info', $error);
+		self :: addMsgInternal('info', $info);
 	}
 	/**
 	 * setTitle
