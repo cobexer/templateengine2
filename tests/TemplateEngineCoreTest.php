@@ -73,7 +73,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	}
 
 	public function testAddJS() {
-		$expect = '<script type="text/javascript" src="path/to/js.js" ></script>';
+		$expect = '<script type="text/javascript" src="path/to/js.js"></script>';
 		$this->assertEquals(null, TemplateEngine::get('HEADER_TEXT'), 'HEADER_TEXT is undefined');
 		TemplateEngine::addJS("path/to/js.js");
 		$this->assertEquals($expect, trim(TemplateEngine::get('HEADER_TEXT')), 'script tag is correct');
