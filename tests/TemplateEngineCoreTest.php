@@ -148,6 +148,13 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	}
 
 	/**
+	 * @expectedException TEPluginRegexInvalidException
+	 */
+	public function testInvalidPluginRegex() {
+		TemplateEngine :: registerPlugin('invalidRegexPlugin', '/[/', function() {});
+	}
+
+	/**
 	 * @expectedException TETemplateNotFoundException
 	 */
 	public function testMissingBasetemplateThrows() {

@@ -32,5 +32,5 @@
   * PHPUnit test Suite that tests all features of the TemplateEngine + coverage reports
   - For plugin authors:
    - when a plugin is registered for the TE the given regex is tested to make
-     sure reguar expressions with syntax errors don't brick the TE
+     sure the reguar expression is valid, if the test fails a TEPluginRegexInvalidException is thrown
    - new global variables: TE_regex_varname and TE_regex_escape_method to ease plugin integration

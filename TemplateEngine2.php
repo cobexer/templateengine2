@@ -62,6 +62,12 @@ final class TETemplateNotFoundException extends Exception {
 }
 
 /**
+ * class TEPluginRegexInvalidException thrown if a plugin registered a broken regex.
+ */
+final class TEPluginRegexInvalidException extends Exception {
+}
+
+/**
  * class TemplateEngine
  * this is the class that implements the core TemplateEngine's framework
  */
@@ -328,26 +334,25 @@ class TemplateEngine {
 	/**
 	 * registerPlugin
 	 * register the given plugin for mathes of the given regular expression
+	 * @throws TEPluginRegexInvalidException if the regular expression is invalid
 	 * @param $plugin string the name of the plugin to register(must be unique)
 	 * @param $regexp string the regular expression whose matches will be handled by the callback
 	 * @param $callback callback the function to call with any found match
 	 * @return void
 	 * @todo document callback interface
 	 */
-	public static function registerPlugin($plugin, $regexp, $callback) {
-		if (NULL === @preg_replace($regexp, '', '')) {
-			self :: LogMsg('Error testing the regex of the ' . $plugin . ' Plugin: ' . preg_last_error(), false, TEMode :: error);
+	public static function registerPlugin($plugin, $regex, $callback) {
+		if (NULL === @preg_replace($regex, '', '')) {
+			throw new TEPluginRegexInvalidException('Error testing the regex of the ' . $plugin . ' plugin: ' . preg_last_error());
 		}
-		else {
-			self :: $pluginRegistration[$plugin] = array(
-				'regex' => $regexp,
-				'cb' => $callback,
-				'_regex_time' => 0,
-				'_total_hit' => 0,
-				'_total_try' => 0,
-				'_total_decline' => 0,
-			);
-		}
+		self :: $pluginRegistration[$plugin] = array(
+			'regex' => $regex,
+			'cb' => $callback,
+			'_regex_time' => 0,
+			'_total_hit' => 0,
+			'_total_try' => 0,
+			'_total_decline' => 0,
+		);
 	}
 	/**
 	 * unregisterPlugin
