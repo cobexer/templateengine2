@@ -384,6 +384,14 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		ob_end_clean();
 		$this->assertEquals(gzencode('huge success'), $result, 'output is a huge gzipped success');
 	}
+
+	public function testMessagingConvenienceFunctions() {
+		/* RM */require_once('plugins/TE_FOREACH_INLINE.php');/* /RM */
+		TemplateEngine :: Error('some error');
+		TemplateEngine :: Warning('some warning');
+		TemplateEngine :: Info('some info');
+		$this->assertEquals("error: some error;warning: some warning;info: some info;", trim(TemplateEngine::processTemplate('te-core-error-warning-info.tpl', true)), 'errors, warnings and infos');
+	}
 }
 
 //EOF
