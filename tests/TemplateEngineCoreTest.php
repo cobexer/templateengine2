@@ -400,6 +400,17 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$te->set('rerouted_set', 'succeeded');
 		$this->assertEquals('succeeded', TemplateEngine :: get('rerouted_set'), 'set call on TemplateEngine object redirected to the static set class function');
 	}
+
+	public function testWarningWhileRunning() {
+		$this->assertEquals(0, count(TemplateEngine::get('TE_WARNINGS')), 'no warnings in array');
+		TemplateEngine :: Warning("some warning");
+		$this->assertEquals(1, count(TemplateEngine::get('TE_WARNINGS')), '1 warning in array (self test)');
+		TemplateEngine :: on('static_init', function() {
+			TemplateEngine :: Warning("some other warning");
+		});
+		TemplateEngine::processTemplate('te-core-test_warning_while_running.tpl', true);
+		$this->assertEquals(1, count(TemplateEngine::get('TE_WARNINGS')), 'no additional warnings in array');
+	}
 }
 
 //EOF
