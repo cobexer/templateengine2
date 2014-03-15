@@ -704,17 +704,6 @@ class TemplateEngine {
 		self :: $variables['HEADER_TEXT'] .= $t;
 	}
 	/**
-	 * setArray
-	 * compatibility function
-	 * @deprecated use set directly
-	 * @fixme done for compatibility
-	 * @codeCoverageIgnore
-	 */
-	public static function setArray($name, $value) {
-		self :: LogMsg("setArray for <em>$name</em> deprecated!", false, TEMode :: warning, true);
-		return self :: set($name, $value);
-	}
-	/**
 	 * LogMsg
 	 * this function adds a log message to the Message Log
 	 * @param string $msg log message
@@ -936,56 +925,6 @@ class TemplateEngine {
 	}
 
 	/**
-	 * setFileDebugMode
-	 * enable or disable file debugging mode
-	 * @param boolean $mode set to true to enable comment insertion
-	 * @deprecated
-	 */
-	public static function setFileDebugMode($mode) {
-		self :: option('debug_files', $mode);
-	}
-
-	/**
-	 * setForceTplExtension
-	 * enable or disable file extension sanity check
-	 * @param boolean $mode set to true to enable sanity check
-	 * @deprecated
-	 */
-	public static function setForceTplExtension($mode) {
-		self :: option('force_tpl_extension', $mode);
-	}
-
-	/**
-	 * setJailToTemplatePath
-	 * enable or disable file accessing files outside the set template path
-	 * @param boolean $mode set to true to enable security check
-	 * @deprecated
-	 */
-	public static function setJailToTemplatePath($mode) {
-		self :: option('jail_to_template_path', $mode);
-	}
-
-	/**
-	 * noGzip
-	 * disallow gzipping
-	 * @return void
-	 * @deprecated
-	 */
-	public static function noGzip() {
-		self :: option('gzip', false);
-	}
-
-	/**
-	 * enableTiming
-	 * set capturing of timing information to on
-	 * @return void
-	 * @deprecated
-	 */
-	public static function enableTiming() {
-		self :: option('timing', true);
-	}
-
-	/**
 	 * useTEErrorHandler
 	 * internal function to enable the internal error handler don't call!
 	 * @param boolean $use
@@ -1080,13 +1019,6 @@ class TemplateEngine {
 			self :: LogMsg($result[1], $result[2], $result[3], $result[4]);
 		}
 		return $result[0];
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public static function dumpVariablesOnExit() {
-		self :: option('dump_variables', true);
 	}
 
 	public static function dumpVariables() {

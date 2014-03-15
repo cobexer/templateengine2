@@ -20,6 +20,14 @@
    * new option force_tpl_extension: port setForceTplExtension() to option('force_tpl_extension')
    * new option jail_to_template_path: port setJailToTemplatePath() to option('jail_to_template_path')
    * new option timing: port enableTiming() to option('timing')
+  * removed deprecated API:
+   * setArray use set($name, $value) instead
+   * setFileDebugMode use option('debug_files', true / false) instead
+   * setForceTplExtension use option('force_tpl_extension', true / false) instead
+   * setJailToTemplatePath use option('jail_to_template_path', true / false) instead
+   * noGzip use option('gzip', false) instead
+   * enableTiming use option('timing', true) instead
+   * dumpVariablesOnExit use option('dump_variables', true) instead
   * fixed a bug in IF that prevented it from correctly looking up the variable in a nested scope (like in a template included with FOREACH, or from a base template)
   * template inheritance: use setBaseTemplatePath to define the base template from which you can then inherit template files
   * Makefile to automate release building, testing,...
