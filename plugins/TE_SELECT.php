@@ -13,7 +13,7 @@
  */
 
 function TE_PLUGIN_TE_SELECT(array $ctx, array $match) {
-	$html = '';
+	$html = array();
 	$val = null;
 	if(isset($ctx[$match[1]])) {
 		$val = $ctx[$match[1]];
@@ -26,8 +26,9 @@ function TE_PLUGIN_TE_SELECT(array $ctx, array $match) {
 		return false;
 	}
 	TemplateEngine :: LogMsg('[TE_SELECT]: rendering Array <em>"'.$match[1].'"</em>', true, TEMode :: debug);
+	$value = '';
 	foreach($val as $index => $values) {
-		$value = '';
+		unset($value);
 		$name = '';
 		if (isset($values['VALUE'])) {
 			$value = $values['VALUE'];
@@ -47,9 +48,13 @@ function TE_PLUGIN_TE_SELECT(array $ctx, array $match) {
 		else {
 			TemplateEngine :: LogMsg('[TE_SELECT]: invalid array item at index ' . $index, false, TEMode :: error);
 		}
-		$html .= '	<option value="'.$value.'">'.$name.'</option>'; //FIXME: call escape methods for both variables
+		array_push($html, "\t<option");
+		if (isset($value)) {
+			array_push($html, ' value="' . $value . '"'); //FIXME: call escape method for $value
+		}
+		array_push($html, '>' . $name . '</option>'); //FIXME: call escape methods for $name
 	}
-	return $html;
+	return implode('', $html);
 }
 
 TemplateEngine :: registerPlugin('TE_SELECT', '/\{SELECT=(' . TE_regex_varname . ')\}/', 'TE_PLUGIN_TE_SELECT');
