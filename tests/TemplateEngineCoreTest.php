@@ -411,6 +411,24 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		TemplateEngine::processTemplate('te-core-test_warning_while_running.tpl', true);
 		$this->assertEquals(1, count(TemplateEngine::get('TE_WARNINGS')), 'no additional warnings in array');
 	}
+
+	/**
+	 * @expectedException Exception
+	 */
+	public function testNonexistentFunctionThrows() {
+		$te = new TemplateEngine();
+		$te->someNonexistentFunction('this-will-fail.sohard');
+	}
+
+	public function testDisablingSecuritySettingsShowsAWarning() {
+		$logs = array();
+		TemplateEngine :: on('log', function($msg, $success, $mode) use (&$logs) {
+			$logs[] = array($msg, $success, $mode);
+		});
+		TemplateEngine :: option('force_tpl_extension', false);
+		TemplateEngine :: option('jail_to_template_path', false);
+		$this->assertEquals(1, count($logs));
+	}
 }
 
 //EOF
