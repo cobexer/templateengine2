@@ -83,8 +83,8 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 	public function testTemplateEngineIsUnique() {
 		$teInst = TemplateEngine::Inst();
-		$tenew = new TemplateEngine();
 		TemplateEngine::set('test-variable', true);
+		$tenew = new TemplateEngine();
 		$this->assertEquals(true, TemplateEngine::get('test-variable', false), 'test-variable available to the original instance');
 		$this->assertEquals(true, $teInst->get('test-variable', false), 'test-variable available to the TemplateEngine::Inst() instance');
 		$this->assertEquals(true, $tenew->get('test-variable', false), 'test-variable available to the TemplateEngine instance created with new');
@@ -428,6 +428,13 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		TemplateEngine :: option('force_tpl_extension', false);
 		TemplateEngine :: option('jail_to_template_path', false);
 		$this->assertEquals(1, count($logs));
+	}
+
+	public function testDebugFiles() {
+		TemplateEngine :: option('debug_files', true);
+		$expected = "<!-- start templates/te-core-debug-files.tpl -->\nFile content\n<!-- end templates/te-core-debug-files.tpl -->";
+		$actual = trim(TemplateEngine :: processTemplate('te-core-debug-files.tpl', false));
+		$this->assertEquals($expected, $actual);
 	}
 }
 
