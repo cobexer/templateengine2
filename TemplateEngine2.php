@@ -983,7 +983,6 @@ class TemplateEngine {
 			$content = "<!-- start $fname -->\n" . $content . "<!-- end $fname -->\n";
 		}
 		return array(true);
-
 	}
 
 	private static function addOverride($path) {
