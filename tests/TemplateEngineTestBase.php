@@ -11,7 +11,6 @@
  * @version @VERSION@ (@COMMIT@)
  * @package TemplateEngine2
  */
-require_once('PEAR/PHPUnit/Autoload.php');
 
 class TemplateEngineTestBase extends PHPUnit_Framework_TestCase
 {
