@@ -1093,21 +1093,13 @@ if(isset($_GET['force_debug'])) {
 	TemplateEngine :: forceMode(TEMode :: debug);
 }
 // activate timing information if 'show_timing' is set in $_GET
-if(isset($_GET['show_timing'])) {
-	TemplateEngine :: option('timing', true);
-}
+TemplateEngine :: option('timing', isset($_GET['show_timing']));
 // activate file debugging if 'debug_files' is set in $_GET
-if(isset($_GET['debug_files'])) {
-	TemplateEngine :: option('debug_files', true);
-}
-//don't gzip if impossible ;)
-if (!function_exists('gzencode')) {
-	TemplateEngine :: option('gzip', false);
-}
+TemplateEngine :: option('debug_files', isset($_GET['debug_files']));
+//only gzip if possible ;)
+TemplateEngine :: option('gzip', function_exists('gzencode'));
 // dump name and value of all set template variables
-if(isset($_GET['te_dump'])) {
-	TemplateEngine :: option('dump_variables', true);
-}
+TemplateEngine :: option('dump_variables', isset($_GET['te_dump']));
 /**
  * TE_php_err_handler
  * this function is called by php if any error message is encountered
@@ -1134,7 +1126,6 @@ if (!isset($_GET['force_def_exception_handler'])) {
 	set_exception_handler('TE_php_exception_handler');
 }
 
-if (isset($_GET['te_profile'])) {
-	TemplateEngine :: option('plugin_profiling', true);
-}
+// activate plugin profiling if 'plugin_profiling' is set in $_GET
+TemplateEngine :: option('plugin_profiling', isset($_GET['te_profile']));
 //EOF
