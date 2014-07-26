@@ -750,7 +750,7 @@ class TemplateEngine {
 				$msg .= '<div>';
 				$msg .= @$mode[$message['mode']];
 				$msg .= '<span>' . $succ[$message['success']] . '</span>';
-				$msg .= $message['msg'];
+				$msg .= '<span class="te_msg_text">' . $message['msg'] . '</span>';
 				$msg .= '</div>';
 			}
 		}
