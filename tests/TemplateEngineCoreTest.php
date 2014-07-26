@@ -16,6 +16,8 @@ require_once(dirname(__FILE__) . '/TemplateEngineTestBase.php');
 class TemplateEngineCoreTest extends TemplateEngineTestBase
 {
 	protected function setUp() {
+		// required for testPrintTimingStatistics
+		$_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 		parent::setUp();
 		/* RM */require_once('plugins/TE_SCALAR.php');/* /RM */
 	}
@@ -435,6 +437,38 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$expected = "<!-- start templates/te-core-debug-files.tpl -->\nFile content\n<!-- end templates/te-core-debug-files.tpl -->";
 		$actual = trim(TemplateEngine :: processTemplate('te-core-debug-files.tpl', false));
 		$this->assertEquals($expected, $actual);
+	}
+
+	public function testPrintTimingStatistics() {
+		ob_start();
+		TemplateEngine :: option('timing', true);
+		TemplateEngine :: processTemplate('te-core-output.tpl', false);
+		TemplateEngine :: shutdown_function();
+		$result = ob_get_contents();
+		ob_end_clean();
+		$tree = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><result>' . $result . '</result>');
+		$trs = $tree->div->table->tr;
+		$rows = array();
+		foreach($tree->div->table->tr as $k => $tr) {
+			$row = array();
+			foreach($tr->td as $td) {
+				$row[] = '' . $td;
+			}
+			$rows[] = $row;
+		}
+		$this->assertGreaterThan(2, count($rows), 'more than two entries in the timing statistics');
+		$this->assertEquals('TEincluded', $rows[0][0], 'first entry is TEincluded');
+		$this->assertEquals('0 ms', $rows[0][1], 'first offset is 0 ms');
+		$this->assertGreaterThan(0, floatval($rows[0][2]), 'parse time of the templateengine scripts should be low');
+		// 50ms is not seriously my acceptance level, but the test should be stable even on my slow netbook when doing coverage where php is executed a lot slower than usually
+		$this->assertLessThan(50, floatval($rows[0][2]), 'parse time of the templateengine scripts should be low');
+		$this->assertGreaterThan(0, floatval($rows[0][3]), 'memory should be greater than 0');
+		$this->assertGreaterThan(0, floatval($rows[0][4]), 'peak memory should be greater than 0');
+
+		$this->assertEquals('printTimingStatistics', $rows[count($rows) - 1][0], 'last entry is printTimingStatistics');
+		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][2]), 'execution time should be greater than 0 ms');
+		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][3]), 'memory should be greater than 0');
+		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][4]), 'peak memory should be greater than 0');
 	}
 }
 

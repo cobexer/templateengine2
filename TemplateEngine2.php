@@ -782,22 +782,20 @@ class TemplateEngine {
 	 */
 	public static function printTimingStatistics() {
 		self :: captureTime('printTimingStatistics');
-		$last = 0;
-		$first = 0;
-		foreach(self :: $timing_data as $idx => $mdata) {
-			$last = $mdata['time'];
-			break;
+		$first = self :: $timing_data[0]['time'];
+		$last = $first;
+		if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+			$last = $_SERVER['REQUEST_TIME_FLOAT'] * 1000;
 		}
-		$first = $last;
 		print '<hr /><div style="background-color:#888;"><table style="margin: 0 auto;';
 		print 'border:1px solid green;width:70%;"><thead><tr><th>Milestone Name</th>';
 		print '<th>Start Offset</th><th>Exec-Time</th><th>Memory</th><th>Peak Memory</th></tr></thead>';
 		foreach(self :: $timing_data as $idx => $mdata) {
-			print '<tr><td>'.$mdata['milestone'].'</td><td style="text-align: right;">';
-			print round(($mdata['time'] - $first), 2).' ms</td><td style="text-align: right;">';
-			print round(($mdata['time'] - $last), 2).' ms</td><td style="text-align: right;">';
-			print $mdata['mem'].' KiB</td><td style="text-align: right;">'.$mdata['peakmem'].' KiB</td></tr>';
-			$last= $mdata['time'];
+			print '<tr><td>' . $mdata['milestone'] . '</td><td style="text-align: right;">';
+			print round(($mdata['time'] - $first), 2) . ' ms</td><td style="text-align: right;">';
+			print round(($mdata['time'] - $last), 2) . ' ms</td><td style="text-align: right;">';
+			print $mdata['mem'] . ' KiB</td><td style="text-align: right;">' . $mdata['peakmem'] . ' KiB</td></tr>';
+			$last = $mdata['time'];
 		}
 		print '</table></div>';
 	}
