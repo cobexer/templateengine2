@@ -447,7 +447,6 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$result = ob_get_contents();
 		ob_end_clean();
 		$tree = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><result>' . $result . '</result>');
-		$trs = $tree->div->table->tr;
 		$rows = array();
 		foreach($tree->div->table->tr as $k => $tr) {
 			$row = array();
@@ -469,6 +468,55 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][2]), 'execution time should be greater than 0 ms');
 		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][3]), 'memory should be greater than 0');
 		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][4]), 'peak memory should be greater than 0');
+	}
+
+	public function testPrintPluginProfiling() {
+		ob_start();
+		TemplateEngine :: option('plugin_profiling', true);
+		TemplateEngine :: processTemplate('te-core-output.tpl', false);
+		TemplateEngine :: shutdown_function();
+		$result = ob_get_contents();
+		ob_end_clean();
+		$tree = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><result>' . $result . '</result>');
+		$rows = array();
+		foreach($tree->xpath('//table/tr') as $tr) {
+			$row = array();
+			foreach($tr->xpath('td') as $td) {
+				$row[] = '' . $td;
+			}
+			$rows[] = $row;
+		}
+		$this->assertGreaterThan(1, count($rows), 'more than one entry in the profiling output');
+		$this->assertEquals('TE_SCALAR', $rows[0][0], 'first entry is TE_SCALAR');
+		$this->assertGreaterThan(0, floatval($rows[0][1]), 'execution time should be greater than 0 ms');
+		$this->assertGreaterThan(0, floatval($rows[0][2]), 'try should be greater than 0');
+		$this->assertGreaterThan(0, floatval($rows[0][3]), 'hit should be greater than 0');
+		$this->assertGreaterThan(0, floatval($rows[0][4]), 'decline should be greater than 0');
+
+		$this->assertEquals('Total', $rows[count($rows) - 1][0], 'last entry is Total');
+		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][1]), 'execution time should be greater than 0 ms');
+		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][2]), 'try should be greater than 0');
+		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][3]), 'hit should be greater than 0');
+		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][4]), 'decline should be greater than 0');
+	}
+
+	public function testDisablingBuiltInErrorHandlerDisablesGzipping() {
+		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip should be enabled by default');
+		TemplateEngine :: useTEErrorHandler(false);
+		$this->assertEquals(false, TemplateEngine :: option('gzip'), 'gzip should be disabled if the built in error handler is not used (because php could print errors itself and gzipping the response would break it)');
+	}
+
+	public function testDumpVariables() {
+		ob_start();
+		TemplateEngine :: option('dump_variables', true);
+		TemplateEngine :: set('MY_TEST_VAR', 'MY_TEST_VALUE');
+		TemplateEngine :: processTemplate('te-core-output.tpl', false);
+		TemplateEngine :: shutdown_function();
+		$result = ob_get_contents();
+		ob_end_clean();
+		$this->assertGreaterThan(-1, strstr($result, 'MY_TEST_VAR'), 'MY_TEST_VAR variable should be dumped');
+		$this->assertGreaterThan(-1, strstr($result, 'MY_TEST_VALUE'), 'MY_TEST_VALUE variable should be dumped');
+		$this->assertGreaterThan(-1, strstr($result, 'te-core-output.tpl'), 'the name of the processed template should be dumped');
 	}
 }
 

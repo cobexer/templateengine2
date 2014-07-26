@@ -827,14 +827,14 @@ class TemplateEngine {
 			$totalDecline += $plugin['_total_decline'];
 			print '<tr>';
 			print '<td>' . $name . '</td>';
-			print '<td>' . ($plugin['_regex_time'] * 1000) . 'ms</td>';
+			print '<td>' . ($plugin['_regex_time'] * 1000) . ' ms</td>';
 			print '<td>' . $plugin['_total_try'] . '</td>';
 			print '<td>' . $plugin['_total_hit'] . '</td>';
 			print '<td>' . $plugin['_total_decline'] . '</td>';
 			print '</tr>';
 		}
 		print '<tr>';
-		print '<td>Total</td><td>' . ($totalTime * 1000) . '</td>';
+		print '<td>Total</td><td>' . ($totalTime * 1000) . ' ms</td>';
 		print "<td>$totalTry</td><td>$totalHit</td><td>$totalDecline</td>";
 		print '</tr></table></div>';
 	}
@@ -1108,7 +1108,7 @@ TemplateEngine :: option('timing', isset($_GET['show_timing']));
 TemplateEngine :: option('debug_files', isset($_GET['debug_files']));
 //only gzip if possible ;)
 TemplateEngine :: option('gzip', function_exists('gzencode'));
-// dump name and value of all set template variables
+// dump name and value of all set template variables if 'te_dump' is set in $_GET
 TemplateEngine :: option('dump_variables', isset($_GET['te_dump']));
 /**
  * TE_php_err_handler
@@ -1136,6 +1136,6 @@ if (!isset($_GET['force_def_exception_handler'])) {
 	set_exception_handler('TE_php_exception_handler');
 }
 
-// activate plugin profiling if 'plugin_profiling' is set in $_GET
+// activate plugin profiling if 'te_profile' is set in $_GET
 TemplateEngine :: option('plugin_profiling', isset($_GET['te_profile']));
 //EOF
