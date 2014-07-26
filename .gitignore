@@ -10,6 +10,8 @@
 /.settings
 /build/
 /release-plugins.txt
+/composer.lock
+/vendor/
 
 #Latex tmp files
 /documentation/TemplateEngine2.aux
