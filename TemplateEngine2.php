@@ -59,7 +59,7 @@ class TEEventRegistration {
 }
 
 /**
- * class TETemplateNotFoundException thrown if a template has not been found
+ * class TETemplateNotFoundException thrown if a template has not been found.
  */
 final class TETemplateNotFoundException extends Exception {
 }
@@ -205,6 +205,7 @@ class TemplateEngine {
 		'init' => null,
 		'log' => null,
 	);
+
 	/**
 	 * __construct
 	 * initializes a new object of the TemplateEngine
@@ -216,6 +217,7 @@ class TemplateEngine {
 			self :: clear();
 		}
 	}
+
 	/**
 	 * Inst
 	 * returns a TemplateEngine instance
@@ -226,6 +228,7 @@ class TemplateEngine {
 	public static function Inst() {
 		return self :: $instance;
 	}
+
 	/**
 	 * clear
 	 * clears all template variables and messages
@@ -252,6 +255,7 @@ class TemplateEngine {
 		);
 		self :: $currentContext = 0;
 	}
+
 	/**
 	 * pushConetxt
 	 * push a new template context onto the context stack
@@ -275,6 +279,7 @@ class TemplateEngine {
 		self :: processCurrentContext();
 		return self :: endContext();
 	}
+
 	/**
 	 * endContext
 	 * @return current template string
@@ -285,6 +290,7 @@ class TemplateEngine {
 		self :: $activePlugin = $ctx['prevContextActivePlugin'];
 		return $ctx['tpl'];
 	}
+
 	/**
 	 * registerEscapeMethod
 	 * register additional escape/formatter
@@ -296,6 +302,7 @@ class TemplateEngine {
 	public static function registerEscapeMethod($method, $callback) {
 		self :: $escapeMethod[$method] = $callback;
 	}
+
 	/**
 	 * unregisterEscapeMethod
 	 * delete escape/formatter method and configuration
@@ -306,6 +313,7 @@ class TemplateEngine {
 		unset(self :: $escapeMethod[$method]);
 		unset(self :: $escapeMethodConfig[$method]);
 	}
+
 	/**
 	 * setEscapeMethodConfig
 	 * @param $method string name of the escape/formatter method
@@ -315,6 +323,7 @@ class TemplateEngine {
 	public static function setEscapeMethodConfig($method, $config) {
 		self :: $escapeMethodConfig[$method] = $config;
 	}
+
 	/**
 	 * getEscapeMethodConfig
 	 * @param $method string name of the escape/formatter method
@@ -323,6 +332,7 @@ class TemplateEngine {
 	public static function getEscapeMethodConfig($method) {
 		return isset(self :: $escapeMethodConfig[$method]) ? self :: $escapeMethodConfig[$method] : null;
 	}
+
 	/**
 	 * escape
 	 * pass the value to the escape method and escape it if possible
@@ -337,6 +347,7 @@ class TemplateEngine {
 		}
 		return call_user_func_array(self :: $escapeMethod[$escaper], array($value, self :: getEscapeMethodConfig($escaper)));
 	}
+
 	/**
 	 * registerPlugin
 	 * register the given plugin for mathes of the given regular expression
@@ -360,6 +371,7 @@ class TemplateEngine {
 			'_total_decline' => 0,
 		);
 	}
+
 	/**
 	 * unregisterPlugin
 	 * unregister the plugin with the given name
