@@ -1,5 +1,6 @@
 TemplateEngine2
 ===============
+[![Build Status](https://travis-ci.org/cobexer/templateengine2.svg?branch=master)](https://travis-ci.org/cobexer/templateengine2)
 
 The TemplateEngine2 is a PHP based Templating system that is highly customizable,
 if it doesn't do what you need it to - then add it!
