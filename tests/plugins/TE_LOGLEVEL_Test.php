@@ -24,7 +24,11 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 		$tree = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?>' . $result);
 		$logs = array();
 		foreach($tree->xpath('//div/div') as $div) {
-			$logs[] = array((string)($div->xpath('strong')[0]->attributes()['class']), (string)($div->xpath('span[@class="te_msg_text"]')[0]));
+			$strong = $div->xpath('strong');
+			$strong = $strong[0];
+			$strongAttributes = $strong->attributes();
+			$span = $div->xpath('span[@class="te_msg_text"]');
+			$logs[] = array((string)($strongAttributes['class']), (string)($span[0]));
 		}
 		return $logs;
 	}
