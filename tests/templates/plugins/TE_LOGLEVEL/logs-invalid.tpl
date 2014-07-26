@@ -1,0 +1,3 @@
+<body>
+{LOGLEVEL=WTF}
+</body>

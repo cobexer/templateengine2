@@ -1,0 +1,3 @@
+<body>
+{LOGLEVEL=ERROR}
+</body>
