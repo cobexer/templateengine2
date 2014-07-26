@@ -129,7 +129,6 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	}
 
 	public function testPluginStatistics() {
-		//FIXME: call TemplateEngine :: shutdown_function() and test the output too
 		TemplateEngine :: option('plugin_profiling', true);
 		$this->TE_TEST_PLUGIN_DO_UNREGISTER = false;
 		$this->testPluginRegistration();
@@ -487,17 +486,24 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 			$rows[] = $row;
 		}
 		$this->assertGreaterThan(1, count($rows), 'more than one entry in the profiling output');
-		$this->assertEquals('TE_SCALAR', $rows[0][0], 'first entry is TE_SCALAR');
-		$this->assertGreaterThan(0, floatval($rows[0][1]), 'execution time should be greater than 0 ms');
-		$this->assertGreaterThan(0, floatval($rows[0][2]), 'try should be greater than 0');
-		$this->assertGreaterThan(0, floatval($rows[0][3]), 'hit should be greater than 0');
-		$this->assertGreaterThan(0, floatval($rows[0][4]), 'decline should be greater than 0');
-
+		$sums = array(0, 0, 0, 0);
+		foreach($rows as $idx => $r) {
+			if ($idx < (count($rows) - 1)) {
+				$sums[0] += floatval($r[1]);
+				$sums[1] += intval($r[2]);
+				$sums[2] += intval($r[3]);
+				$sums[3] += intval($r[4]);
+			}
+		}
+		$this->assertGreaterThan(0, $sums[0], 'execution time should be greater than 0 ms');
+		$this->assertGreaterThan(0, $sums[1], 'try should be greater than 0');
+		$this->assertGreaterThan(0, $sums[2], 'hit should be greater than 0');
+		$this->assertGreaterThan(0, $sums[3], 'decline should be greater than 0');
 		$this->assertEquals('Total', $rows[count($rows) - 1][0], 'last entry is Total');
-		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][1]), 'execution time should be greater than 0 ms');
-		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][2]), 'try should be greater than 0');
-		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][3]), 'hit should be greater than 0');
-		$this->assertGreaterThan(0, floatval($rows[count($rows) - 1][4]), 'decline should be greater than 0');
+		$this->assertEquals($sums[0], floatval($rows[count($rows) - 1][1]), 'execution time should be the sum of all plugins');
+		$this->assertEquals($sums[1], intval($rows[count($rows) - 1][2]), 'try should be the sum of all plugins');
+		$this->assertEquals($sums[2], intval($rows[count($rows) - 1][3]), 'hit should be the sum of all plugins');
+		$this->assertEquals($sums[3], intval($rows[count($rows) - 1][4]), 'decline should the sum of all plugins');
 	}
 
 	public function testDisablingBuiltInErrorHandlerDisablesGzipping() {
