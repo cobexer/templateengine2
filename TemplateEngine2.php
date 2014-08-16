@@ -759,9 +759,9 @@ class TemplateEngine {
 		$msg = '';
 		foreach(self :: $messages as $message) {
 			if ($message['mode'] >= self :: $mode) {
-				$msg .= '<div>';
+				$msg .= '<div class="te_msg_log_row">';
 				$msg .= @$mode[$message['mode']];
-				$msg .= '<span>' . $succ[$message['success']] . '</span>';
+				$msg .= '<span class="te_msg_status">' . @$succ[$message['success']] . '</span>';
 				$msg .= '<span class="te_msg_text">' . $message['msg'] . '</span>';
 				$msg .= '</div>';
 			}
