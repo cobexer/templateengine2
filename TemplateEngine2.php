@@ -71,6 +71,12 @@ final class TEPluginRegexInvalidException extends Exception {
 }
 
 /**
+ * class TEPluginCallbackInvalidException thrown if a plugin registers a nonexistent callback.
+ */
+final class TEPluginCallbackInvalidException extends Exception {
+}
+
+/**
  * class TemplateEngine
  * this is the class that implements the core TemplateEngine's framework
  */
@@ -352,6 +358,7 @@ class TemplateEngine {
 	 * registerPlugin
 	 * register the given plugin for mathes of the given regular expression
 	 * @throws TEPluginRegexInvalidException if the regular expression is invalid
+	 * @throws TEPluginCallbackInvalidException if the callback does not exist.
 	 * @param $plugin string the name of the plugin to register(must be unique)
 	 * @param $regexp string the regular expression whose matches will be handled by the callback
 	 * @param $callback callback the function to call with any found match
@@ -360,7 +367,17 @@ class TemplateEngine {
 	 */
 	public static function registerPlugin($plugin, $regex, $callback) {
 		if (NULL === @preg_replace($regex, '', '')) {
-			throw new TEPluginRegexInvalidException('Error testing the regex of the ' . $plugin . ' plugin: ' . preg_last_error());
+			throw new TEPluginRegexInvalidException("Error testing the regex of the '$plugin' plugin: " . preg_last_error());
+		}
+		$callbackValid = false;
+		if (is_array($callback)) {
+			$callbackValid = 2 === count($callback) && method_exists($callback[0], $callback[1]);
+		}
+		else {
+			$callbackValid = function_exists($callback);
+		}
+		if (!$callbackValid) {
+			throw new TEPluginCallbackInvalidException("Error the supplied callback for plugin '$plugin' does not exist.");
 		}
 		self :: $pluginRegistration[$plugin] = array(
 			'regex' => $regex,

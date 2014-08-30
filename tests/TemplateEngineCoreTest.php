@@ -183,6 +183,27 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	}
 
 	/**
+	 * @expectedException TEPluginCallbackInvalidException
+	 */
+	public function testNonexistentFunction() {
+		TemplateEngine :: registerPlugin('undefinedFunctionPlugin', '/./', 'letsJustHopeAFunctionWithThisNameIsNeverDefined');
+	}
+
+	/**
+	 * @expectedException TEPluginCallbackInvalidException
+	 */
+	public function testNonexistentMemberFunction() {
+		TemplateEngine :: registerPlugin('undefinedMemberFunctionPlugin', '/./', array($this, 'letsJustHopeAMemberFunctionWithThisNameIsNeverDefined'));
+	}
+
+	/**
+	 * @expectedException TEPluginCallbackInvalidException
+	 */
+	public function testInvalidCallbackArgument() {
+		TemplateEngine :: registerPlugin('undefinedInvalidCallbackArgument', '/./', array(null));
+	}
+
+	/**
 	 * @expectedException TETemplateNotFoundException
 	 */
 	public function testMissingBasetemplateThrows() {
