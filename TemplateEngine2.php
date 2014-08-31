@@ -979,6 +979,58 @@ class TemplateEngine {
 		throw new Exception("The method 'TemplateEngine::$method' does not exist!");
 	}
 
+	/**
+	 * doLookupFilePath
+	 * lookup the given file in the template or in the base template.
+	 * will return an array with success, the matched templatePath and the
+	 * full resolved filename.
+	 * @param string $filename
+	 * @return array($success, $templatePath or null, $fullFilename or null)
+	 */
+	private static function doLookupFilePath($filename) {
+		$fname = realpath(self :: $rootPath . self :: $templatePath . $filename);
+		if (false !== $fname && file_exists($fname) && is_readable($fname)) {
+			return array(true, self :: $templatePath, $fname);
+		}
+		else {
+			$fname = realpath(self :: $rootPath . self :: $baseTemplatePath . $filename);
+			if (false !== $fname && file_exists($fname) && is_readable($fname)) {
+				return array(true, self :: $baseTemplatePath, $fname);
+			}
+		}
+		return array(false, null, null);
+	}
+
+	/**
+	 * checkJail
+	 * check if the file is inside the given template path (if enabled).
+	 * @param string $templatePath the used template path
+	 * @param string $fname full resolved name of the file
+	 * @return boolean true if access is allowed, false if not
+	 */
+	private static function checkJail($templatePath, $fname) {
+		if (self :: option('jail_to_template_path')) {
+			$tplpath = realpath(self :: $rootPath . $templatePath);
+			if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * checkExtension
+	 * check if the given file is a valid template file (if enabled).
+	 * @param string $fname
+	 * @return boolean true if access is allowed, false if not
+	 */
+	private static function checkExtension($fname) {
+		if (self :: option('force_tpl_extension')) {
+			return 0 === substr_compare($fname, '.tpl', -4, 4, true);
+		}
+		return true;
+	}
+
 	private static function doGetFile($templatePath, $name, &$content) {
 		//TODO: move the cache one level up or keep on this level??
 		$fname = realpath(self :: $rootPath . $templatePath . $name);
@@ -988,14 +1040,11 @@ class TemplateEngine {
 			if (!file_exists($fname) || !is_readable($fname)) {
 				return array(false, 'file not found!', false, TEMode :: error, true);
 			}
-			if (self :: option('force_tpl_extension') && !preg_match('/\.tpl$/', $name)) {
+			if (!self :: checkExtension($fname)) {
 				return array(false, 'invalid file', false, TEMode :: error, true);
 			}
-			if (self :: option('jail_to_template_path')) {
-				$tplpath = realpath(self :: $rootPath . $templatePath);
-				if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
-					return array(false, 'access denied', false, TEMode :: error, true);
-				}
+			if (!self :: checkJail($templatePath, $fname)) {
+				return array(false, 'access denied', false, TEMode :: error, true);
 			}
 			self :: LogMsg(' Cache MISS', true, TEMode :: debug, true);
 			$content = file_get_contents($fname);
@@ -1045,6 +1094,21 @@ class TemplateEngine {
 			self :: LogMsg($result[1], $result[2], $result[3], $result[4]);
 		}
 		return $result[0];
+	}
+
+	/**
+	 * lookupFile
+	 * lookup the given file in either the current template of the base template.
+	 * Checks if the file may be accessed (configured by the 'jail_to_template_path' option).
+	 * @param string $name
+	 * @return string|NULL path as needed from the browser or null if it does not exist of may not be accessed.
+	 */
+	public static function lookupFile($name) {
+		list($success, $templatePath, $fname) = self :: doLookupFilePath($name);
+		if (true === $success && self :: checkJail($templatePath, $fname)) {
+			return str_replace(realpath(self :: $rootPath) . '/', self :: $rootPath, $fname);
+		}
+		return null;
 	}
 
 	public static function dumpVariables() {

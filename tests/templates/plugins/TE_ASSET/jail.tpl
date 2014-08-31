@@ -1,0 +1,1 @@
+{ASSET:../../te-asset-existing-template-file-outside-template-path.tpl}
