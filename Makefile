@@ -88,6 +88,7 @@ te2-append-plugins: plugins-tests-dirs ${TE_RELEASE_PLUGINS}
 plugins-tests-dirs:
 	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/plugins/
 	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/
+	@mkdir -p ${BUILD_DIR}/${TESTS_DIR}/templates/base-template/plugins/
 
 ${TE_RELEASE_PLUGINS}:
 	@echo "processing plugin $@..."
@@ -95,6 +96,9 @@ ${TE_RELEASE_PLUGINS}:
 	$(call process,${TESTS_DIR}/plugins/$@_Test.php,${BUILD_DIR}/${TESTS_DIR}/plugins/$@_Test.php)
 	@if [ -d ${TESTS_DIR}/templates/plugins/$@ ]; then \
 		cp -rf ${TESTS_DIR}/templates/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/plugins/; \
+	fi
+	@if [ -d ${TESTS_DIR}/templates/base-template/plugins/$@ ]; then \
+		cp -rf ${TESTS_DIR}/templates/base-template/plugins/$@ ${BUILD_DIR}/${TESTS_DIR}/templates/base-template/plugins/; \
 	fi
 
 tests:
