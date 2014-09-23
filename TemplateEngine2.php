@@ -369,7 +369,6 @@ class TemplateEngine {
 		if (NULL === @preg_replace($regex, '', '')) {
 			throw new TEPluginRegexInvalidException("Error testing the regex of the '$plugin' plugin: " . preg_last_error());
 		}
-		$callbackValid = false;
 		if (is_array($callback)) {
 			$callbackValid = 2 === count($callback) && method_exists($callback[0], $callback[1]);
 		}
@@ -406,7 +405,6 @@ class TemplateEngine {
 	 * @return associative array with statistics for every plugin
 	 */
 	public static function getPluginStatistics() {
-		$result = false;
 		$result = array();
 		foreach(self :: $pluginRegistration as $pluginName => $stats) {
 			$result[$pluginName] = array(
@@ -500,7 +498,7 @@ class TemplateEngine {
 		$profile = self :: option('plugin_profiling');
 		$recursion_limit = 32;
 		$ctx = &self :: $contexts[self :: $currentContext];
-		if(strlen($ctx['tpl']) > 0) {
+		if(!empty($ctx['tpl'])) {
 			do {
 				$ctx['hit'] = 0;
 				$ctx['miss'] = 0;
@@ -917,9 +915,8 @@ class TemplateEngine {
 	 * @param string $event name of the event to trigger
 	 * @return boolean false if any of the event handlers returned false
 	 */
-	public static function trigger($event) {
+	public static function trigger($event_name) {
 		$args = func_get_args();
-		$event_name = $args[0];
 		$args = array_splice($args, 1);
 		$result = true;
 		if (isset(self :: $handlers[$event_name])) {
@@ -973,8 +970,8 @@ class TemplateEngine {
 	 * @param array $args
 	 */
 	public function __call($method, $args) {
-		if (function_exists(array('TemplateEngine', $method))) {
-			return call_user_func_array(array('TemplateEngine', $method), $args);
+		if (method_exists('TemplateEngine', $method)) {
+			return call_user_func_array("TemplateEngine::$method", $args);
 		}
 		throw new Exception("The method 'TemplateEngine::$method' does not exist!");
 	}
