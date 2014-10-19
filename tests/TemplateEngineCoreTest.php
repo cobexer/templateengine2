@@ -267,6 +267,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 			$args['3'] = $arg3;
 		});
 		$result = TemplateEngine :: trigger('test_events_event', "aaa", $this, true);
+		$this->assertEquals(true, $result, "event has not been cancelled");
 		$this->assertEquals(3, count($args), "event handler has been called");
 		$this->assertEquals("aaa", $args['1'], "arguments passed along");
 		$this->assertEquals($this, $args['2'], "arguments passed along");

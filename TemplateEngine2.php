@@ -159,7 +159,7 @@ class TemplateEngine {
 	/**
 	 * @static string the path to the base template, relative to the root
 	 */
-	private static $baseTemplatePath = false;
+	private static $baseTemplatePath = '';
 	/**
 	 * @static array cache for files accessed during template processing
 	 */
@@ -300,7 +300,7 @@ class TemplateEngine {
 	/**
 	 * registerEscapeMethod
 	 * register additional escape/formatter
-	 * @param $method string name of the escape/formatter method
+	 * @param string $method string name of the escape/formatter method
 	 * @param $callback callback function to be called when the formatter is used
 	 * @return void
 	 * @todo document callback interface
@@ -312,7 +312,7 @@ class TemplateEngine {
 	/**
 	 * unregisterEscapeMethod
 	 * delete escape/formatter method and configuration
-	 * @param $method string name of the escape/formatter method
+	 * @param string $method string name of the escape/formatter method
 	 * @return void
 	 */
 	public static function unregisterEscapeMethod($method) {
@@ -322,8 +322,8 @@ class TemplateEngine {
 
 	/**
 	 * setEscapeMethodConfig
-	 * @param $method string name of the escape/formatter method
-	 * @param $config mixed method configuration
+	 * @param string $method string name of the escape/formatter method
+	 * @param TemplateEngineCoreTest $config mixed method configuration
 	 * @return void
 	 */
 	public static function setEscapeMethodConfig($method, $config) {
@@ -332,7 +332,7 @@ class TemplateEngine {
 
 	/**
 	 * getEscapeMethodConfig
-	 * @param $method string name of the escape/formatter method
+	 * @param string $method string name of the escape/formatter method
 	 * @return $config mixed method configuration or null
 	 */
 	public static function getEscapeMethodConfig($method) {
@@ -359,9 +359,9 @@ class TemplateEngine {
 	 * register the given plugin for mathes of the given regular expression
 	 * @throws TEPluginRegexInvalidException if the regular expression is invalid
 	 * @throws TEPluginCallbackInvalidException if the callback does not exist.
-	 * @param $plugin string the name of the plugin to register(must be unique)
-	 * @param $regexp string the regular expression whose matches will be handled by the callback
-	 * @param $callback callback the function to call with any found match
+	 * @param string $plugin string the name of the plugin to register(must be unique)
+	 * @param string $regex the regular expression whose matches will be handled by the callback
+	 * @param callback $callback the function to call with any found match
 	 * @return void
 	 * @todo document callback interface
 	 */
@@ -391,7 +391,7 @@ class TemplateEngine {
 	/**
 	 * unregisterPlugin
 	 * unregister the plugin with the given name
-	 * @param $plugin string the name of the plugin to unregister
+	 * @param string $plugin string the name of the plugin to unregister
 	 * @return void
 	 */
 	public static function unregisterPlugin($plugin) {
@@ -425,7 +425,7 @@ class TemplateEngine {
 	 * template file was included in the current template.
 	 * <strong>Note: {TEMPLATE_PATH} will point to the current template, not the base
 	 * template, thus references to CSS/... will FAIL when requested from the browser</strong>
-	 * @param $path string path of the base template files
+	 * @param string $path string path of the base template files
 	 * @return void
 	 */
 	public static function setBaseTemplatePath($path) {
@@ -441,7 +441,7 @@ class TemplateEngine {
 	 * tell the TemplateEngine where to search for the template files
 	 * the template path is available to templates as: {TEMPLATE_PATH}
 	 * <strong>Note: this path will always end with a /</strong>
-	 * @param $path string the path of the template files
+	 * @param string $path string the path of the template files
 	 * @return void
 	 */
 	public static function setTemplatePath($path) {
@@ -466,7 +466,7 @@ class TemplateEngine {
 	 * sets the root path of the application directory seen from the browser!
 	 * the root path is available to the templates as {ROOT_PATH}
 	 * <strong>Note: this path will always end with a /</strong>
-	 * @param $path string the root path of the application as seen by the browser
+	 * @param string $path string the root path of the application as seen by the browser
 	 * @return void
 	 */
 	public static function setRootPath($path) {
@@ -655,6 +655,12 @@ class TemplateEngine {
 		return false;
 	}
 
+	/**
+	 * addMsgInternal
+	 * add a message to the corresponding TE variable
+	 * @param string $class one of: error,warning,info
+	 * @param string $msg message text
+	 */
 	private static function addMsgInternal($class, $msg) {
 		$classUpper = strtoupper($class);
 		if (!self :: $running) {
@@ -702,7 +708,7 @@ class TemplateEngine {
 	 * header
 	 * adds the given string to the HTML head section of the current page
 	 * (to {HEADER_TEXT} which is in _header.tpl)
-	 * @param $html html to be added to the HTML head section
+	 * @param string $html html to be added to the HTML head section
 	 * @return void
 	 */
 	public static function header($html) {
@@ -790,7 +796,7 @@ class TemplateEngine {
 	/**
 	 * captureTime
 	 * captures the number of milliseconds elapsed since the first call to this function(done on TE include)
-	 * @param $milestone string name of the milestone
+	 * @param string $milestone string name of the milestone
 	 * @return void
 	 */
 	public static function captureTime($milestone) {
@@ -881,7 +887,7 @@ class TemplateEngine {
 	 * option
 	 * the option function can be used to get or set the value of an option.
 	 * @param string $name name of the option
-	 * @param mixed $value optional value of the option, if specified this function is a setter
+	 * @param boolean $value optional value of the option, if specified this function is a setter
 	 * @return mixed current value of the option
 	 */
 	public static function option($name, $value = null) {
@@ -901,6 +907,7 @@ class TemplateEngine {
 	/**
 	 * on
 	 * register an event handler for the given event
+	 * @param string $event
 	 */
 	public static function on($event, $callback, $phase = TEEventPhase :: inform) {
 		if (!isset(self :: $handlers[$event]) || null === self :: $handlers[$event]) {
@@ -912,7 +919,7 @@ class TemplateEngine {
 	/**
 	 * trigger
 	 * trigger the given event, calling all event handlers in turn
-	 * @param string $event name of the event to trigger
+	 * @param string $event_name the name of the event to trigger
 	 * @return boolean false if any of the event handlers returned false
 	 */
 	public static function trigger($event_name) {
@@ -989,7 +996,7 @@ class TemplateEngine {
 		if (false !== $fname && file_exists($fname) && is_readable($fname)) {
 			return array(true, self :: $templatePath, $fname);
 		}
-		else {
+		elseif (!empty(self :: $baseTemplatePath)) {
 			$fname = realpath(self :: $rootPath . self :: $baseTemplatePath . $filename);
 			if (false !== $fname && file_exists($fname) && is_readable($fname)) {
 				return array(true, self :: $baseTemplatePath, $fname);
@@ -1028,6 +1035,15 @@ class TemplateEngine {
 		return true;
 	}
 
+	/**
+	 * doGetFile
+	 * internal getFile implementation
+	 * @param string $templatePath template dir path (relative to the rootPath)
+	 * @param string $name name of the template file
+	 * @param string $content (out) content of the template file (or the empty string)
+	 * @return array(success, error message, success, TEmode, finished)
+	 * @todo: TODO: improve function interface
+	 */
 	private static function doGetFile($templatePath, $name, &$content) {
 		//TODO: move the cache one level up or keep on this level??
 		$fname = realpath(self :: $rootPath . $templatePath . $name);
@@ -1058,6 +1074,11 @@ class TemplateEngine {
 		return array(true);
 	}
 
+	/**
+	 * addOverride
+	 * adds an override for the templatePath for the current context
+	 * @param string $path override template path
+	 */
 	private static function addOverride($path) {
 		$ctx = &self :: $contexts[self :: $currentContext];
 		$ctx['override'] = array(
@@ -1078,7 +1099,7 @@ class TemplateEngine {
 		//TODO: move template caching logic here
 		//TODO: let possible getFile plugins specify if their result can be cached
 		$result = self :: doGetFile(self :: $templatePath, $name, $content);
-		if (true !== $result[0] && self :: $baseTemplatePath) {
+		if (true !== $result[0] && !empty(self :: $baseTemplatePath)) {
 			$result = self :: doGetFile(self :: $baseTemplatePath, $name, $content);
 			if (true === $result[0]) {
 				self :: addOverride(self :: $baseTemplatePath);
@@ -1195,7 +1216,7 @@ TemplateEngine :: option('dump_variables', isset($_GET['te_dump']));
  * @param string $errstr describing error message
  * @param string $errfile filename of the file that caused the error
  * @param integer $errline line number where the error occured
- * @param array $errorcontext unused data that might be given by php
+ * @param array $errcontext unused data that might be given by php
  */
 function TE_php_err_handler($errno, $errstr, $errfile = '', $errline = '', $errcontext = array()) {
 	TemplateEngine :: LogMsg("#$errno: $errstr @$errfile($errline)", false, TEMode::error);

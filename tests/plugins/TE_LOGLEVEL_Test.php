@@ -20,6 +20,12 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 		/* RM */require_once('plugins/TE_LOGLEVEL.php');/* /RM */
 	}
 
+	/**
+	 * get_logs
+	 * parse the html and find all the logs
+	 * @param string $result html output
+	 * @return array(array(class, message))
+	 */
 	private function get_logs($result) {
 		$tree = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?>' . $result);
 		$logs = array();
