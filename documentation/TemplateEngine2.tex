@@ -153,13 +153,13 @@ Setzt man {\tt \$mode} auf {\tt true} so wird jede Datei, die nicht im {\tt TEMP
 \subsubsection{forceMode(\$mode)}
 Setzt den Debug-level auf den \"ubergebenen {\tt \$mode} und verhindert alle weiteren
  \"anderungen durch {\tt setMode} oder {\tt \{LOGLEVEL=\dots\}}. G\"ultig sind alle werte
-von {\tt TEMode}, standardm\"a\ss{}ig ist {\tt TEMode :: error} gesetzt.
+von {\tt TEMode}, standardm\"a\ss{}ig ist {\tt TEMode::error} gesetzt.
 
 \subsubsection{setMode(\$mode)}
 Setzt den Debug-level auf den \"ubergebenen {\tt \$mode} nur dann wenn das nicht
  durch {\tt forceMode} verhindert wurde. Dieser Wert kann auch durch {\tt forceMode} und
  {\tt \{LOGLEVEL=\dots\}} ge\"andert werden.
-G\"ultig sind alle werte von {\tt TEMode}, standardm\"a\ss{}ig ist {\tt TEMode :: error} gesetzt.
+G\"ultig sind alle werte von {\tt TEMode}, standardm\"a\ss{}ig ist {\tt TEMode::error} gesetzt.
 
 
 \subsection{Plugin API}
@@ -225,7 +225,7 @@ Liefert die aktuell gespeicherte Konfiguration f\"ur die Escape Methode.
 
 \subsection{Misc API}
 
-\subsubsection{LogMsg(\$msg, \$success = true, \$mode = TEMode :: debug, \$finished = true)}
+\subsubsection{LogMsg(\$msg, \$success = true, \$mode = TEMode::debug, \$finished = true)}
 Mit der LogMsg Methode kann Debug Information aufgezeichnet werden, die Informationen werden nur aufgezeichnet, wenn
 der \"ubergebene {\tt \$mode} gr\"o\ss{}er oder gleich dem Eingestellten ist. Mit {\tt \$finished = false} wird die Nachricht
 erst mit dem n\"achsten Aufruf({\tt \$finished = true}) an den Puffer angeh\"angt, dieser kann auch ein neues Log-Level f\"ur

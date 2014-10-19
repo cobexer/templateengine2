@@ -14,11 +14,11 @@
 
 function TE_PLUGIN_TE_LOAD_WITHID(array $ctx, array $match) {
 	$content = '';
-	TemplateEngine :: LogMsg('[LOAD_WITHID]', true, TEMode :: debug, false);
-	$succ = TemplateEngine :: getFile($match[1], $content);
+	TemplateEngine::LogMsg('[LOAD_WITHID]', true, TEMode::debug, false);
+	$succ = TemplateEngine::getFile($match[1], $content);
 	return $succ ? str_replace("{LOAD:ID}", $match[2], $content) : false;
 }
 
-TemplateEngine :: registerPlugin('TE_LOAD_WITHID', '/\{LOAD_WITHID=([^\{\}]+);([^\{\}]+)\}/', 'TE_PLUGIN_TE_LOAD_WITHID');
+TemplateEngine::registerPlugin('TE_LOAD_WITHID', '/\{LOAD_WITHID=([^\{\}]+);([^\{\}]+)\}/', 'TE_PLUGIN_TE_LOAD_WITHID');
 
 //EOF

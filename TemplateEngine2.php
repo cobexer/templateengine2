@@ -45,9 +45,9 @@ class TEEventRegistration {
 	private $handlers;
 	public function __construct() {
 		$this->handlers = array(
-			TEEventPhase :: evaluate => array(),
-			TEEventPhase :: execute => array(),
-			TEEventPhase :: inform => array(),
+			TEEventPhase::evaluate => array(),
+			TEEventPhase::execute => array(),
+			TEEventPhase::inform => array(),
 		);
 	}
 	public function on($phase, $handler) {
@@ -84,7 +84,7 @@ class TemplateEngine {
 	/**
 	 * @static TEMode log level of the TemplateEngine
 	 */
-	private static $mode = TEMode :: error;
+	private static $mode = TEMode::error;
 	/**
 	 * @static boolean forces the log level to the forced one(Templates can not override it)
 	 */
@@ -218,9 +218,9 @@ class TemplateEngine {
 	 * @access public
 	 */
 	public function __construct() {
-		if(null === self :: $instance) {
-			self :: $instance = $this;
-			self :: clear();
+		if(null === self::$instance) {
+			self::$instance = $this;
+			self::clear();
 		}
 	}
 
@@ -232,7 +232,7 @@ class TemplateEngine {
 	 * @static
 	 */
 	public static function Inst() {
-		return self :: $instance;
+		return self::$instance;
 	}
 
 	/**
@@ -243,23 +243,23 @@ class TemplateEngine {
 	 * @static
 	 */
 	public static function clear() {
-		self :: $variables = array();
-		self :: $variables['TE_ERRORS'] = array();
-		self :: $variables['TE_WARNINGS'] = array();
-		self :: $variables['TE_INFOS'] = array();
-		self :: $variables['HEADER_TEXT'] = '';
-		self :: $messages_NotFin = array();
-		self :: $messages = array();
-		self :: $contexts = array();
-		self :: $contexts[] = array(
+		self::$variables = array();
+		self::$variables['TE_ERRORS'] = array();
+		self::$variables['TE_WARNINGS'] = array();
+		self::$variables['TE_INFOS'] = array();
+		self::$variables['HEADER_TEXT'] = '';
+		self::$messages_NotFin = array();
+		self::$messages = array();
+		self::$contexts = array();
+		self::$contexts[] = array(
 			'tpl' => '',
-			'ctx' => self :: $variables,
+			'ctx' => self::$variables,
 			'templatePath' => '',
 			'hit' => 0,
 			'miss' => 0,
 			'prevContextActivePlugin' => '',
 		);
-		self :: $currentContext = 0;
+		self::$currentContext = 0;
 	}
 
 	/**
@@ -271,19 +271,19 @@ class TemplateEngine {
 	 */
 	public static function pushContext($templateString, array $context, $templatePath = null) {
 		if (null === $templatePath) {
-			$templatePath = (self :: $currentContext >= 0) ? self :: $contexts[self :: $currentContext]['templatePath'] : self :: $templatePath;
+			$templatePath = (self::$currentContext >= 0) ? self::$contexts[self::$currentContext]['templatePath'] : self::$templatePath;
 		}
-		self :: $contexts[] = array(
+		self::$contexts[] = array(
 			'tpl' => $templateString,
 			'ctx' => $context,
 			'templatePath' => $templatePath,
 			'hit' => 0,
 			'miss' => 0,
-			'prevContextActivePlugin' => self :: $activePlugin,
+			'prevContextActivePlugin' => self::$activePlugin,
 		);
-		self :: $currentContext += 1;
-		self :: processCurrentContext();
-		return self :: endContext();
+		self::$currentContext += 1;
+		self::processCurrentContext();
+		return self::endContext();
 	}
 
 	/**
@@ -291,9 +291,9 @@ class TemplateEngine {
 	 * @return current template string
 	 */
 	public static function endContext() {
-		$ctx = array_pop(self :: $contexts);
-		self :: $currentContext -= 1;
-		self :: $activePlugin = $ctx['prevContextActivePlugin'];
+		$ctx = array_pop(self::$contexts);
+		self::$currentContext -= 1;
+		self::$activePlugin = $ctx['prevContextActivePlugin'];
 		return $ctx['tpl'];
 	}
 
@@ -306,7 +306,7 @@ class TemplateEngine {
 	 * @todo document callback interface
 	 */
 	public static function registerEscapeMethod($method, $callback) {
-		self :: $escapeMethod[$method] = $callback;
+		self::$escapeMethod[$method] = $callback;
 	}
 
 	/**
@@ -316,8 +316,8 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function unregisterEscapeMethod($method) {
-		unset(self :: $escapeMethod[$method]);
-		unset(self :: $escapeMethodConfig[$method]);
+		unset(self::$escapeMethod[$method]);
+		unset(self::$escapeMethodConfig[$method]);
 	}
 
 	/**
@@ -327,7 +327,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function setEscapeMethodConfig($method, $config) {
-		self :: $escapeMethodConfig[$method] = $config;
+		self::$escapeMethodConfig[$method] = $config;
 	}
 
 	/**
@@ -336,7 +336,7 @@ class TemplateEngine {
 	 * @return $config mixed method configuration or null
 	 */
 	public static function getEscapeMethodConfig($method) {
-		return isset(self :: $escapeMethodConfig[$method]) ? self :: $escapeMethodConfig[$method] : null;
+		return isset(self::$escapeMethodConfig[$method]) ? self::$escapeMethodConfig[$method] : null;
 	}
 
 	/**
@@ -347,11 +347,11 @@ class TemplateEngine {
 	 * @return mixed result of the escape method call
 	 */
 	public static function escape($escaper, $value) {
-		if (!isset(self :: $escapeMethod[$escaper])) {
-			self :: LogMsg('Escape method <em>' . $escaper . '</em> unknown!');
+		if (!isset(self::$escapeMethod[$escaper])) {
+			self::LogMsg('Escape method <em>' . $escaper . '</em> unknown!');
 			return $value;
 		}
-		return call_user_func_array(self :: $escapeMethod[$escaper], array($value, self :: getEscapeMethodConfig($escaper)));
+		return call_user_func_array(self::$escapeMethod[$escaper], array($value, self::getEscapeMethodConfig($escaper)));
 	}
 
 	/**
@@ -378,7 +378,7 @@ class TemplateEngine {
 		if (!$callbackValid) {
 			throw new TEPluginCallbackInvalidException("Error the supplied callback for plugin '$plugin' does not exist.");
 		}
-		self :: $pluginRegistration[$plugin] = array(
+		self::$pluginRegistration[$plugin] = array(
 			'regex' => $regex,
 			'cb' => $callback,
 			'_regex_time' => 0,
@@ -395,7 +395,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function unregisterPlugin($plugin) {
-		unset(self :: $pluginRegistration[$plugin]);
+		unset(self::$pluginRegistration[$plugin]);
 	}
 
 	/**
@@ -406,7 +406,7 @@ class TemplateEngine {
 	 */
 	public static function getPluginStatistics() {
 		$result = array();
-		foreach(self :: $pluginRegistration as $pluginName => $stats) {
+		foreach(self::$pluginRegistration as $pluginName => $stats) {
 			$result[$pluginName] = array(
 				'hit' => $stats['_total_hit'],
 				'try' => $stats['_total_try'],
@@ -433,7 +433,7 @@ class TemplateEngine {
 		if($len && !('/' == $path[$len - 1])) {
 			$path .= '/';
 		}
-		self :: $baseTemplatePath = $path;
+		self::$baseTemplatePath = $path;
 	}
 
 	/**
@@ -449,9 +449,9 @@ class TemplateEngine {
 		if($len && !('/' == $path[$len - 1])) {
 			$path .= '/';
 		}
-		self :: $templatePath = $path;
+		self::$templatePath = $path;
 		//set the template Path so templates can use it
-		self :: set('TEMPLATE_PATH', self :: $rootPath . self :: $templatePath);
+		self::set('TEMPLATE_PATH', self::$rootPath . self::$templatePath);
 	}
 	/**
 	 * getTemplatePath
@@ -459,7 +459,7 @@ class TemplateEngine {
 	 * @return string the path of the template files
 	 */
 	public static function getTemplatePath() {
-		return self :: $templatePath;
+		return self::$templatePath;
 	}
 	/**
 	 * setRootPath
@@ -474,10 +474,10 @@ class TemplateEngine {
 		if($len === 0 || !('/' == $path[$len - 1])) {
 			$path .= '/';
 		}
-		self :: $rootPath = $path;
+		self::$rootPath = $path;
 		//set the root Path so templates can use it
-		self :: set('ROOT_PATH', self :: $rootPath);
-		self :: set('TEMPLATE_PATH', self :: $rootPath . self :: $templatePath);
+		self::set('ROOT_PATH', self::$rootPath);
+		self::set('TEMPLATE_PATH', self::$rootPath . self::$templatePath);
 	}
 	/**
 	 * getRootPath
@@ -486,7 +486,7 @@ class TemplateEngine {
 	 * @return string the root path of the application as seen by the browser
 	 */
 	public static function getRootPath() {
-		return self :: $rootPath;
+		return self::$rootPath;
 	}
 	/**
 	 * processCurrentContext
@@ -495,15 +495,15 @@ class TemplateEngine {
 	 */
 	private static function processCurrentContext() {
 		//TODO: push context recursion
-		$profile = self :: option('plugin_profiling');
+		$profile = self::option('plugin_profiling');
 		$recursion_limit = 32;
-		$ctx = &self :: $contexts[self :: $currentContext];
+		$ctx = &self::$contexts[self::$currentContext];
 		if(!empty($ctx['tpl'])) {
 			do {
 				$ctx['hit'] = 0;
 				$ctx['miss'] = 0;
-				foreach (self :: $pluginRegistration as $plugin => &$pdata) {
-					self :: $activePlugin = $plugin;
+				foreach (self::$pluginRegistration as $plugin => &$pdata) {
+					self::$activePlugin = $plugin;
 					if ($profile) {
 						$pdata['_start'] = microtime(true);
 						++$pdata['_total_try'];
@@ -528,9 +528,9 @@ class TemplateEngine {
 	public static function output($template, $havingSession = true) {
 		//TODO: allow other content-types (application/json, application/javascript, text/css,...)
 		header("Content-Type: text/html; charset=utf-8");
-		$result = self :: processTemplate($template, $havingSession);
+		$result = self::processTemplate($template, $havingSession);
 		//compress using gzip if the browser supports it
-		if (self :: option('gzip') && strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
+		if (self::option('gzip') && strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			//well if YOU used print/echo before the complete content will be garbage it's YOUR fault!
 			header('Content-Encoding: gzip');
 			//TODO: ob_start, ob_gz_handler?
@@ -547,25 +547,25 @@ class TemplateEngine {
 	 * @return string the processed template string
 	 */
 	public static function processTemplate($template, $havingSession = true) {
-		self :: $havingSession = $havingSession;
-		self :: $template = $template;
-		self :: captureTime('startTE'); //< init time measurement
+		self::$havingSession = $havingSession;
+		self::$template = $template;
+		self::captureTime('startTE'); //< init time measurement
 		//< if a Info/Warning/Error function is called while running it can not be guaranteed to work correctly
 		// -> append it to the Log (with LogMsg)
-		self :: $running = true;
-		self :: trigger('static_init', self :: Inst()); //< common static (session independent) data will be set here
-		if(self :: $havingSession) {
-			self :: trigger('init', self :: Inst()); //< do TE initialisation (common data will be set there)
+		self::$running = true;
+		self::trigger('static_init', self::Inst()); //< common static (session independent) data will be set here
+		if(self::$havingSession) {
+			self::trigger('init', self::Inst()); //< do TE initialisation (common data will be set there)
 		}
 		$tpl = '';
-		if (!self :: getFile($template, $tpl)) {
-			self :: $running = false;
+		if (!self::getFile($template, $tpl)) {
+			self::$running = false;
 			throw new TETemplateNotFoundException('TemplateEngine Error: template not found - or not readable! ' . $template);
 		}
-		$result = self :: pushContext($tpl, self :: $variables);
-		self :: captureTime('stopTE');
-		$result = str_replace('</body>', (self :: formatLogMessages() . '</body>'), $result);
-		self :: $running = false;
+		$result = self::pushContext($tpl, self::$variables);
+		self::captureTime('stopTE');
+		$result = str_replace('</body>', (self::formatLogMessages() . '</body>'), $result);
+		self::$running = false;
 		return $result;
 	}
 	/**
@@ -575,17 +575,17 @@ class TemplateEngine {
 	 * @return string the replacement for the match
 	 */
 	public static function replace_callback(array $match) {
-		$profiling = self :: option('plugin_profiling');
-		$plugin = &self :: $pluginRegistration[self :: $activePlugin];
+		$profiling = self::option('plugin_profiling');
+		$plugin = &self::$pluginRegistration[self::$activePlugin];
 		if ($profiling) {
 			$plugin['_regex_time'] += microtime(true) - $plugin['_start'];
 			++$plugin['_total_hit'];
 		}
-		$ctx = &self :: $contexts[self :: $currentContext];
+		$ctx = &self::$contexts[self::$currentContext];
 		$res = call_user_func($plugin['cb'], $ctx['ctx'], $match);
 		if (false !== $res) {
 			if (isset($ctx['override'])) {
-				$res = self :: pushContext($res, $ctx['override']['ctx'], $ctx['override']['templatePath']);
+				$res = self::pushContext($res, $ctx['override']['ctx'], $ctx['override']['templatePath']);
 				unset($ctx['override']);
 			}
 			++$ctx['hit'];
@@ -609,7 +609,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function set($name, $value) {
-		self :: $variables[$name] = $value;
+		self::$variables[$name] = $value;
 	}
 	/**
 	 * delete
@@ -618,7 +618,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function delete($name) {
-		unset(self :: $variables[$name]);
+		unset(self::$variables[$name]);
 	}
 	/**
 	 * get
@@ -628,8 +628,8 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function get($name, $default = null) {
-		if (isset(self :: $variables[$name])) {
-			return self :: $variables[$name];
+		if (isset(self::$variables[$name])) {
+			return self::$variables[$name];
 		}
 		return $default;
 	}
@@ -642,16 +642,16 @@ class TemplateEngine {
 	 * @return boolean true if the value has been found, false either
 	 */
 	public static function lookupVar($name, &$value) {
-		self :: LogMsg('Lookup: <em>' . $name . '</em>', true, TEMode :: debug, false);
-		for ($idx = self :: $currentContext; $idx >= 0; --$idx) {
-			$ctx = self :: $contexts[$idx]['ctx'];
+		self::LogMsg('Lookup: <em>' . $name . '</em>', true, TEMode::debug, false);
+		for ($idx = self::$currentContext; $idx >= 0; --$idx) {
+			$ctx = self::$contexts[$idx]['ctx'];
 			if(isset($ctx[$name])) {
-				self :: LogMsg('', true, TEMode :: debug);
+				self::LogMsg('', true, TEMode::debug);
 				$value = $ctx[$name];
 				return true;
 			}
 		}
-		self :: LogMsg(' failed', false, TEMode :: debug);
+		self::LogMsg(' failed', false, TEMode::debug);
 		return false;
 	}
 
@@ -663,11 +663,11 @@ class TemplateEngine {
 	 */
 	private static function addMsgInternal($class, $msg) {
 		$classUpper = strtoupper($class);
-		if (!self :: $running) {
-			array_push(self :: $variables['TE_' . $classUpper . 'S'], array('CLASS' => $class, 'TEXT' => $msg));
+		if (!self::$running) {
+			array_push(self::$variables['TE_' . $classUpper . 'S'], array('CLASS' => $class, 'TEXT' => $msg));
 		}
 		else {
-			self :: LogMsg('[' . $classUpper . ']: ' . $msg, false, TEMode :: error);
+			self::LogMsg('[' . $classUpper . ']: ' . $msg, false, TEMode::error);
 		}
 	}
 
@@ -677,7 +677,7 @@ class TemplateEngine {
 	 * @param string $error message
 	 */
 	public static function Error($error) {
-		self :: addMsgInternal('error', $error);
+		self::addMsgInternal('error', $error);
 	}
 	/**
 	 * Warning
@@ -685,7 +685,7 @@ class TemplateEngine {
 	 * @param string $warning message
 	 */
 	public static function Warning($warning) {
-		self :: addMsgInternal('warning', $warning);
+		self::addMsgInternal('warning', $warning);
 	}
 	/**
 	 * Info
@@ -693,7 +693,7 @@ class TemplateEngine {
 	 * @param string $info message
 	 */
 	public static function Info($info) {
-		self :: addMsgInternal('info', $info);
+		self::addMsgInternal('info', $info);
 	}
 	/**
 	 * setTitle
@@ -702,7 +702,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function setTitle($title) {
-		return self :: set('PAGE_TITLE', $title);
+		return self::set('PAGE_TITLE', $title);
 	}
 	/**
 	 * header
@@ -712,7 +712,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function header($html) {
-		self :: $variables['HEADER_TEXT'] .= "\t" . $html . "\n";
+		self::$variables['HEADER_TEXT'] .= "\t" . $html . "\n";
 	}
 	/**
 	 * addCSS
@@ -723,7 +723,7 @@ class TemplateEngine {
 	 */
 	public static function addCSS($css) {
 		$t = "\t".'<link type="text/css" rel="stylesheet" href="' . $css . '" />'."\n";
-		self :: $variables['HEADER_TEXT'] .= $t;
+		self::$variables['HEADER_TEXT'] .= $t;
 	}
 	/**
 	 * addJS
@@ -734,7 +734,7 @@ class TemplateEngine {
 	 */
 	public static function addJS($js) {
 		$t = "\t".'<script type="text/javascript" src="' . $js . '"></script>'."\n";
-		self :: $variables['HEADER_TEXT'] .= $t;
+		self::$variables['HEADER_TEXT'] .= $t;
 	}
 	/**
 	 * LogMsg
@@ -747,17 +747,17 @@ class TemplateEngine {
 	 * allows for multiple non-finished messages at the same time
 	 * @return void
 	 */
-	public static function LogMsg($msg, $success = true, $mode = TEMode :: debug, $finished= true) {
+	public static function LogMsg($msg, $success = true, $mode = TEMode::debug, $finished= true) {
 		if(!$finished) {
-			array_push(self :: $messages_NotFin, $msg);
+			array_push(self::$messages_NotFin, $msg);
 			return;
 		}
-		if(!empty(self :: $messages_NotFin)) {
-			$oldmsg = implode('', self :: $messages_NotFin);
-			self :: $messages_NotFin = array();
+		if(!empty(self::$messages_NotFin)) {
+			$oldmsg = implode('', self::$messages_NotFin);
+			self::$messages_NotFin = array();
 			$msg = $oldmsg . $msg;
 		}
-		self :: trigger('log', $msg, $success, $mode);
+		self::trigger('log', $msg, $success, $mode);
 	}
 	/**
 	 * formatLogMessages
@@ -766,20 +766,20 @@ class TemplateEngine {
 	 */
 	private static function formatLogMessages() {
 		$html = '';
-		self :: LogMsg('<em>formatting messages...</em>', true, TEMode :: debug);
+		self::LogMsg('<em>formatting messages...</em>', true, TEMode::debug);
 		$succ = array(
 			true => '[ <strong class="te_msg_done">done</strong> ]',
 			false => '[<strong class="te_msg_failed">failed</strong>]',
 		);
 		$mode = array(
-			TEMode :: debug   => '<strong class="te_msg_dbg">[ DEBUG ]: </strong>',
-			TEMode :: warning => '<strong class="te_msg_wrn">[WARNING]: </strong>',
-			TEMode :: error   => '<strong class="te_msg_err">[ ERROR ]: </strong>',
-			TEMode :: none    => '<strong class="te_msg_non">[  NONE ]: </strong>',
+			TEMode::debug   => '<strong class="te_msg_dbg">[ DEBUG ]: </strong>',
+			TEMode::warning => '<strong class="te_msg_wrn">[WARNING]: </strong>',
+			TEMode::error   => '<strong class="te_msg_err">[ ERROR ]: </strong>',
+			TEMode::none    => '<strong class="te_msg_non">[  NONE ]: </strong>',
 		);
 		$msg = '';
-		foreach(self :: $messages as $message) {
-			if ($message['mode'] >= self :: $mode) {
+		foreach(self::$messages as $message) {
+			if ($message['mode'] >= self::$mode) {
 				$msg .= '<div class="te_msg_log_row">';
 				$msg .= @$mode[$message['mode']];
 				$msg .= '<span class="te_msg_status">' . @$succ[$message['success']] . '</span>';
@@ -805,7 +805,7 @@ class TemplateEngine {
 		$item['time'] = microtime(true) * 1000;
 		$item['mem'] = round(memory_get_usage(true) / 1024, 0);
 		$item['peakmem'] = round(memory_get_peak_usage(true) / 1024, 0);
-		self :: $timing_data[] = $item;
+		self::$timing_data[] = $item;
 	}
 	/**
 	 * printTimingStatistics
@@ -814,8 +814,8 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function printTimingStatistics() {
-		self :: captureTime('printTimingStatistics');
-		$first = self :: $timing_data[0]['time'];
+		self::captureTime('printTimingStatistics');
+		$first = self::$timing_data[0]['time'];
 		$last = $first;
 		if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
 			$last = $_SERVER['REQUEST_TIME_FLOAT'] * 1000;
@@ -823,7 +823,7 @@ class TemplateEngine {
 		print '<hr /><div style="background-color:#888;"><table style="margin: 0 auto;';
 		print 'border:1px solid green;width:70%;"><thead><tr><th>Milestone Name</th>';
 		print '<th>Start Offset</th><th>Exec-Time</th><th>Memory</th><th>Peak Memory</th></tr></thead>';
-		foreach(self :: $timing_data as $idx => $mdata) {
+		foreach(self::$timing_data as $idx => $mdata) {
 			print '<tr><td>' . $mdata['milestone'] . '</td><td style="text-align: right;">';
 			print round(($mdata['time'] - $first), 2) . ' ms</td><td style="text-align: right;">';
 			print round(($mdata['time'] - $last), 2) . ' ms</td><td style="text-align: right;">';
@@ -841,7 +841,7 @@ class TemplateEngine {
 		$totalTry = 0;
 		$totalHit = 0;
 		$totalDecline = 0;
-		foreach(self :: $pluginRegistration as $name => $plugin) {
+		foreach(self::$pluginRegistration as $name => $plugin) {
 			$totalTime += $plugin['_regex_time'];
 			$totalTry += $plugin['_total_try'];
 			$totalHit += $plugin['_total_hit'];
@@ -861,14 +861,14 @@ class TemplateEngine {
 	}
 
 	public static function shutdown_function() {
-		if (self :: option('dump_variables')) {
-			self :: dumpVariables();
+		if (self::option('dump_variables')) {
+			self::dumpVariables();
 		}
-		if (self :: option('timing')) {
-			self :: printTimingStatistics();
+		if (self::option('timing')) {
+			self::printTimingStatistics();
 		}
-		if (self :: option('plugin_profiling')) {
-			self :: printPluginProfiling();
+		if (self::option('plugin_profiling')) {
+			self::printPluginProfiling();
 		}
 	}
 
@@ -879,8 +879,8 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function forceMode($mode) {
-		self :: $mode = $mode;
-		self :: $mode_forced = true;
+		self::$mode = $mode;
+		self::$mode_forced = true;
 	}
 
 	/**
@@ -892,16 +892,16 @@ class TemplateEngine {
 	 */
 	public static function option($name, $value = null) {
 		if (func_num_args() > 1) {
-			self :: trigger('set_option', $name, $value);
+			self::trigger('set_option', $name, $value);
 		}
-		if (isset(self :: $options[$name])) {
-			return self :: $options[$name];
+		if (isset(self::$options[$name])) {
+			return self::$options[$name];
 		}
-		return self :: $defaultOptions[$name];
+		return self::$defaultOptions[$name];
 	}
 
 	private static function _set_option($name, $value) {
-		self :: $options[$name] = $value;
+		self::$options[$name] = $value;
 	}
 
 	/**
@@ -909,11 +909,11 @@ class TemplateEngine {
 	 * register an event handler for the given event
 	 * @param string $event
 	 */
-	public static function on($event, $callback, $phase = TEEventPhase :: inform) {
-		if (!isset(self :: $handlers[$event]) || null === self :: $handlers[$event]) {
-			self :: $handlers[$event] = new TEEventRegistration();
+	public static function on($event, $callback, $phase = TEEventPhase::inform) {
+		if (!isset(self::$handlers[$event]) || null === self::$handlers[$event]) {
+			self::$handlers[$event] = new TEEventRegistration();
 		}
-		self :: $handlers[$event]->on($phase, $callback);
+		self::$handlers[$event]->on($phase, $callback);
 	}
 
 	/**
@@ -926,16 +926,16 @@ class TemplateEngine {
 		$args = func_get_args();
 		$args = array_splice($args, 1);
 		$result = true;
-		if (isset(self :: $handlers[$event_name])) {
-			$evt = self :: $handlers[$event_name];
-			foreach($evt->get(TEEventPhase :: evaluate) as $callback) {
+		if (isset(self::$handlers[$event_name])) {
+			$evt = self::$handlers[$event_name];
+			foreach($evt->get(TEEventPhase::evaluate) as $callback) {
 				$result = $result && false !== call_user_func_array($callback, $args);
 			}
 			if ($result) {
-				foreach($evt->get(TEEventPhase :: execute) as $callback) {
+				foreach($evt->get(TEEventPhase::execute) as $callback) {
 					call_user_func_array($callback, $args);
 				}
-				foreach($evt->get(TEEventPhase :: inform) as $callback) {
+				foreach($evt->get(TEEventPhase::inform) as $callback) {
 					call_user_func_array($callback, $args);
 				}
 			}
@@ -950,8 +950,8 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function setMode($mode) {
-		if (!self :: $mode_forced) {
-			self :: $mode = $mode;
+		if (!self::$mode_forced) {
+			self::$mode = $mode;
 		}
 	}
 
@@ -966,7 +966,7 @@ class TemplateEngine {
 			set_error_handler("TE_php_err_handler");
 		}
 		else {
-			self :: option('gzip', false);
+			self::option('gzip', false);
 		}
 	}
 
@@ -992,14 +992,14 @@ class TemplateEngine {
 	 * @return array($success, $templatePath or null, $fullFilename or null)
 	 */
 	private static function doLookupFilePath($filename) {
-		$fname = realpath(self :: $rootPath . self :: $templatePath . $filename);
+		$fname = realpath(self::$rootPath . self::$templatePath . $filename);
 		if (false !== $fname && file_exists($fname) && is_readable($fname)) {
-			return array(true, self :: $templatePath, $fname);
+			return array(true, self::$templatePath, $fname);
 		}
-		elseif (!empty(self :: $baseTemplatePath)) {
-			$fname = realpath(self :: $rootPath . self :: $baseTemplatePath . $filename);
+		elseif (!empty(self::$baseTemplatePath)) {
+			$fname = realpath(self::$rootPath . self::$baseTemplatePath . $filename);
 			if (false !== $fname && file_exists($fname) && is_readable($fname)) {
-				return array(true, self :: $baseTemplatePath, $fname);
+				return array(true, self::$baseTemplatePath, $fname);
 			}
 		}
 		return array(false, null, null);
@@ -1013,8 +1013,8 @@ class TemplateEngine {
 	 * @return boolean true if access is allowed, false if not
 	 */
 	private static function checkJail($templatePath, $fname) {
-		if (self :: option('jail_to_template_path')) {
-			$tplpath = realpath(self :: $rootPath . $templatePath);
+		if (self::option('jail_to_template_path')) {
+			$tplpath = realpath(self::$rootPath . $templatePath);
 			if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
 				return false;
 			}
@@ -1029,7 +1029,7 @@ class TemplateEngine {
 	 * @return boolean true if access is allowed, false if not
 	 */
 	private static function checkExtension($fname) {
-		if (self :: option('force_tpl_extension')) {
+		if (self::option('force_tpl_extension')) {
 			return 0 === substr_compare($fname, '.tpl', -4, 4, true);
 		}
 		return true;
@@ -1046,29 +1046,29 @@ class TemplateEngine {
 	 */
 	private static function doGetFile($templatePath, $name, &$content) {
 		//TODO: move the cache one level up or keep on this level??
-		$fname = realpath(self :: $rootPath . $templatePath . $name);
+		$fname = realpath(self::$rootPath . $templatePath . $name);
 		$content = '';
-		self :: LogMsg('[getFile]: <em>"' . $name . '"</em> ', true, TEMode :: debug, false);
-		if (!isset(self :: $templateCache[$fname])) {
+		self::LogMsg('[getFile]: <em>"' . $name . '"</em> ', true, TEMode::debug, false);
+		if (!isset(self::$templateCache[$fname])) {
 			if (!file_exists($fname) || !is_readable($fname)) {
-				return array(false, 'file not found!', false, TEMode :: error, true);
+				return array(false, 'file not found!', false, TEMode::error, true);
 			}
-			if (!self :: checkExtension($fname)) {
-				return array(false, 'invalid file', false, TEMode :: error, true);
+			if (!self::checkExtension($fname)) {
+				return array(false, 'invalid file', false, TEMode::error, true);
 			}
-			if (!self :: checkJail($templatePath, $fname)) {
-				return array(false, 'access denied', false, TEMode :: error, true);
+			if (!self::checkJail($templatePath, $fname)) {
+				return array(false, 'access denied', false, TEMode::error, true);
 			}
-			self :: LogMsg(' Cache MISS', true, TEMode :: debug, true);
+			self::LogMsg(' Cache MISS', true, TEMode::debug, true);
 			$content = file_get_contents($fname);
-			self :: $templateCache[$fname] = $content;
+			self::$templateCache[$fname] = $content;
 		}
 		else {
-			self :: LogMsg(' Cache HIT', true, TEMode :: debug, true);
-			$content = self :: $templateCache[$fname];
+			self::LogMsg(' Cache HIT', true, TEMode::debug, true);
+			$content = self::$templateCache[$fname];
 		}
-		if (self :: option('debug_files')) {
-			$fname = str_replace(realpath(self :: $rootPath) . '/', '', $fname);
+		if (self::option('debug_files')) {
+			$fname = str_replace(realpath(self::$rootPath) . '/', '', $fname);
 			$content = "<!-- start $fname -->\n" . $content . "<!-- end $fname -->\n";
 		}
 		return array(true);
@@ -1080,11 +1080,11 @@ class TemplateEngine {
 	 * @param string $path override template path
 	 */
 	private static function addOverride($path) {
-		$ctx = &self :: $contexts[self :: $currentContext];
+		$ctx = &self::$contexts[self::$currentContext];
 		$ctx['override'] = array(
 			'templatePath' => $path,
 			'ctx' => array(
-				'TEMPLATE_PATH' => self :: $rootPath . $path,
+				'TEMPLATE_PATH' => self::$rootPath . $path,
 			),
 		);
 	}
@@ -1098,18 +1098,18 @@ class TemplateEngine {
 	public static function getFile($name, &$content) {
 		//TODO: move template caching logic here
 		//TODO: let possible getFile plugins specify if their result can be cached
-		$result = self :: doGetFile(self :: $templatePath, $name, $content);
-		if (true !== $result[0] && !empty(self :: $baseTemplatePath)) {
-			$result = self :: doGetFile(self :: $baseTemplatePath, $name, $content);
+		$result = self::doGetFile(self::$templatePath, $name, $content);
+		if (true !== $result[0] && !empty(self::$baseTemplatePath)) {
+			$result = self::doGetFile(self::$baseTemplatePath, $name, $content);
 			if (true === $result[0]) {
-				self :: addOverride(self :: $baseTemplatePath);
+				self::addOverride(self::$baseTemplatePath);
 			}
 		}
-		elseif (self :: $contexts[self :: $currentContext]['templatePath'] !== self :: $templatePath) {
-			self :: addOverride(self :: $templatePath);
+		elseif (self::$contexts[self::$currentContext]['templatePath'] !== self::$templatePath) {
+			self::addOverride(self::$templatePath);
 		}
 		if (true !== $result[0]) {
-			self :: LogMsg($result[1], $result[2], $result[3], $result[4]);
+			self::LogMsg($result[1], $result[2], $result[3], $result[4]);
 		}
 		return $result[0];
 	}
@@ -1122,38 +1122,38 @@ class TemplateEngine {
 	 * @return string|NULL path as needed from the browser or null if it does not exist of may not be accessed.
 	 */
 	public static function lookupFile($name) {
-		list($success, $templatePath, $fname) = self :: doLookupFilePath($name);
-		if (true === $success && self :: checkJail($templatePath, $fname)) {
-			return str_replace(realpath(self :: $rootPath) . '/', self :: $rootPath, $fname);
+		list($success, $templatePath, $fname) = self::doLookupFilePath($name);
+		if (true === $success && self::checkJail($templatePath, $fname)) {
+			return str_replace(realpath(self::$rootPath) . '/', self::$rootPath, $fname);
 		}
 		return null;
 	}
 
 	public static function dumpVariables() {
-		$template = self :: $template;
+		$template = self::$template;
 		print '<pre style="text-align:left;background-color:white;">';
 		print "Template: $template\n";
 		print "Available Template-Variables:\n";
-		print htmlentities(print_r(self :: $variables, true));
+		print htmlentities(print_r(self::$variables, true));
 		print "</pre>";
 	}
 
 	public static function _te_init() {
 		new TemplateEngine(); //required! as the first instance clears and initializes the TE
 		register_shutdown_function(array('TemplateEngine', 'shutdown_function'));
-		self :: on('set_option', array('TemplateEngine', '_set_option'), TEEventPhase :: execute);
-		self :: on('set_option', array('TemplateEngine', '_set_option_handler'), TEEventPhase :: inform);
-		self :: on('log', array('TemplateEngine', '_log'), TEEventPhase :: execute);
+		self::on('set_option', array('TemplateEngine', '_set_option'), TEEventPhase::execute);
+		self::on('set_option', array('TemplateEngine', '_set_option_handler'), TEEventPhase::inform);
+		self::on('log', array('TemplateEngine', '_log'), TEEventPhase::execute);
 		if (function_exists('TE_static_setup')) {
-			self :: on('static_init', array('TemplateEngine', '_static_init'), TEEventPhase :: execute);
+			self::on('static_init', array('TemplateEngine', '_static_init'), TEEventPhase::execute);
 		}
 		if (function_exists('TE_setup')) {
-			self :: on('init', array('TemplateEngine', '_init'), TEEventPhase :: execute);
+			self::on('init', array('TemplateEngine', '_init'), TEEventPhase::execute);
 		}
 	}
 
 	private static function _log($msg, $success, $mode) {
-		self :: $messages[] = array(
+		self::$messages[] = array(
 			'mode' => $mode,
 			'success' => $success,
 			'msg' => $msg,
@@ -1174,13 +1174,13 @@ class TemplateEngine {
 			case 'plugin_profiling':
 			case 'timing':
 				if ($value) {
-					self :: option('gzip', false);
+					self::option('gzip', false);
 				}
 				break;
 			case 'force_tpl_extension':
 			case 'jail_to_template_path':
-				if (!self :: option('force_tpl_extension') && !self :: option('jail_to_template_path')) {
-					self :: LogMsg('Security settings disabled, use with extreme caution!', false, TEMode :: error);
+				if (!self::option('force_tpl_extension') && !self::option('jail_to_template_path')) {
+					self::LogMsg('Security settings disabled, use with extreme caution!', false, TEMode::error);
 				}
 				break;
 			default:
@@ -1193,22 +1193,22 @@ class TemplateEngine {
 // setup the use of the TemplateEngine, handle GET parameters, setup php-error-handler,...
 // #######################################################################################
 // setup TEmplateEngine environment
-TemplateEngine :: _te_init();
-TemplateEngine :: captureTime('TEincluded'); //< page start init
-TemplateEngine :: useTEErrorHandler(!isset($_GET['force_def_err_handler']));
+TemplateEngine::_te_init();
+TemplateEngine::captureTime('TEincluded'); //< page start init
+TemplateEngine::useTEErrorHandler(!isset($_GET['force_def_err_handler']));
 
 // force debug level if 'force_debug' is set in $_GET
 if(isset($_GET['force_debug'])) {
-	TemplateEngine :: forceMode(TEMode :: debug);
+	TemplateEngine::forceMode(TEMode::debug);
 }
 // activate timing information if 'show_timing' is set in $_GET
-TemplateEngine :: option('timing', isset($_GET['show_timing']));
+TemplateEngine::option('timing', isset($_GET['show_timing']));
 // activate file debugging if 'debug_files' is set in $_GET
-TemplateEngine :: option('debug_files', isset($_GET['debug_files']));
+TemplateEngine::option('debug_files', isset($_GET['debug_files']));
 //only gzip if possible ;)
-TemplateEngine :: option('gzip', function_exists('gzencode'));
+TemplateEngine::option('gzip', function_exists('gzencode'));
 // dump name and value of all set template variables if 'te_dump' is set in $_GET
-TemplateEngine :: option('dump_variables', isset($_GET['te_dump']));
+TemplateEngine::option('dump_variables', isset($_GET['te_dump']));
 /**
  * TE_php_err_handler
  * this function is called by php if any error message is encountered
@@ -1219,7 +1219,7 @@ TemplateEngine :: option('dump_variables', isset($_GET['te_dump']));
  * @param array $errcontext unused data that might be given by php
  */
 function TE_php_err_handler($errno, $errstr, $errfile = '', $errline = '', $errcontext = array()) {
-	TemplateEngine :: LogMsg("#$errno: $errstr @$errfile($errline)", false, TEMode::error);
+	TemplateEngine::LogMsg("#$errno: $errstr @$errfile($errline)", false, TEMode::error);
 }
 
 /**
@@ -1236,5 +1236,5 @@ if (!isset($_GET['force_def_exception_handler'])) {
 }
 
 // activate plugin profiling if 'te_profile' is set in $_GET
-TemplateEngine :: option('plugin_profiling', isset($_GET['te_profile']));
+TemplateEngine::option('plugin_profiling', isset($_GET['te_profile']));
 //EOF

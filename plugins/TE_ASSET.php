@@ -17,6 +17,6 @@ function TE_PLUGIN_TE_ASSET(array $ctx, array $match) {
 	return $path ? $path : false;
 }
 
-TemplateEngine :: registerPlugin('TE_ASSET', '/\{ASSET:([^\{\}]+)\}/', 'TE_PLUGIN_TE_ASSET');
+TemplateEngine::registerPlugin('TE_ASSET', '/\{ASSET:([^\{\}]+)\}/', 'TE_PLUGIN_TE_ASSET');
 
 //EOF

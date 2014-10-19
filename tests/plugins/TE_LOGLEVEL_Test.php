@@ -40,11 +40,11 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 	}
 
 	public function testDefaultLogLevel() {
-		TemplateEngine :: LogMsg("MY_NONE", true, TEMode :: none, true);
-		TemplateEngine :: LogMsg("MY_DEBUG", true, TEMode :: debug, true);
-		TemplateEngine :: LogMsg("MY_WARNING", true, TEMode :: warning, true);
-		TemplateEngine :: LogMsg("MY_ERROR", true, TEMode :: error, true);
-		$logs = $this->get_logs(TemplateEngine :: processTemplate('plugins/TE_LOGLEVEL/logs-default.tpl', false));
+		TemplateEngine::LogMsg("MY_NONE", true, TEMode::none, true);
+		TemplateEngine::LogMsg("MY_DEBUG", true, TEMode::debug, true);
+		TemplateEngine::LogMsg("MY_WARNING", true, TEMode::warning, true);
+		TemplateEngine::LogMsg("MY_ERROR", true, TEMode::error, true);
+		$logs = $this->get_logs(TemplateEngine::processTemplate('plugins/TE_LOGLEVEL/logs-default.tpl', false));
 
 		$this->assertEquals(2, count($logs), 'default loglevel is error, thus only none and error appear in the result');
 		$this->assertEquals('te_msg_non', $logs[0][0], 'first message type is none');
@@ -54,11 +54,11 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 	}
 
 	public function testErrorLogLevel() {
-		TemplateEngine :: LogMsg("MY_NONE", true, TEMode :: none, true);
-		TemplateEngine :: LogMsg("MY_DEBUG", true, TEMode :: debug, true);
-		TemplateEngine :: LogMsg("MY_WARNING", true, TEMode :: warning, true);
-		TemplateEngine :: LogMsg("MY_ERROR", true, TEMode :: error, true);
-		$logs = $this->get_logs(TemplateEngine :: processTemplate('plugins/TE_LOGLEVEL/logs-error.tpl', false));
+		TemplateEngine::LogMsg("MY_NONE", true, TEMode::none, true);
+		TemplateEngine::LogMsg("MY_DEBUG", true, TEMode::debug, true);
+		TemplateEngine::LogMsg("MY_WARNING", true, TEMode::warning, true);
+		TemplateEngine::LogMsg("MY_ERROR", true, TEMode::error, true);
+		$logs = $this->get_logs(TemplateEngine::processTemplate('plugins/TE_LOGLEVEL/logs-error.tpl', false));
 
 		$this->assertEquals(2, count($logs), 'loglevel error, thus only none and error appear in the result');
 		$this->assertEquals('te_msg_non', $logs[0][0], 'first message type is none');
@@ -68,11 +68,11 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 	}
 
 	public function testWarningLogLevel() {
-		TemplateEngine :: LogMsg("MY_NONE", true, TEMode :: none, true);
-		TemplateEngine :: LogMsg("MY_DEBUG", true, TEMode :: debug, true);
-		TemplateEngine :: LogMsg("MY_WARNING", true, TEMode :: warning, true);
-		TemplateEngine :: LogMsg("MY_ERROR", true, TEMode :: error, true);
-		$logs = $this->get_logs(TemplateEngine :: processTemplate('plugins/TE_LOGLEVEL/logs-warning.tpl', false));
+		TemplateEngine::LogMsg("MY_NONE", true, TEMode::none, true);
+		TemplateEngine::LogMsg("MY_DEBUG", true, TEMode::debug, true);
+		TemplateEngine::LogMsg("MY_WARNING", true, TEMode::warning, true);
+		TemplateEngine::LogMsg("MY_ERROR", true, TEMode::error, true);
+		$logs = $this->get_logs(TemplateEngine::processTemplate('plugins/TE_LOGLEVEL/logs-warning.tpl', false));
 
 		$this->assertEquals(3, count($logs), 'loglevel warning, thus only none, warning and error appear in the result');
 		$this->assertEquals('te_msg_non', $logs[0][0], 'first message type is none');
@@ -84,11 +84,11 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 	}
 
 	public function testDebugLogLevel() {
-		TemplateEngine :: LogMsg("MY_NONE", true, TEMode :: none, true);
-		TemplateEngine :: LogMsg("MY_DEBUG", true, TEMode :: debug, true);
-		TemplateEngine :: LogMsg("MY_WARNING", true, TEMode :: warning, true);
-		TemplateEngine :: LogMsg("MY_ERROR", true, TEMode :: error, true);
-		$logs = $this->get_logs(TemplateEngine :: processTemplate('plugins/TE_LOGLEVEL/logs-debug.tpl', false));
+		TemplateEngine::LogMsg("MY_NONE", true, TEMode::none, true);
+		TemplateEngine::LogMsg("MY_DEBUG", true, TEMode::debug, true);
+		TemplateEngine::LogMsg("MY_WARNING", true, TEMode::warning, true);
+		TemplateEngine::LogMsg("MY_ERROR", true, TEMode::error, true);
+		$logs = $this->get_logs(TemplateEngine::processTemplate('plugins/TE_LOGLEVEL/logs-debug.tpl', false));
 
 		$this->assertGreaterThan(4, count($logs), 'loglevel debug, thus all messages appear in the result');
 		$this->assertEquals('te_msg_non', $logs[0][0], 'first message type is none');
@@ -102,11 +102,11 @@ class TE_LOGLEVEL_Test extends TemplateEngineTestBase
 	}
 
 	public function testNoneLogLevel() {
-		TemplateEngine :: LogMsg("MY_NONE", true, TEMode :: none, true);
-		TemplateEngine :: LogMsg("MY_DEBUG", true, TEMode :: debug, true);
-		TemplateEngine :: LogMsg("MY_WARNING", true, TEMode :: warning, true);
-		TemplateEngine :: LogMsg("MY_ERROR", true, TEMode :: error, true);
-		$logs = $this->get_logs(TemplateEngine :: processTemplate('plugins/TE_LOGLEVEL/logs-none.tpl', false));
+		TemplateEngine::LogMsg("MY_NONE", true, TEMode::none, true);
+		TemplateEngine::LogMsg("MY_DEBUG", true, TEMode::debug, true);
+		TemplateEngine::LogMsg("MY_WARNING", true, TEMode::warning, true);
+		TemplateEngine::LogMsg("MY_ERROR", true, TEMode::error, true);
+		$logs = $this->get_logs(TemplateEngine::processTemplate('plugins/TE_LOGLEVEL/logs-none.tpl', false));
 
 		$this->assertEquals(1, count($logs), 'loglevel none, thus only none appears in the result');
 		$this->assertEquals('te_msg_non', $logs[0][0], 'first message type is none');

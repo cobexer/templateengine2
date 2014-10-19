@@ -19,12 +19,12 @@ function TE_PLUGIN_TE_FOREACH_FILE(array $ctx, array $match) {
 		$val = $ctx[$match[1]];
 		$found = true;
 	}
-	elseif (TemplateEngine :: lookupVar($match[1], $val)) {
+	elseif (TemplateEngine::lookupVar($match[1], $val)) {
 		$found = true;
 	}
 
 	if(!$found || !is_array($val)) {
-		TemplateEngine :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> not set or invalid', false, TEMode::error);
+		TemplateEngine::LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> not set or invalid', false, TEMode::error);
 		return false;
 	}
 	$fname = $match[2];
@@ -33,8 +33,8 @@ function TE_PLUGIN_TE_FOREACH_FILE(array $ctx, array $match) {
 		$val[] = array(); //append empty element to make the rest work
 	}
 	$tpl = '';
-	TemplateEngine :: LogMsg('[FOREACH_FILE]', true, TEMode :: debug, false);
-	$succ = TemplateEngine :: getFile($fname, $tpl);
+	TemplateEngine::LogMsg('[FOREACH_FILE]', true, TEMode::debug, false);
+	$succ = TemplateEngine::getFile($fname, $tpl);
 	if (!$succ) {
 		return false;
 	}
@@ -42,16 +42,16 @@ function TE_PLUGIN_TE_FOREACH_FILE(array $ctx, array $match) {
 	$iteration = 0;
 	foreach($val as $index => $lctx) {
 		if (!is_array($lctx)) {
-			TemplateEngine :: LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
+			TemplateEngine::LogMsg('[FOREACH_FILE]: Variable <em>'.$match[1].'</em> contained invalid element', false, TEMode::error);
 			return false;
 		}
 		$lctx['ODDROW'] = (($iteration % 2) == 0) ? 'odd' : '';
-		$res .= str_replace('{FOREACH:INDEX}', $index, TemplateEngine :: pushContext($tpl, $lctx));
+		$res .= str_replace('{FOREACH:INDEX}', $index, TemplateEngine::pushContext($tpl, $lctx));
 		$iteration++;
 	}
 	return $res;
 }
 
-TemplateEngine :: registerPlugin('TE_FOREACH_FILE', '/\{FOREACH\[(' . TE_regex_varname . ')\]=([^\}]+)\}/Um', 'TE_PLUGIN_TE_FOREACH_FILE');
+TemplateEngine::registerPlugin('TE_FOREACH_FILE', '/\{FOREACH\[(' . TE_regex_varname . ')\]=([^\}]+)\}/Um', 'TE_PLUGIN_TE_FOREACH_FILE');
 
 //EOF

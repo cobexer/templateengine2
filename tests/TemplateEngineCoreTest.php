@@ -129,7 +129,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	}
 
 	public function testPluginStatistics() {
-		TemplateEngine :: option('plugin_profiling', true);
+		TemplateEngine::option('plugin_profiling', true);
 		$this->TE_TEST_PLUGIN_DO_UNREGISTER = false;
 		$this->testPluginRegistration();
 		$total = array(
@@ -138,7 +138,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 			'decline' => 0,
 			'regex_time' => 0,
 		);
-		$stats = TemplateEngine :: getPluginStatistics();
+		$stats = TemplateEngine::getPluginStatistics();
 		foreach($stats as $stat) {
 			$total['hit'] += $stat['hit'];
 			$total['try'] += $stat['try'];
@@ -179,28 +179,28 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	 * @expectedException TEPluginRegexInvalidException
 	 */
 	public function testInvalidPluginRegex() {
-		TemplateEngine :: registerPlugin('invalidRegexPlugin', '/[/', function() {});
+		TemplateEngine::registerPlugin('invalidRegexPlugin', '/[/', function() {});
 	}
 
 	/**
 	 * @expectedException TEPluginCallbackInvalidException
 	 */
 	public function testNonexistentFunction() {
-		TemplateEngine :: registerPlugin('undefinedFunctionPlugin', '/./', 'letsJustHopeAFunctionWithThisNameIsNeverDefined');
+		TemplateEngine::registerPlugin('undefinedFunctionPlugin', '/./', 'letsJustHopeAFunctionWithThisNameIsNeverDefined');
 	}
 
 	/**
 	 * @expectedException TEPluginCallbackInvalidException
 	 */
 	public function testNonexistentMemberFunction() {
-		TemplateEngine :: registerPlugin('undefinedMemberFunctionPlugin', '/./', array($this, 'letsJustHopeAMemberFunctionWithThisNameIsNeverDefined'));
+		TemplateEngine::registerPlugin('undefinedMemberFunctionPlugin', '/./', array($this, 'letsJustHopeAMemberFunctionWithThisNameIsNeverDefined'));
 	}
 
 	/**
 	 * @expectedException TEPluginCallbackInvalidException
 	 */
 	public function testInvalidCallbackArgument() {
-		TemplateEngine :: registerPlugin('undefinedInvalidCallbackArgument', '/./', array(null));
+		TemplateEngine::registerPlugin('undefinedInvalidCallbackArgument', '/./', array(null));
 	}
 
 	/**
@@ -249,7 +249,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals('Sub:tests/templates/;Base:tests/templates/base-template/;Sub:tests/templates/;', $result, 'sub override failed');
 	}
 	public function TE_TEST_PLUGIN_PUSH_CONTEXT($context, $match) {
-		return TemplateEngine :: pushContext('{' . $match[1] . '}', array($match[1] => 'context'));
+		return TemplateEngine::pushContext('{' . $match[1] . '}', array($match[1] => 'context'));
 	}
 
 	public function testPluginPushContext() {
@@ -261,12 +261,12 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 	public function testEvents() {
 		$args = array();
-		TemplateEngine :: on('test_events_event', function($arg1, $arg2, $arg3) use (&$args) {
+		TemplateEngine::on('test_events_event', function($arg1, $arg2, $arg3) use (&$args) {
 			$args['1'] = $arg1;
 			$args['2'] = $arg2;
 			$args['3'] = $arg3;
 		});
-		$result = TemplateEngine :: trigger('test_events_event', "aaa", $this, true);
+		$result = TemplateEngine::trigger('test_events_event', "aaa", $this, true);
 		$this->assertEquals(true, $result, "event has not been cancelled");
 		$this->assertEquals(3, count($args), "event handler has been called");
 		$this->assertEquals("aaa", $args['1'], "arguments passed along");
@@ -279,26 +279,26 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$execute = 0;
 		$inform = 0;
 		$callbackInvocation = 0;
-		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip option turned on');
+		$this->assertEquals(true, TemplateEngine::option('gzip'), 'gzip option turned on');
 		$argsEval = array();
 		$argsExecute = array();
 		$argsInform = array();
-		TemplateEngine :: on('set_option', function($name, $value) use (&$argsEval, &$eval, &$callbackInvocation) {
+		TemplateEngine::on('set_option', function($name, $value) use (&$argsEval, &$eval, &$callbackInvocation) {
 			$argsEval['name'] = $name;
 			$argsEval['value'] = $value;
 			$eval = ++$callbackInvocation;
-		}, TEEventPhase :: evaluate);
-		TemplateEngine :: on('set_option', function($name, $value) use (&$argsExecute, &$execute, &$callbackInvocation) {
+		}, TEEventPhase::evaluate);
+		TemplateEngine::on('set_option', function($name, $value) use (&$argsExecute, &$execute, &$callbackInvocation) {
 			$argsExecute['name'] = $name;
 			$argsExecute['value'] = $value;
 			$execute = ++$callbackInvocation;
-		}, TEEventPhase :: execute);
-		TemplateEngine :: on('set_option', function($name, $value) use (&$argsInform, &$inform, &$callbackInvocation) {
+		}, TEEventPhase::execute);
+		TemplateEngine::on('set_option', function($name, $value) use (&$argsInform, &$inform, &$callbackInvocation) {
 			$argsInform['name'] = $name;
 			$argsInform['value'] = $value;
 			$inform = ++$callbackInvocation;
-		}, TEEventPhase :: inform);
-		TemplateEngine :: option('gzip', false);
+		}, TEEventPhase::inform);
+		TemplateEngine::option('gzip', false);
 		$this->assertEquals(2, count($argsEval), "event handler has been called");
 		$this->assertEquals("gzip", $argsEval['name'], "option name passed along");
 		$this->assertEquals(false, $argsEval['value'], "new option value passed along");
@@ -314,7 +314,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals(false, $argsInform['value'], "new option value passed along");
 		$this->assertEquals(3, $inform, "inform event handler has been called third");
 
-		$this->assertEquals(false, TemplateEngine :: option('gzip'), 'gzip option turned off');
+		$this->assertEquals(false, TemplateEngine::option('gzip'), 'gzip option turned off');
 	}
 
 	public function testInhibitSetOption() {
@@ -322,27 +322,27 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$execute = 0;
 		$inform = 0;
 		$callbackInvocation = 0;
-		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip option turned on');
+		$this->assertEquals(true, TemplateEngine::option('gzip'), 'gzip option turned on');
 		$argsEval = array();
 		$argsExecute = array();
 		$argsInform = array();
-		TemplateEngine :: on('set_option', function($name, $value) use (&$argsEval, &$eval, &$callbackInvocation) {
+		TemplateEngine::on('set_option', function($name, $value) use (&$argsEval, &$eval, &$callbackInvocation) {
 			$argsEval['name'] = $name;
 			$argsEval['value'] = $value;
 			$eval = ++$callbackInvocation;
 			return false;
-		}, TEEventPhase :: evaluate);
-		TemplateEngine :: on('set_option', function($name, $value) use (&$argsExecute, &$execute, &$callbackInvocation) {
+		}, TEEventPhase::evaluate);
+		TemplateEngine::on('set_option', function($name, $value) use (&$argsExecute, &$execute, &$callbackInvocation) {
 			$argsExecute['name'] = $name;
 			$argsExecute['value'] = $value;
 			$execute = ++$callbackInvocation;
-		}, TEEventPhase :: execute);
-		TemplateEngine :: on('set_option', function($name, $value) use (&$argsInform, &$inform, &$callbackInvocation) {
+		}, TEEventPhase::execute);
+		TemplateEngine::on('set_option', function($name, $value) use (&$argsInform, &$inform, &$callbackInvocation) {
 			$argsInform['name'] = $name;
 			$argsInform['value'] = $value;
 			$inform = ++$callbackInvocation;
-		}, TEEventPhase :: inform);
-		TemplateEngine :: option('gzip', false);
+		}, TEEventPhase::inform);
+		TemplateEngine::option('gzip', false);
 		$this->assertEquals(2, count($argsEval), "event handler has been called");
 		$this->assertEquals("gzip", $argsEval['name'], "option name passed along");
 		$this->assertEquals(false, $argsEval['value'], "new option value passed along");
@@ -354,19 +354,19 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 		$this->assertEquals(0, count($argsInform), "event handler has been called");
 		$this->assertEquals(0, $inform, "inform event handler has been called third");
 
-		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip option still turned on');
+		$this->assertEquals(true, TemplateEngine::option('gzip'), 'gzip option still turned on');
 	}
 
 	public function testStaticInitEvent() {
-		TemplateEngine :: set('static_init', '');
-		TemplateEngine :: set('init', '');
+		TemplateEngine::set('static_init', '');
+		TemplateEngine::set('init', '');
 		$this->assertEquals('', TemplateEngine::get('static_init'), 'static_init is empty');
 		$this->assertEquals('', TemplateEngine::get('init'), 'init is empty');
-		TemplateEngine :: on('static_init', function() {
-			TemplateEngine :: set('static_init', 'yes');
+		TemplateEngine::on('static_init', function() {
+			TemplateEngine::set('static_init', 'yes');
 		});
-		TemplateEngine :: on('init', function() {
-			TemplateEngine :: set('init', 'yes');
+		TemplateEngine::on('init', function() {
+			TemplateEngine::set('init', 'yes');
 		});
 		$this->assertEquals("yes##", trim(TemplateEngine::processTemplate('te-core-static_init.tpl', false)), 'static_init = yes#init = #');
 		$this->assertEquals('yes', TemplateEngine::get('static_init'), 'static_init is defined');
@@ -374,15 +374,15 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	}
 
 	public function testStaticAndSessionInitEvent() {
-		TemplateEngine :: set('static_init', '');
-		TemplateEngine :: set('init', '');
+		TemplateEngine::set('static_init', '');
+		TemplateEngine::set('init', '');
 		$this->assertEquals('', TemplateEngine::get('static_init'), 'static_init is empty');
 		$this->assertEquals('', TemplateEngine::get('init'), 'init is empty');
-		TemplateEngine :: on('static_init', function() {
-			TemplateEngine :: set('static_init', 'yes');
+		TemplateEngine::on('static_init', function() {
+			TemplateEngine::set('static_init', 'yes');
 		});
-		TemplateEngine :: on('init', function() {
-			TemplateEngine :: set('init', 'yes');
+		TemplateEngine::on('init', function() {
+			TemplateEngine::set('init', 'yes');
 		});
 		$this->assertEquals("yes#yes#", trim(TemplateEngine::processTemplate('te-core-init.tpl', true)), 'static_init = yes#init = yes#');
 		$this->assertEquals('yes', TemplateEngine::get('static_init'), 'static_init is defined');
@@ -391,7 +391,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 	public function testOutput() {
 		ob_start();
-		TemplateEngine :: set('output_test', 'huge success');
+		TemplateEngine::set('output_test', 'huge success');
 		TemplateEngine::output('te-core-output.tpl', false);
 		$result = ob_get_contents();
 		ob_end_clean();
@@ -401,7 +401,7 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	public function testOutputGzip() {
 		ob_start();
 		$_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip';
-		TemplateEngine :: set('output_test', 'huge success');
+		TemplateEngine::set('output_test', 'huge success');
 		TemplateEngine::output('te-core-output.tpl', false);
 		$result = ob_get_contents();
 		ob_end_clean();
@@ -410,26 +410,26 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 	public function testMessagingConvenienceFunctions() {
 		/* RM */require_once('plugins/TE_FOREACH_INLINE.php');/* /RM */
-		TemplateEngine :: Error('some error');
-		TemplateEngine :: Warning('some warning');
-		TemplateEngine :: Info('some info');
+		TemplateEngine::Error('some error');
+		TemplateEngine::Warning('some warning');
+		TemplateEngine::Info('some info');
 		$this->assertEquals("error: some error;warning: some warning;info: some info;", trim(TemplateEngine::processTemplate('te-core-error-warning-info.tpl', true)), 'errors, warnings and infos');
 	}
 
 	public function testNonStaticCallRerouting() {
-		TemplateEngine :: set('rerouted_set', '');
+		TemplateEngine::set('rerouted_set', '');
 		$this->assertEquals('', TemplateEngine::get('rerouted_set'), 'rerouted_set is empty');
-		$te = TemplateEngine :: Inst();
+		$te = TemplateEngine::Inst();
 		$te->set('rerouted_set', 'succeeded');
-		$this->assertEquals('succeeded', TemplateEngine :: get('rerouted_set'), 'set call on TemplateEngine object redirected to the static set class function');
+		$this->assertEquals('succeeded', TemplateEngine::get('rerouted_set'), 'set call on TemplateEngine object redirected to the static set class function');
 	}
 
 	public function testWarningWhileRunning() {
 		$this->assertEquals(0, count(TemplateEngine::get('TE_WARNINGS')), 'no warnings in array');
-		TemplateEngine :: Warning("some warning");
+		TemplateEngine::Warning("some warning");
 		$this->assertEquals(1, count(TemplateEngine::get('TE_WARNINGS')), '1 warning in array (self test)');
-		TemplateEngine :: on('static_init', function() {
-			TemplateEngine :: Warning("some other warning");
+		TemplateEngine::on('static_init', function() {
+			TemplateEngine::Warning("some other warning");
 		});
 		TemplateEngine::processTemplate('te-core-test_warning_while_running.tpl', true);
 		$this->assertEquals(1, count(TemplateEngine::get('TE_WARNINGS')), 'no additional warnings in array');
@@ -445,26 +445,26 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 	public function testDisablingSecuritySettingsShowsAWarning() {
 		$logs = array();
-		TemplateEngine :: on('log', function($msg, $success, $mode) use (&$logs) {
+		TemplateEngine::on('log', function($msg, $success, $mode) use (&$logs) {
 			$logs[] = array($msg, $success, $mode);
 		});
-		TemplateEngine :: option('force_tpl_extension', false);
-		TemplateEngine :: option('jail_to_template_path', false);
+		TemplateEngine::option('force_tpl_extension', false);
+		TemplateEngine::option('jail_to_template_path', false);
 		$this->assertEquals(1, count($logs));
 	}
 
 	public function testDebugFiles() {
-		TemplateEngine :: option('debug_files', true);
+		TemplateEngine::option('debug_files', true);
 		$expected = "<!-- start templates/te-core-debug-files.tpl -->\nFile content\n<!-- end templates/te-core-debug-files.tpl -->";
-		$actual = trim(TemplateEngine :: processTemplate('te-core-debug-files.tpl', false));
+		$actual = trim(TemplateEngine::processTemplate('te-core-debug-files.tpl', false));
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function testPrintTimingStatistics() {
 		ob_start();
-		TemplateEngine :: option('timing', true);
-		TemplateEngine :: processTemplate('te-core-output.tpl', false);
-		TemplateEngine :: shutdown_function();
+		TemplateEngine::option('timing', true);
+		TemplateEngine::processTemplate('te-core-output.tpl', false);
+		TemplateEngine::shutdown_function();
 		$result = ob_get_contents();
 		ob_end_clean();
 		$tree = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><result>' . $result . '</result>');
@@ -493,9 +493,9 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 
 	public function testPrintPluginProfiling() {
 		ob_start();
-		TemplateEngine :: option('plugin_profiling', true);
-		TemplateEngine :: processTemplate('te-core-output.tpl', false);
-		TemplateEngine :: shutdown_function();
+		TemplateEngine::option('plugin_profiling', true);
+		TemplateEngine::processTemplate('te-core-output.tpl', false);
+		TemplateEngine::shutdown_function();
 		$result = ob_get_contents();
 		ob_end_clean();
 		$tree = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><result>' . $result . '</result>');
@@ -529,17 +529,17 @@ class TemplateEngineCoreTest extends TemplateEngineTestBase
 	}
 
 	public function testDisablingBuiltInErrorHandlerDisablesGzipping() {
-		$this->assertEquals(true, TemplateEngine :: option('gzip'), 'gzip should be enabled by default');
-		TemplateEngine :: useTEErrorHandler(false);
-		$this->assertEquals(false, TemplateEngine :: option('gzip'), 'gzip should be disabled if the built in error handler is not used (because php could print errors itself and gzipping the response would break it)');
+		$this->assertEquals(true, TemplateEngine::option('gzip'), 'gzip should be enabled by default');
+		TemplateEngine::useTEErrorHandler(false);
+		$this->assertEquals(false, TemplateEngine::option('gzip'), 'gzip should be disabled if the built in error handler is not used (because php could print errors itself and gzipping the response would break it)');
 	}
 
 	public function testDumpVariables() {
 		ob_start();
-		TemplateEngine :: option('dump_variables', true);
-		TemplateEngine :: set('MY_TEST_VAR', 'MY_TEST_VALUE');
-		TemplateEngine :: processTemplate('te-core-output.tpl', false);
-		TemplateEngine :: shutdown_function();
+		TemplateEngine::option('dump_variables', true);
+		TemplateEngine::set('MY_TEST_VAR', 'MY_TEST_VALUE');
+		TemplateEngine::processTemplate('te-core-output.tpl', false);
+		TemplateEngine::shutdown_function();
 		$result = ob_get_contents();
 		ob_end_clean();
 		$this->assertGreaterThan(-1, strstr($result, 'MY_TEST_VAR'), 'MY_TEST_VAR variable should be dumped');

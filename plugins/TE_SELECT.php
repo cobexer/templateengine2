@@ -19,13 +19,13 @@ function TE_PLUGIN_TE_SELECT(array $ctx, array $match) {
 		$val = $ctx[$match[1]];
 	}
 	else {
-		TemplateEngine :: lookupVar($match[1], $val);
+		TemplateEngine::lookupVar($match[1], $val);
 	}
 	if(!is_array($val)) {
-		TemplateEngine :: LogMsg('[TE_SELECT]: Array <em>"'.$match[1].'"</em> not set or invalid', false, TEMode :: error);
+		TemplateEngine::LogMsg('[TE_SELECT]: Array <em>"'.$match[1].'"</em> not set or invalid', false, TEMode::error);
 		return false;
 	}
-	TemplateEngine :: LogMsg('[TE_SELECT]: rendering Array <em>"'.$match[1].'"</em>', true, TEMode :: debug);
+	TemplateEngine::LogMsg('[TE_SELECT]: rendering Array <em>"'.$match[1].'"</em>', true, TEMode::debug);
 	$value = '';
 	foreach($val as $index => $values) {
 		unset($value);
@@ -37,7 +37,7 @@ function TE_PLUGIN_TE_SELECT(array $ctx, array $match) {
 			$value = $values['value'];
 		}
 		else {
-			TemplateEngine :: LogMsg('[TE_SELECT]: invalid array item at index ' . $index, false, TEMode :: error);
+			TemplateEngine::LogMsg('[TE_SELECT]: invalid array item at index ' . $index, false, TEMode::error);
 		}
 		if (isset($values['NAME'])) {
 			$name = $values['NAME'];
@@ -46,7 +46,7 @@ function TE_PLUGIN_TE_SELECT(array $ctx, array $match) {
 			$name = $values['name'];
 		}
 		else {
-			TemplateEngine :: LogMsg('[TE_SELECT]: invalid array item at index ' . $index, false, TEMode :: error);
+			TemplateEngine::LogMsg('[TE_SELECT]: invalid array item at index ' . $index, false, TEMode::error);
 		}
 		array_push($html, "\t<option");
 		if (isset($value)) {
@@ -57,6 +57,6 @@ function TE_PLUGIN_TE_SELECT(array $ctx, array $match) {
 	return implode('', $html);
 }
 
-TemplateEngine :: registerPlugin('TE_SELECT', '/\{SELECT=(' . TE_regex_varname . ')\}/', 'TE_PLUGIN_TE_SELECT');
+TemplateEngine::registerPlugin('TE_SELECT', '/\{SELECT=(' . TE_regex_varname . ')\}/', 'TE_PLUGIN_TE_SELECT');
 
 //EOF

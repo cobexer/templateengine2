@@ -14,11 +14,11 @@
 
 function TE_PLUGIN_TE_LOAD(array $ctx, array $match) {
 	$content = '';
-	TemplateEngine :: LogMsg('[LOAD]', true, TEMode :: debug, false);
-	$succ = TemplateEngine :: getFile($match[1], $content);
+	TemplateEngine::LogMsg('[LOAD]', true, TEMode::debug, false);
+	$succ = TemplateEngine::getFile($match[1], $content);
 	return $succ ? $content : false;
 }
 
-TemplateEngine :: registerPlugin('TE_LOAD', '/\{LOAD=([^\{\}]+)\}/', 'TE_PLUGIN_TE_LOAD');
+TemplateEngine::registerPlugin('TE_LOAD', '/\{LOAD=([^\{\}]+)\}/', 'TE_PLUGIN_TE_LOAD');
 
 //EOF

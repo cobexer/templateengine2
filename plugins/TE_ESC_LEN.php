@@ -22,6 +22,6 @@ function TE_PLUGIN_ESC_LEN($value, $config) {
 	return 0; //everything else is unknown atm
 }
 
-TemplateEngine :: registerEscapeMethod('LEN', 'TE_PLUGIN_ESC_LEN');
+TemplateEngine::registerEscapeMethod('LEN', 'TE_PLUGIN_ESC_LEN');
 
 //EOF
