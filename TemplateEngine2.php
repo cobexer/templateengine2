@@ -11,7 +11,7 @@
  * @version @VERSION@ (@COMMIT@)
  * @package TemplateEngine2
  */
-$te_setup_filename = dirname(realpath(__FILE__)) . '/TE_setup2.php';
+$te_setup_filename = __DIR__ . '/TE_setup2.php';
 if (file_exists($te_setup_filename)) {
 	require_once($te_setup_filename);
 }
@@ -23,10 +23,10 @@ const TE_regex_escape_method = '[A-Z_]+';
  * class TEMode specifies the mode for the messages the TemplateEngine will display
  */
 final class TEMode {
-	const debug =  0;
+	const debug = 0;
 	const warning = 5;
 	const error = 10;
-	const none =  15;
+	const none = 15;
 }
 
 /**
@@ -322,8 +322,8 @@ class TemplateEngine {
 
 	/**
 	 * setEscapeMethodConfig
-	 * @param string $method string name of the escape/formatter method
-	 * @param TemplateEngineCoreTest $config mixed method configuration
+	 * @param string $method name of the escape/formatter method
+	 * @param mixed $config method configuration
 	 * @return void
 	 */
 	public static function setEscapeMethodConfig($method, $config) {
@@ -332,8 +332,8 @@ class TemplateEngine {
 
 	/**
 	 * getEscapeMethodConfig
-	 * @param string $method string name of the escape/formatter method
-	 * @return $config mixed method configuration or null
+	 * @param string $method name of the escape/formatter method
+	 * @return mixed $config method configuration or null
 	 */
 	public static function getEscapeMethodConfig($method) {
 		return isset(self::$escapeMethodConfig[$method]) ? self::$escapeMethodConfig[$method] : null;
@@ -351,7 +351,7 @@ class TemplateEngine {
 			self::LogMsg('Escape method <em>' . $escaper . '</em> unknown!');
 			return $value;
 		}
-		return call_user_func_array(self::$escapeMethod[$escaper], array($value, self::getEscapeMethodConfig($escaper)));
+		return call_user_func(self::$escapeMethod[$escaper], $value, self::getEscapeMethodConfig($escaper));
 	}
 
 	/**
@@ -359,7 +359,7 @@ class TemplateEngine {
 	 * register the given plugin for mathes of the given regular expression
 	 * @throws TEPluginRegexInvalidException if the regular expression is invalid
 	 * @throws TEPluginCallbackInvalidException if the callback does not exist.
-	 * @param string $plugin string the name of the plugin to register(must be unique)
+	 * @param string $plugin the name of the plugin to register(must be unique)
 	 * @param string $regex the regular expression whose matches will be handled by the callback
 	 * @param callback $callback the function to call with any found match
 	 * @return void
@@ -371,6 +371,9 @@ class TemplateEngine {
 		}
 		if (is_array($callback)) {
 			$callbackValid = 2 === count($callback) && method_exists($callback[0], $callback[1]);
+		}
+		elseif (is_object($callback) && $callback instanceof Closure) {
+			$callbackValid = is_callable($callback);
 		}
 		else {
 			$callbackValid = function_exists($callback);
@@ -391,7 +394,7 @@ class TemplateEngine {
 	/**
 	 * unregisterPlugin
 	 * unregister the plugin with the given name
-	 * @param string $plugin string the name of the plugin to unregister
+	 * @param string $plugin the name of the plugin to unregister
 	 * @return void
 	 */
 	public static function unregisterPlugin($plugin) {
@@ -418,6 +421,20 @@ class TemplateEngine {
 	}
 
 	/**
+	 * fixupPath
+	 * make sure the path ends with a slash
+	 * @param string $path path to be checked
+	 * @return string path with guaranteed / at the end
+	 */
+	private static function fixupPath($path) {
+		$len = strlen($path);
+		if($len && !('/' == $path[$len - 1])) {
+			$path .= '/';
+		}
+		return $path;
+	}
+
+	/**
 	 * setBaseTemplatePath
 	 * sets the path tho a base template, in case the current template requests a
 	 * file that does not exist in the current template, but does exist in the base
@@ -425,15 +442,11 @@ class TemplateEngine {
 	 * template file was included in the current template.
 	 * <strong>Note: {TEMPLATE_PATH} will point to the current template, not the base
 	 * template, thus references to CSS/... will FAIL when requested from the browser</strong>
-	 * @param string $path string path of the base template files
+	 * @param string $path path of the base template files
 	 * @return void
 	 */
 	public static function setBaseTemplatePath($path) {
-		$len = strlen($path);
-		if($len && !('/' == $path[$len - 1])) {
-			$path .= '/';
-		}
-		self::$baseTemplatePath = $path;
+		self::$baseTemplatePath = self::fixupPath($path);
 	}
 
 	/**
@@ -441,15 +454,11 @@ class TemplateEngine {
 	 * tell the TemplateEngine where to search for the template files
 	 * the template path is available to templates as: {TEMPLATE_PATH}
 	 * <strong>Note: this path will always end with a /</strong>
-	 * @param string $path string the path of the template files
+	 * @param string $path the path of the template files
 	 * @return void
 	 */
 	public static function setTemplatePath($path) {
-		$len = strlen($path);
-		if($len && !('/' == $path[$len - 1])) {
-			$path .= '/';
-		}
-		self::$templatePath = $path;
+		self::$templatePath = self::fixupPath($path);
 		//set the template Path so templates can use it
 		self::set('TEMPLATE_PATH', self::$rootPath . self::$templatePath);
 	}
@@ -466,15 +475,12 @@ class TemplateEngine {
 	 * sets the root path of the application directory seen from the browser!
 	 * the root path is available to the templates as {ROOT_PATH}
 	 * <strong>Note: this path will always end with a /</strong>
-	 * @param string $path string the root path of the application as seen by the browser
+	 * @param string $path the root path of the application as seen by the browser
 	 * @return void
 	 */
+	//FIXME: add tests for '', and other values, check the effect of the changed behavior
 	public static function setRootPath($path) {
-		$len = strlen($path);
-		if($len === 0 || !('/' == $path[$len - 1])) {
-			$path .= '/';
-		}
-		self::$rootPath = $path;
+		self::$rootPath = self::fixupPath($path);
 		//set the root Path so templates can use it
 		self::set('ROOT_PATH', self::$rootPath);
 		self::set('TEMPLATE_PATH', self::$rootPath . self::$templatePath);
@@ -697,7 +703,7 @@ class TemplateEngine {
 	}
 	/**
 	 * setTitle
-	 * set the page title accessible for templates using
+	 * set the page title accessible for templates using the variable PAGE_TITLE
 	 * @param string $title
 	 * @return void
 	 */
@@ -712,7 +718,7 @@ class TemplateEngine {
 	 * @return void
 	 */
 	public static function header($html) {
-		self::$variables['HEADER_TEXT'] .= "\t" . $html . "\n";
+		self::$variables['HEADER_TEXT'] .= "\t$html\n";
 	}
 	/**
 	 * addCSS
@@ -796,7 +802,7 @@ class TemplateEngine {
 	/**
 	 * captureTime
 	 * captures the number of milliseconds elapsed since the first call to this function(done on TE include)
-	 * @param string $milestone string name of the milestone
+	 * @param string $milestone name of the milestone
 	 * @return void
 	 */
 	public static function captureTime($milestone) {
@@ -907,7 +913,9 @@ class TemplateEngine {
 	/**
 	 * on
 	 * register an event handler for the given event
-	 * @param string $event
+	 * @param string $event name of the event to register
+	 * @param callback $callback the callback to invoke
+	 * @param enum $phase the phase during which the handler wants to be invoked @see TEEventPhase
 	 */
 	public static function on($event, $callback, $phase = TEEventPhase::inform) {
 		if (!isset(self::$handlers[$event]) || null === self::$handlers[$event]) {
@@ -946,7 +954,7 @@ class TemplateEngine {
 	/**
 	 * setMode
 	 * set the log level to the given mode, only if the mode haas not been forced otherwise
-	 * @param $mode @see TEMode
+	 * @param enum $mode @see TEMode
 	 * @return void
 	 */
 	public static function setMode($mode) {
@@ -992,17 +1000,24 @@ class TemplateEngine {
 	 * @return array($success, $templatePath or null, $fullFilename or null)
 	 */
 	private static function doLookupFilePath($filename) {
+		$success = false;
+		$tplPath = null;
+		$name = null;
 		$fname = realpath(self::$rootPath . self::$templatePath . $filename);
 		if (false !== $fname && file_exists($fname) && is_readable($fname)) {
-			return array(true, self::$templatePath, $fname);
+			$success = true;
+			$tplPath = self::$templatePath;
+			$name = $fname;
 		}
 		elseif (!empty(self::$baseTemplatePath)) {
 			$fname = realpath(self::$rootPath . self::$baseTemplatePath . $filename);
 			if (false !== $fname && file_exists($fname) && is_readable($fname)) {
-				return array(true, self::$baseTemplatePath, $fname);
+				$success = true;
+				$tplPath = self::$baseTemplatePath;
+				$name = $fname;
 			}
 		}
-		return array(false, null, null);
+		return array($success, $tplPath, $name);
 	}
 
 	/**
@@ -1013,13 +1028,14 @@ class TemplateEngine {
 	 * @return boolean true if access is allowed, false if not
 	 */
 	private static function checkJail($templatePath, $fname) {
+		$success = true;
 		if (self::option('jail_to_template_path')) {
 			$tplpath = realpath(self::$rootPath . $templatePath);
 			if (0 !== strncmp($tplpath, $fname, strlen($tplpath))) {
-				return false;
+				$success = false;
 			}
 		}
-		return true;
+		return $success;
 	}
 
 	/**
@@ -1124,6 +1140,7 @@ class TemplateEngine {
 	public static function lookupFile($name) {
 		list($success, $templatePath, $fname) = self::doLookupFilePath($name);
 		if (true === $success && self::checkJail($templatePath, $fname)) {
+			//TODO: replace str_replace with a substring and concatenation
 			return str_replace(realpath(self::$rootPath) . '/', self::$rootPath, $fname);
 		}
 		return null;
@@ -1145,10 +1162,14 @@ class TemplateEngine {
 		self::on('set_option', array('TemplateEngine', '_set_option_handler'), TEEventPhase::inform);
 		self::on('log', array('TemplateEngine', '_log'), TEEventPhase::execute);
 		if (function_exists('TE_static_setup')) {
-			self::on('static_init', array('TemplateEngine', '_static_init'), TEEventPhase::execute);
+			self::on('static_init', function($te) {
+				TE_static_setup();
+			}, TEEventPhase::execute);
 		}
 		if (function_exists('TE_setup')) {
-			self::on('init', array('TemplateEngine', '_init'), TEEventPhase::execute);
+			self::on('init', function($te) {
+				TE_setup();
+			}, TEEventPhase::execute);
 		}
 	}
 
@@ -1158,14 +1179,6 @@ class TemplateEngine {
 			'success' => $success,
 			'msg' => $msg,
 		);
-	}
-
-	private static function _static_init($te) {
-		TE_static_setup();
-	}
-
-	private static function _init($te) {
-		TE_setup();
 	}
 
 	private static function _set_option_handler($name, $value) {
@@ -1219,7 +1232,7 @@ TemplateEngine::option('dump_variables', isset($_GET['te_dump']));
  * @param array $errcontext unused data that might be given by php
  */
 function TE_php_err_handler($errno, $errstr, $errfile = '', $errline = '', $errcontext = array()) {
-	TemplateEngine::LogMsg("#$errno: $errstr @$errfile($errline)", false, TEMode::error);
+	TemplateEngine::LogMsg("#$errno: $errstr @$errfile:$errline", false, TEMode::error);
 }
 
 /**

@@ -12,11 +12,7 @@
  * @package TemplateEngine2
  */
 
-function TE_PLUGIN_TE_ASSET(array $ctx, array $match) {
+TemplateEngine::registerPlugin('TE_ASSET', '/\{ASSET:([^\{\}]+)\}/', function(array $ctx, array $match) {
 	$path = TemplateEngine::lookupFile($match[1]);
 	return $path ? $path : false;
-}
-
-TemplateEngine::registerPlugin('TE_ASSET', '/\{ASSET:([^\{\}]+)\}/', 'TE_PLUGIN_TE_ASSET');
-
-//EOF
+});

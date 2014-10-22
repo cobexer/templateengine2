@@ -12,7 +12,7 @@
  * @package TemplateEngine2
  */
 
-function TE_PLUGIN_ESC_LEN($value, $config) {
+TemplateEngine::registerEscapeMethod('LEN', function($value, $config) {
 	if(is_array($value)) {
 		return count($value);
 	}
@@ -20,8 +20,4 @@ function TE_PLUGIN_ESC_LEN($value, $config) {
 		return strlen($value);
 	}
 	return 0; //everything else is unknown atm
-}
-
-TemplateEngine::registerEscapeMethod('LEN', 'TE_PLUGIN_ESC_LEN');
-
-//EOF
+});
