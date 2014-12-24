@@ -5,7 +5,7 @@
 # @author Obexer Christoph
 #
 
-BUILD_DIR = build
+BUILD_DIR ?= build
 TESTS_DIR = tests
 PLUGINS_DIR = plugins
 
@@ -43,7 +43,7 @@ release: clean build-plugins-dir ${PLUGINS} release-plugins.txt export-base-test
 	@cat -s ${TE_RELEASE_NAME} > ${TE_RELEASE_NAME}.tmp
 	@mv ${TE_RELEASE_NAME}.tmp ${TE_RELEASE_NAME}
 ifneq ($(TESTS),skip)
-	$(Q)$(MAKE) -C ${BUILD_DIR}/ tests
+	$(Q)$(MAKE) -C ${BUILD_DIR}/ BUILD_DIR=. tests
 endif
 	@echo "built release version: TemplateEngine2 ${TE_VER} of ${TE_DATE} (${TE_COMMIT})"
 
@@ -102,7 +102,8 @@ ${TE_RELEASE_PLUGINS}:
 	fi
 
 tests:
-	@phpunit -c phpunit.xml --tap
+	@mkdir -p ${BUILD_DIR}/testresults/
+	@phpunit -c phpunit.xml --tap --log-junit ${BUILD_DIR}/testresults/phpunit.xml
 
 
 coverage:
