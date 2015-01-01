@@ -1,6 +1,6 @@
 #
 # TemplateEngine2 PHP Templating System
-# @copyright Copyright 2011-2014, Obexer Christoph
+# @copyright Copyright 2011-2015, Obexer Christoph
 # Dual licensed under the MIT or GPL Version 2 licenses.
 # @author Obexer Christoph
 #
